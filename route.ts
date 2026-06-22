@@ -3,7 +3,7 @@ import Anthropic from '@anthropic-ai/sdk';
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-// AKSID Driver roster — matches "List" sheet in Excel
+// AKSID Driver roster â matches "List" sheet in Excel
 const DRIVER_LIST: Record<string, { department: string; id: string }> = {
   'Sumon Khan':      { department: 'Management Expense',           id: '150400004' },
   'Md Hanif':        { department: 'Foreign Project Department',    id: '160900038' },
@@ -41,15 +41,15 @@ async function urlToBase64(url: string): Promise<{ base64: string; mediaType: st
 async function extractFromImage(base64: string, mediaType: string) {
   const PROMPT = `You are an AI assistant extracting structured data from AKSID Corporation car fuel bill documents.
 The documents may be in English or Bengali. Types you may see:
-  1. Fuel receipt (gas station – Jamuna/Padma/Shell etc.) → amounts go to fuel_cost
-  2. Toll receipt (Dhaka Elevated Expressway, etc.) → amounts go to toll
-  3. Food bill / Fund Requisition Slip → amounts go to food_bill (transport bill → others)
-  4. Driver Log (handwritten table) → extract km_start, km_end, vehicle_no, driver_name, date
-  5. Car Fuel Bill Summary form → extract all columns
-  6. Parking receipt → car_parking
-  7. Hotel receipt → hotel
-  8. Police fine → police_fine
-  9. Maintenance/repair → maintenance
+  1. Fuel receipt (gas station â Jamuna/Padma/Shell etc.) â amounts go to fuel_cost
+  2. Toll receipt (Dhaka Elevated Expressway, etc.) â amounts go to toll
+  3. Food bill / Fund Requisition Slip â amounts go to food_bill (transport bill â others)
+  4. Driver Log (handwritten table) â extract km_start, km_end, vehicle_no, driver_name, date
+  5. Car Fuel Bill Summary form â extract all columns
+  6. Parking receipt â car_parking
+  7. Hotel receipt â hotel
+  8. Police fine â police_fine
+  9. Maintenance/repair â maintenance
 
 Return ONLY valid JSON (no markdown, no extra text):
 {
@@ -99,7 +99,7 @@ Numbers without currency symbols. Null when you cannot read it clearly.`;
   }
 }
 
-// ── Main API handler ──────────────────────────────────────────────
+// ââ Main API handler ââââââââââââââââââââââââââââââââââââââââââââââ
 export async function POST(request: NextRequest) {
   try {
     // Verify webhook secret
@@ -192,7 +192,20 @@ export async function POST(request: NextRequest) {
     ) undetected.push('Bill amounts (could not read any amount)');
     if (!driverInfo)        undetected.push('Department (driver not in roster)');
 
-    return NextResponse.json({
+    // Forward extracted data to Make.com → Excel + Email
+    if (process.env.MAKE_WEBHOOK_URL) {
+      try {
+        await fetch(process.env.MAKE_WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ entry }),
+        });
+      } catch (webhookErr) {
+        console.error('Make.com webhook error:', webhookErr);
+      }
+    }
+
+        return NextResponse.json({
       success: true,
       entry,
       raw_extractions: valid,
