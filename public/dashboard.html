@@ -4,163 +4,514 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AKSID Car Fuel Bill Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',sans-serif;background:#f0f2f5;color:#1a1a2e}
-.header{background:linear-gradient(135deg,#1a1a2e,#16213e);color:white;padding:0 24px;height:58px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,.3)}
-.header-title{font-size:18px;font-weight:700}
-.header-right{display:flex;align-items:center;gap:14px;font-size:13px}
-.last-updated{color:#a0aec0;font-size:12px}
-.btn-refresh{background:#38a169;color:white;border:none;padding:7px 16px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer}
-.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;padding:18px 20px 0}
-.kpi-card{background:white;border-radius:10px;padding:18px;box-shadow:0 1px 4px rgba(0,0,0,.08);border-left:4px solid #e63946}
-.kpi-card.blue{border-left-color:#0078d4}.kpi-card.green{border-left-color:#38a169}.kpi-card.orange{border-left-color:#dd6b20}.kpi-card.purple{border-left-color:#805ad5}
-.kpi-label{font-size:11px;color:#718096;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
-.kpi-value{font-size:26px;font-weight:800;color:#1a1a2e;margin:5px 0 2px}
-.kpi-sub{font-size:11px;color:#a0aec0}
-.filters{background:white;margin:14px 20px 0;border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;box-shadow:0 1px 4px rgba(0,0,0,.08)}
-.filter-group{display:flex;align-items:center;gap:8px}
-.filter-group label{font-size:12px;font-weight:700;color:#4a5568;white-space:nowrap}
-select,input[type=text]{border:1px solid #e2e8f0;border-radius:6px;padding:6px 10px;font-size:13px;color:#1a1a2e;background:white;cursor:pointer}
-select:focus,input[type=text]:focus{outline:none;border-color:#0078d4}
-.search-input{min-width:180px}
-.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:14px 20px 0}
-.chart-card{background:white;border-radius:10px;padding:18px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
-.chart-card h3{font-size:13px;font-weight:700;color:#4a5568;margin-bottom:14px}
-.chart-wrap{position:relative;height:190px}
-.table-card{background:white;margin:14px 20px 24px;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.08);overflow:hidden}
-.table-top{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e2e8f0}
-.table-top h3{font-size:14px;font-weight:700}
-.record-count{font-size:12px;color:#718096}
-.table-wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:12px;min-width:900px}
-th{background:#f7fafc;padding:9px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#718096;border-bottom:1px solid #e2e8f0;white-space:nowrap;cursor:pointer;user-select:none}
-th:hover{color:#0078d4;background:#edf2f7}
-td{padding:10px 12px;border-bottom:1px solid #f0f4f8;vertical-align:middle}
-tr:hover td{background:#f7fafc}
-tr:last-child td{border-bottom:none}
-.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700}
-.badge-pending{background:#fef3c7;color:#92400e}
-.badge-approved{background:#d1fae5;color:#065f46}
-.badge-rejected{background:#fee2e2;color:#991b1b}
-.amount{font-weight:700}
-.muted{color:#a0aec0;font-size:11px}
-.demo-banner{background:#0078d4;color:white;text-align:center;padding:8px;font-size:13px;font-weight:600}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: #1a1a2e; }
+#login-screen { display: none; }
+.header {
+  background: linear-gradient(135deg, #1a1a2e, #16213e); color: white;
+  padding: 0 24px; height: 58px; display: flex; align-items: center;
+  justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,.3);
+}
+.header-title { font-size: 18px; font-weight: 700; }
+.header-right { display: flex; align-items: center; gap: 14px; font-size: 13px; }
+.last-updated { color: #a0aec0; font-size: 12px; }
+.btn-refresh {
+  background: #38a169; color: white; border: none; padding: 7px 16px;
+  border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.btn-refresh:hover { background: #2f855a; }
+.kpi-row {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px; padding: 18px 20px 0;
+}
+.kpi-card {
+  background: white; border-radius: 10px; padding: 18px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08); border-left: 4px solid #e63946;
+}
+.kpi-card.blue { border-left-color: #0078d4; }
+.kpi-card.green { border-left-color: #38a169; }
+.kpi-card.orange { border-left-color: #dd6b20; }
+.kpi-card.purple { border-left-color: #805ad5; }
+.kpi-label { font-size: 11px; color: #718096; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+.kpi-value { font-size: 26px; font-weight: 800; color: #1a1a2e; margin: 5px 0 2px; }
+.kpi-sub { font-size: 11px; color: #a0aec0; }
+.filters {
+  background: white; margin: 14px 20px 0; border-radius: 10px; padding: 14px 18px;
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08);
+}
+.filter-group { display: flex; align-items: center; gap: 8px; }
+.filter-group label { font-size: 12px; font-weight: 700; color: #4a5568; white-space: nowrap; }
+select, input[type="text"] {
+  border: 1px solid #e2e8f0; border-radius: 6px; padding: 6px 10px;
+  font-size: 13px; color: #1a1a2e; background: white; cursor: pointer;
+}
+select:focus, input[type="text"]:focus { outline: none; border-color: #0078d4; }
+.search-input { min-width: 180px; }
+.charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 14px 20px 0; }
+.chart-card { background: white; border-radius: 10px; padding: 18px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+.chart-card h3 { font-size: 13px; font-weight: 700; color: #4a5568; margin-bottom: 14px; }
+.chart-wrap { position: relative; height: 190px; }
+.table-card {
+  background: white; margin: 14px 20px 24px; border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08); overflow: hidden;
+}
+.table-top {
+  padding: 14px 18px; display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid #e2e8f0;
+}
+.table-top h3 { font-size: 14px; font-weight: 700; }
+.record-count { font-size: 12px; color: #718096; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 900px; }
+th {
+  background: #f7fafc; padding: 9px 12px; text-align: left;
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px;
+  color: #718096; border-bottom: 1px solid #e2e8f0; white-space: nowrap; cursor: pointer;
+  user-select: none;
+}
+th:hover { color: #0078d4; background: #edf2f7; }
+td { padding: 10px 12px; border-bottom: 1px solid #f0f4f8; vertical-align: middle; }
+tr:hover td { background: #f7fafc; }
+tr:last-child td { border-bottom: none; }
+.badge { display: inline-block; padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+.badge-pending { background: #fef3c7; color: #92400e; }
+.badge-approved { background: #d1fae5; color: #065f46; }
+.badge-rejected { background: #fee2e2; color: #991b1b; }
+.badge-manual { background: #e9d8fd; color: #553c9a; }
+.amount { font-weight: 700; }
+.muted { color: #a0aec0; font-size: 11px; }
+#loading {
+  position: fixed; inset: 0; background: rgba(26,26,46,.85); z-index: 999;
+  display: none; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+}
+.spinner {
+  width: 44px; height: 44px; border: 4px solid rgba(255,255,255,.2);
+  border-top-color: #0078d4; border-radius: 50%; animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { color: white; font-size: 15px; font-weight: 600; }
+.err { background: #fee2e2; color: #991b1b; padding: 12px 18px; margin: 14px 20px; border-radius: 8px; font-size: 13px; display: none; }
+.info-banner {
+  background: #ebf8ff; color: #2b6cb0; padding: 10px 18px; margin: 14px 20px 0;
+  border-radius: 8px; font-size: 12px; border-left: 4px solid #0078d4; display: none;
+}
+#app { display: none; }
+.empty { text-align: center; padding: 40px; color: #a0aec0; font-size: 14px; }
 </style>
 </head>
 <body>
-<div class="demo-banner">📊 LIVE DASHBOARD — OneDrive link add korle real data dekhabe | <a href="https://github.com/realshawon/aksid-car-fuel-ai/blob/main/public/dashboard.html" style="color:#fff;text-decoration:underline">Update shareLink in GitHub</a></div>
-<div class="header">
-  <div class="header-title">🚗 AKSID Car Fuel Bill Dashboard</div>
-  <div class="header-right">
-    <span class="last-updated" id="last-updated">Demo Data — June 2026</span>
-    <button class="btn-refresh" onclick="render()">↻ Refresh</button>
+
+<div id="loading">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loading-text">Loading fuel data…</div>
+</div>
+
+<div id="app">
+  <div class="header">
+    <div class="header-title">🚗 AKSID Car Fuel Bill Dashboard</div>
+    <div class="header-right">
+      <span class="last-updated" id="last-updated"></span>
+      <button class="btn-refresh" onclick="loadData()">↻ Refresh</button>
+    </div>
+  </div>
+
+  <div class="err" id="err"></div>
+  <div class="info-banner" id="info-banner"></div>
+
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-label">Total Submissions</div>
+      <div class="kpi-value" id="k-total">–</div>
+      <div class="kpi-sub">All time</div>
+    </div>
+    <div class="kpi-card orange">
+      <div class="kpi-label">Pending Review</div>
+      <div class="kpi-value" id="k-pending">–</div>
+      <div class="kpi-sub">Awaiting approval</div>
+    </div>
+    <div class="kpi-card blue">
+      <div class="kpi-label">Fuel Cost (Month)</div>
+      <div class="kpi-value" id="k-fuel">–</div>
+      <div class="kpi-sub">BDT this month</div>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-label">Total KM (Month)</div>
+      <div class="kpi-value" id="k-km">–</div>
+      <div class="kpi-sub">This month</div>
+    </div>
+    <div class="kpi-card purple">
+      <div class="kpi-label">Active Drivers</div>
+      <div class="kpi-value" id="k-drivers">–</div>
+      <div class="kpi-sub">This month</div>
+    </div>
+  </div>
+
+  <div class="charts-row">
+    <div class="chart-card">
+      <h3>📊 Monthly Fuel Cost (BDT)</h3>
+      <div class="chart-wrap"><canvas id="chartMonthly"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>👤 Top Drivers by Fuel Cost</h3>
+      <div class="chart-wrap"><canvas id="chartDriver"></canvas></div>
+    </div>
+  </div>
+
+  <div class="filters">
+    <div class="filter-group">
+      <label>Status:</label>
+      <select id="f-status" onchange="filter()">
+        <option value="">All</option>
+        <option>Pending Review</option>
+        <option>Approved</option>
+        <option>Rejected</option>
+        <option>Manual Entry</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Driver:</label>
+      <select id="f-driver" onchange="filter()">
+        <option value="">All Drivers</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Month:</label>
+      <select id="f-month" onchange="filter()">
+        <option value="">All Months</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Search:</label>
+      <input class="search-input" type="text" id="f-search" placeholder="Name, vehicle, dept…" oninput="filter()">
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-top">
+      <h3>📋 Fuel Bill Submissions</h3>
+      <span class="record-count" id="rec-count"></span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th onclick="sort('date')">Date ↕</th>
+            <th onclick="sort('driver')">Driver ↕</th>
+            <th onclick="sort('dept')">Department</th>
+            <th onclick="sort('km')">Total KM ↕</th>
+            <th onclick="sort('fuel')">Fuel Cost ↕</th>
+            <th>Toll</th>
+            <th>Food</th>
+            <th>Others</th>
+            <th onclick="sort('total')">Total ↕</th>
+            <th>Vehicle No</th>
+            <th onclick="sort('status')">Status ↕</th>
+            <th>Bill Period</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
   </div>
 </div>
-<div class="kpi-row">
-  <div class="kpi-card"><div class="kpi-label">Total Submissions</div><div class="kpi-value" id="k-total">–</div><div class="kpi-sub">All time</div></div>
-  <div class="kpi-card orange"><div class="kpi-label">Pending Review</div><div class="kpi-value" id="k-pending">–</div><div class="kpi-sub">Awaiting approval</div></div>
-  <div class="kpi-card blue"><div class="kpi-label">Fuel Cost (Month)</div><div class="kpi-value" id="k-fuel">–</div><div class="kpi-sub">BDT this month</div></div>
-  <div class="kpi-card green"><div class="kpi-label">Total KM (Month)</div><div class="kpi-value" id="k-km">–</div><div class="kpi-sub">This month</div></div>
-  <div class="kpi-card purple"><div class="kpi-label">Active Drivers</div><div class="kpi-value" id="k-drivers">–</div><div class="kpi-sub">This month</div></div>
-</div>
-<div class="charts-row">
-  <div class="chart-card"><h3>📊 Monthly Fuel Cost (BDT)</h3><div class="chart-wrap"><canvas id="chartMonthly"></canvas></div></div>
-  <div class="chart-card"><h3>👤 Top Drivers by Fuel Cost</h3><div class="chart-wrap"><canvas id="chartDriver"></canvas></div></div>
-</div>
-<div class="filters">
-  <div class="filter-group"><label>Status:</label><select id="f-status" onchange="filter()"><option value="">All</option><option>Pending Review</option><option>Approved</option><option>Rejected</option></select></div>
-  <div class="filter-group"><label>Driver:</label><select id="f-driver" onchange="filter()"><option value="">All Drivers</option></select></div>
-  <div class="filter-group"><label>Month:</label><select id="f-month" onchange="filter()"><option value="">All Months</option></select></div>
-  <div class="filter-group"><label>Search:</label><input class="search-input" type="text" id="f-search" placeholder="Name, vehicle, dept…" oninput="filter()"></div>
-</div>
-<div class="table-card">
-  <div class="table-top"><h3>📋 Fuel Bill Submissions</h3><span class="record-count" id="rec-count"></span></div>
-  <div class="table-wrap"><table>
-    <thead><tr>
-      <th onclick="srt('date')">Date ↕</th><th onclick="srt('driver')">Driver ↕</th><th>Department</th>
-      <th onclick="srt('km')">Total KM ↕</th><th onclick="srt('fuel')">Fuel Cost ↕</th>
-      <th>Toll</th><th>Food</th><th>Others</th><th onclick="srt('total')">Total ↕</th>
-      <th>Vehicle</th><th onclick="srt('status')">Status ↕</th><th>Bill Period</th>
-    </tr></thead>
-    <tbody id="tbody"></tbody>
-  </table></div>
-</div>
+
 <script>
-const DATA=[
-  {date:'01 Jun 2026',driver:'Milon Hossain',dept:'Operations',km:320,fuel:4200,toll:300,food:500,others:200,total:5200,vehicle:'DHA-1234',status:'Approved',from:'01 Jun',to:'15 Jun',_d:1},
-  {date:'03 Jun 2026',driver:'Karim Uddin',dept:'Sales',km:280,fuel:3800,toll:250,food:400,others:150,total:4600,vehicle:'DHA-5678',status:'Approved',from:'01 Jun',to:'15 Jun',_d:3},
-  {date:'05 Jun 2026',driver:'Rahim Sheikh',dept:'Delivery',km:410,fuel:5500,toll:400,food:600,others:300,total:6800,vehicle:'DHA-9012',status:'Pending Review',from:'01 Jun',to:'15 Jun',_d:5},
-  {date:'08 Jun 2026',driver:'Jabbar Ali',dept:'Logistics',km:190,fuel:2600,toll:200,food:300,others:100,total:3200,vehicle:'DHA-3456',status:'Pending Review',from:'01 Jun',to:'15 Jun',_d:8},
-  {date:'10 Jun 2026',driver:'Milon Hossain',dept:'Operations',km:350,fuel:4700,toll:350,food:550,others:250,total:5850,vehicle:'DHA-1234',status:'Approved',from:'01 Jun',to:'15 Jun',_d:10},
-  {date:'12 Jun 2026',driver:'Sumon Das',dept:'Admin',km:140,fuel:1900,toll:150,food:200,others:80,total:2330,vehicle:'DHA-7890',status:'Rejected',from:'01 Jun',to:'15 Jun',_d:12},
-  {date:'15 Jun 2026',driver:'Karim Uddin',dept:'Sales',km:300,fuel:4100,toll:280,food:450,others:180,total:5010,vehicle:'DHA-5678',status:'Pending Review',from:'16 Jun',to:'30 Jun',_d:15},
-  {date:'18 Jun 2026',driver:'Rahim Sheikh',dept:'Delivery',km:380,fuel:5100,toll:380,food:580,others:280,total:6340,vehicle:'DHA-9012',status:'Approved',from:'16 Jun',to:'30 Jun',_d:18},
-  {date:'20 Jun 2026',driver:'Rashed Khan',dept:'Security',km:160,fuel:2200,toll:180,food:250,others:90,total:2720,vehicle:'DHA-2345',status:'Pending Review',from:'16 Jun',to:'30 Jun',_d:20},
-  {date:'22 Jun 2026',driver:'Jabbar Ali',dept:'Logistics',km:420,fuel:5700,toll:420,food:620,others:320,total:7060,vehicle:'DHA-3456',status:'Pending Review',from:'16 Jun',to:'30 Jun',_d:22},
-];
-let filtered=[...DATA],sortCol='date',sortDir=-1;
-let cM=null,cD=null;
+// ══════════════════════════════════════════════════
+// ⚙️  CONFIGURATION
+// Set your OneDrive share link below to load live data.
+// How to get it:
+//   Open OneDrive → right-click Excel file → Share
+//   Set to "Anyone with the link can view" → Copy link
+// Leave blank to show embedded snapshot data.
+// ══════════════════════════════════════════════════
+const CONFIG = {
+  shareLink: ""   // ← PASTE YOUR ONEDRIVE SHARE LINK HERE
+};
 
-function fm(n){return n?'৳'+Math.round(n).toLocaleString():'–';}
+// ── Embedded real data (snapshot from Excel) ─────
+// Format: [date, driver, dept, kmStart, kmEnd, km, fuel, toll, food, maint, parking, hotel, fine, others, total, month, billFrom, billTo, vehicle, status]
+const EMBEDDED_DATA = [["2026-01-06","Sumon Khan","Management Expense",82377,82463,86,7000,160,0,700,0,0,0,0,7860,"","","","",""],["2026-01-07","Sumon Khan","Management Expense",82463,82531,68,0,0,0,0,100,0,0,0,100,"","","","",""],["2026-01-08","Sumon Khan","Management Expense",82531,82647,116,5300,400,0,0,100,0,0,0,5800,"","","","",""],["2026-01-10","Sumon Khan","Management Expense",82647,82765,118,7100,160,0,0,0,0,0,0,7260,"","","","",""],["2026-01-11","Sumon Khan","Management Expense",82765,82829,64,0,160,0,0,100,0,0,0,260,"","","","",""],["2026-01-12","Sumon Khan","Management Expense",82829,82986,157,5300,320,0,0,300,0,0,0,5920,"","","","",""],["2026-01-13","Sumon Khan","Management Expense",82986,83040,54,0,320,0,0,100,0,0,0,420,"","","","",""],["2026-01-14","Sumon Khan","Management Expense",83040,83133,93,7000,160,0,0,200,0,0,0,7360,"","","","",""],["2026-01-15","Sumon Khan","Management Expense",83133,83239,106,0,320,0,0,300,0,0,0,620,"","","","",""],["2026-01-17","Sumon Khan","Management Expense",83239,83324,85,7000,160,0,11900,100,0,0,0,19160,"","","","",""],["2026-01-18","Sumon Khan","Management Expense",83324,83404,80,0,160,0,0,200,0,0,0,360,"","","","",""],["2026-01-19","Sumon Khan","Management Expense",83404,83491,87,4300,160,0,0,0,0,0,0,4460,"","","","",""],["2026-01-20","Sumon Khan","Management Expense",83491,83677,186,7000,360,0,0,0,0,0,0,7360,"","","","",""],["2026-01-21","Sumon Khan","Management Expense",83677,83740,63,0,80,0,0,0,0,0,0,80,"","","","",""],["2026-01-22","Sumon Khan","Management Expense",83740,83799,59,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-01-23","Sumon Khan","Management Expense",83799,83863,64,2000,80,0,0,100,0,0,0,2180,"","","","",""],["2026-01-24","Sumon Khan","Management Expense",83863,83908,45,0,240,0,0,100,0,0,0,340,"","","","",""],["2026-01-25","Sumon Khan","Management Expense",83908,83991,83,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-01-26","Sumon Khan","Management Expense",83991,84037,46,3090,0,0,0,0,0,0,0,3090,"","","","",""],["2026-01-29","Sumon Khan","Management Expense",84037,84088,51,5800,160,0,0,0,0,0,0,5960,"","","","",""],["2026-01-30","Sumon Khan","Management Expense",84088,84108,20,0,0,0,0,100,0,0,0,100,"","","","",""],["2026-01-31","Sumon Khan","Management Expense",84108,84168,60,0,160,0,0,0,0,0,0,160,"","","","",""],["2026-01-04","Md Hanif","Foreign Project",165583,165655,72,3000,0,120,0,0,0,0,0,3120,"","","","",""],["2026-01-05","Md Hanif","Foreign Project",165655,165728,73,0,0,120,0,100,0,0,0,220,"","","","",""],["2026-01-06","Md Hanif","Foreign Project",165728,165800,72,4700,80,120,0,130,0,0,0,5030,"","","","",""],["2026-01-07","Md Hanif","Foreign Project",165800,165880,80,0,80,120,0,60,0,0,0,260,"","","","",""],["2026-01-08","Md Hanif","Foreign Project",165880,165965,85,0,0,120,0,70,0,0,0,190,"","","","",""],["2026-01-10","Md Hanif","Foreign Project",165965,166060,95,4800,80,240,0,130,0,0,230,5480,"","","","",""],["2026-01-11","Md Hanif","Foreign Project",166060,166130,70,0,0,120,0,0,0,0,0,120,"","","","",""],["2026-01-12","Md Hanif","Foreign Project",166130,166231,101,3050,160,120,0,0,0,0,0,3330,"","","","",""],["2026-01-13","Md Hanif","Foreign Project",166231,166343,112,2600,160,120,0,50,0,0,0,2930,"","","","",""],["2026-01-14","Md Hanif","Foreign Project",166343,166415,72,0,160,0,0,50,0,0,0,210,"","","","",""],["2026-01-15","Md Hanif","Foreign Project",166415,166462,47,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-01-16","Md Hanif","Foreign Project",166462,166572,110,4500,300,120,0,0,0,0,160,5080,"","","","",""],["2026-01-17","Md Hanif","Foreign Project",166572,166732,160,0,460,120,0,0,0,0,0,580,"","","","",""],["2026-01-19","Md Hanif","Foreign Project",166732,166800,68,4000,160,120,0,0,0,0,0,4280,"","","","",""],["2026-01-20","Md Hanif","Foreign Project",166800,166860,60,0,0,120,0,80,0,0,0,200,"","","","",""],["2026-01-21","Md Hanif","Foreign Project",166860,166920,60,4500,160,120,0,0,0,0,0,4780,"","","","",""],["2026-01-22","Md Hanif","Foreign Project",166920,166989,69,0,0,120,0,0,0,0,0,120,"","","","",""],["2026-01-24","Md Hanif","Foreign Project",166989,167066,77,3000,80,240,4100,80,0,0,180,7680,"","","","",""],["2026-01-25","Md Hanif","Foreign Project",167066,167167,101,0,80,120,0,100,0,0,0,300,"","","","",""],["2026-01-26","Md Hanif","Foreign Project",167167,167228,61,0,80,120,0,0,0,0,0,200,"","","","",""],["2026-01-27","Md Hanif","Foreign Project",167228,167311,83,3000,80,120,0,0,0,0,0,3200,"","","","",""],["2026-01-28","Md Hanif","Foreign Project",167311,167400,89,0,240,120,0,0,0,0,0,360,"","","","",""],["2026-01-31","Md Hanif","Foreign Project",167400,167490,90,0,160,120,0,140,0,0,0,420,"","","","",""],["2026-01-01","Md. Liton","Sales Management",121270,121307,37,4600,160,120,0,80,0,0,0,4960,"","","","",""],["2026-01-03","Md. Liton","Sales Management",121307,121346,39,0,160,120,0,0,0,0,0,280,"","","","",""],["2026-01-04","Md. Liton","Sales Management",121346,121385,39,0,80,0,0,170,0,0,0,250,"","","","",""],["2026-01-05","Md. Liton","Sales Management",121385,121435,50,0,160,0,0,100,0,0,0,260,"","","","",""],["2026-01-06","Md. Liton","Sales Management",121435,121536,101,0,290,240,0,0,0,0,0,530,"","","","",""],["2026-01-07","Md. Liton","Sales Management",121536,121575,39,4500,160,0,0,0,0,0,0,4660,"","","","",""],["2026-01-08","Md. Liton","Sales Management",121575,121624,49,0,160,120,0,0,0,0,0,280,"","","","",""],["2026-01-10","Md. Liton","Sales Management",121624,121628,4,0,0,120,0,0,0,0,0,120,"","","","",""],["2026-01-11","Md. Liton","Sales Management",121628,121706,78,0,160,120,0,100,0,0,0,380,"","","","",""],["2026-01-12","Md. Liton","Sales Management",121706,121803,97,3700,320,0,0,100,0,0,0,4120,"","","","",""],["2026-01-13","Md. Liton","Sales Management",121803,121881,78,0,120,0,0,250,0,0,0,370,"","","","",""],["2026-01-14","Md. Liton","Sales Management",121881,121952,71,0,120,0,0,100,0,0,0,220,"","","","",""],["2026-01-15","Md. Liton","Sales Management",121952,122032,80,4000,240,120,0,0,0,0,0,4360,"","","","",""],["2026-01-17","Md. Liton","Sales Management",122032,122142,110,0,160,120,0,60,0,0,0,340,"","","","",""],["2026-01-18","Md. Liton","Sales Management",122142,122192,50,0,80,120,0,0,0,0,0,200,"","","","",""],["2026-01-19","Md. Liton","Sales Management",122192,122286,94,4600,320,0,0,50,0,0,0,4970,"","","","",""],["2026-01-20","Md. Liton","Sales Management",122286,122326,40,0,160,120,0,0,0,0,0,280,"","","","",""],["2026-01-21","Md. Liton","Sales Management",122326,122384,58,0,160,0,0,40,0,0,0,200,"","","","",""],["2026-01-22","Md. Liton","Sales Management",122384,122452,68,0,280,120,0,100,0,0,0,500,"","","","",""],["2026-01-25","Md. Liton","Sales Management",122452,122536,84,4600,240,120,0,50,0,0,0,5010,"","","","",""],["2026-01-26","Md. Liton","Sales Management",122536,122665,129,0,80,240,0,180,0,0,0,500,"","","","",""],["2026-01-27","Md. Liton","Sales Management",122665,122797,132,4000,320,120,0,0,0,0,0,4440,"","","","",""],["2026-01-28","Md. Liton","Sales Management",122797,122839,42,0,160,0,0,0,0,0,0,160,"","","","",""],["2026-01-29","Md. Liton","Sales Management",122839,122951,112,2700,290,0,0,40,0,0,0,3030,"","","","",""],["2026-01-30","Md. Liton","Sales Management",122951,122963,12,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-01-31","Md. Liton","Sales Management",122963,123017,54,0,160,0,0,0,0,0,0,160,"","","","",""],["2026-01-03","Md Sabuz Miah","Sales Management",189930,189995,65,2500,80,0,0,0,0,0,0,2580,"","140000","39500","",""],["2026-01-04","Md Sabuz Miah","Sales Management",189995,190083,88,0,80,120,0,210,0,0,0,410,"","","","",""],["2026-01-05","Md Sabuz Miah","Sales Management",190083,190175,92,0,80,120,0,60,0,0,0,260,"","","","",""],["2026-01-06","Md Sabuz Miah","Sales Management",190175,190241,66,0,80,120,0,150,0,0,0,350,"","","","",""],["2026-01-07","Md Sabuz Miah","Sales Management",190241,190334,93,1560,80,120,0,0,0,0,0,1760,"","","","",""],["2026-01-08","Md Sabuz Miah","Sales Management",190334,190420,86,2500,160,120,0,150,0,0,0,2930,"","","","",""],["2026-01-11","Md Sabuz Miah","Sales Management",190420,190524,104,0,240,120,0,160,0,0,0,520,"","","","",""],["2026-01-12","Md Sabuz Miah","Sales Management",190524,190600,76,0,0,120,0,150,0,0,0,270,"","","","",""],["2026-01-13","Md Sabuz Miah","Sales Management",190600,190685,85,2500,80,0,0,50,0,0,0,2630,"","","","",""],["2026-01-14","Md Sabuz Miah","Sales Management",190685,190768,83,0,160,0,600,150,0,0,0,910,"","","","",""],["2026-01-18","Md Sabuz Miah","Sales Management",191244,191330,86,1000,80,120,0,0,0,0,0,1200,"","","","",""],["2026-01-19","Md Sabuz Miah","Sales Management",191330,191388,58,1000,160,0,0,50,0,0,0,1210,"","","","",""],["2026-01-20","Md Sabuz Miah","Sales Management",191388,191529,141,2800,165,120,500,0,0,0,0,3585,"","","","",""],["2026-01-21","Md Sabuz Miah","Sales Management",191529,191634,105,3000,80,0,0,100,0,0,0,3180,"","","","",""],["2026-01-22","Md Sabuz Miah","Retail Sales",191634,191701,67,1800,160,0,0,0,0,0,0,1960,"","","","",""],["2026-01-25","Md Sabuz Miah","Sales Management",191701,191779,78,1500,160,120,0,100,0,0,0,1880,"","","","",""],["2026-01-26","Md Sabuz Miah","Sales Management",191779,192129,350,5300,720,280,0,100,600,0,0,7000,"","","","",""],["2026-01-27","Md Sabuz Miah","Sales Management",192129,192215,86,0,0,280,0,100,600,0,0,980,"","","","",""],["2026-01-28","Md Sabuz Miah","Sales Management",192215,192501,286,2557,800,280,0,0,0,0,0,3637,"","","","",""],["2026-01-29","Md Sabuz Miah","Sales Management",192501,192562,61,2800,160,0,0,100,0,0,0,3060,"","","","",""],["2026-01-31","Md Sabuz Miah","Sales Management",192562,192629,67,2980,160,120,0,100,0,0,0,3360,"","","","",""],["2026-01-03","Md Masud Rana","Foreign Project",86410,86465,55,500,80,120,0,80,0,0,0,780,"","","","",""],["2026-01-04","Md Masud Rana","Corporate Sales",86465,86755,290,4000,230,160,0,0,0,0,0,4390,"","","","",""],["2026-01-05","Md Masud Rana","Head Office",0,0,0,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-01-05","Md Masud Rana","Retail Sales",86755,86822,67,1310,160,120,0,0,0,0,0,1590,"","","","",""],["2026-01-06","Md Masud Rana","Finance & Accounts",86822,86835,13,1000,0,0,0,0,0,0,0,1000,"","","","",""],["2026-01-06","Md Masud Rana","Foreign Project",86835,86873,38,1000,0,0,0,80,0,0,0,1080,"","","","",""],["2026-01-06","Md Masud Rana","Finance & Accounts",86873,86898,25,0,0,120,0,0,0,0,0,120,"","","","",""],["2026-01-07","Md Masud Rana","Finance & Accounts",86898,86912,14,0,0,120,0,0,0,0,0,120,"","","","",""],["2026-01-08","Md Masud Rana","MES & Application Sales",86912,86986,74,0,0,0,0,50,0,0,0,50,"","","","",""],["2026-01-08","Md Masud Rana","Retail Sales",86986,87019,33,1000,160,120,0,0,0,0,0,1280,"","","","",""],["2026-01-11","Md Masud Rana","MES & Application Sales",87019,87094,75,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-01-11","Md Masud Rana","Finance & Accounts",87094,87108,14,0,0,120,0,0,0,0,0,120,"","","","",""],["2026-01-12","Md Masud Rana","Technical Engineering",87108,87233,125,2000,290,120,0,0,0,0,0,2410,"","","","",""],["2026-01-12","Md Masud Rana","Finance & Accounts",87233,87247,14,515,0,120,0,0,0,0,0,635,"","","","",""],["2026-01-13","Md Masud Rana","MES & Application Sales",87247,87365,118,3000,140,120,0,200,0,0,0,3460,"","","","",""],["2026-01-14","Md Masud Rana","Finance & Accounts",87365,87381,16,1245,0,0,0,0,0,0,0,1245,"","","","",""],["2026-01-14","Md Masud Rana","Management Expense",87381,87401,20,670,0,0,0,100,0,0,0,770,"","","","",""],["2026-01-14","Md Masud Rana","Finance & Accounts",87401,87414,13,0,0,120,0,0,0,0,0,120,"","","","",""],["2026-01-15","Md Masud Rana","MES & Application Sales",87414,87513,99,0,280,0,0,50,0,0,0,330,"","","","",""],["2026-01-15","Md Masud Rana","Finance & Accounts",87513,87527,14,0,0,120,0,0,0,0,0,120,"","","","",""],["2026-01-17","Md Masud Rana","MES & Application Sales",87527,87789,262,2000,125,160,0,100,600,0,200,3185,"","","","",""],["2026-01-18","Md Masud Rana","MES & Application Sales",87789,87965,176,2880,95,160,0,100,600,0,140,3975,"","","","",""],["2026-01-19","Md Masud Rana","MES & Application Sales",87965,88241,276,2000,195,160,0,0,0,0,0,2355,"","","","",""],["2026-01-20","Md Masud Rana","Finance & Accounts",88241,88270,29,0,0,120,0,0,0,0,0,120,"","","","",""],["2026-01-21","Md Masud Rana","MES & Application Sales",88270,88329,59,1000,0,0,0,0,0,0,0,1000,"","","","",""],["2026-01-21","Md Masud Rana","Finance & Accounts",88329,88341,12,500,0,120,0,0,0,0,0,620,"","","","",""],["2026-01-22","Md Masud Rana","Institutional Sales",88341,88419,78,500,0,0,0,100,0,0,0,600,"","","","",""],["2026-01-22","Md Masud Rana","Finance & Accounts",88419,88437,18,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-01-25","Md Masud Rana","Corporate Sales",88437,88719,282,3330,165,280,0,0,600,0,140,4515,"","","","",""],["2026-01-26","Md Masud Rana","Corporate Sales",88719,89056,337,3500,270,280,0,100,0,0,0,4150,"","","","",""],["2026-01-27","Md Masud Rana","Retail Sales",89056,89139,83,2680,80,0,0,0,0,0,0,2760,"","","","",""],["2026-01-27","Md Masud Rana","Finance & Accounts",89139,89152,13,500,0,120,0,0,0,0,0,620,"","","","",""],["2026-01-28","Md Masud Rana","Administration",89152,89207,55,255,0,0,0,0,0,0,0,255,"","","","",""],["2026-01-28","Md Masud Rana","Retail Sales",89207,89260,53,255,0,120,0,0,0,0,0,375,"","","","",""],["2026-01-29","Md Masud Rana","Foreign Project",89260,89344,84,255,80,120,0,0,0,0,0,455,"","","","",""],["2026-01-31","Md Masud Rana","Retail Sales",89344,89377,33,0,80,0,0,0,0,0,0,80,"","","","",""],["2026-01-31","Md Masud Rana","Finance & Accounts",89377,89395,18,255,0,120,0,0,0,0,0,375,"","","","",""],["2026-01-03","Mohammad Islam","Retail Sales",86475,86512,37,4000,160,0,0,0,0,0,0,4160,"","","","",""],["2026-01-03","Mohammad Islam","Administration",86512,86534,22,1500,0,0,0,0,0,0,0,1500,"","","","",""],["2026-01-03","Mohammad Islam","Retail Sales",86534,86572,38,0,0,120,0,60,0,0,0,180,"","","","",""],["2026-01-04","Mohammad Islam","Retail Sales",86572,86610,38,0,240,0,0,0,0,0,0,240,"","","","",""],["2026-01-04","Mohammad Islam","Administration",86610,86632,22,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-01-04","Mohammad Islam","Retail Sales",86632,86674,42,0,0,120,0,0,0,0,0,120,"","","","",""],["2026-01-05","Mohammad Islam","Project Sales",86674,86789,115,4000,530,0,0,0,0,0,0,4530,"","","","",""],["2026-01-06","Mohammad Islam","MES & Application Sales",86789,86851,62,1000,0,0,0,0,0,0,0,1000,"","","","",""],["2026-01-07","Mohammad Islam","Retail Sales",86851,86890,39,0,80,0,0,0,0,0,0,80,"","","","",""],["2026-01-07","Mohammad Islam","MES & Application Sales",86890,86933,43,0,80,0,0,110,0,0,0,190,"","","","",""],["2026-01-08","Mohammad Islam","Retail Sales",86933,86975,42,1000,80,120,0,0,0,0,0,1200,"","","","",""],["2026-01-11","Mohammad Islam","Technical Engineering",86975,87112,137,4000,590,0,0,0,0,0,0,4590,"","","","",""],["2026-01-12","Mohammad Islam","MES & Application Sales",87112,87184,72,510,160,120,0,0,0,0,0,790,"","","","",""],["2026-01-12","Mohammad Islam","Management Expense",87184,87220,36,510,0,120,0,0,0,0,200,830,"","","","",""],["2026-01-13","Mohammad Islam","Retail Sales",87220,87655,435,7710,670,280,0,0,0,0,170,8830,"","","","",""],["2026-01-14","Mohammad Islam","MES & Application Sales",87655,87756,101,2000,165,120,0,0,0,0,0,2285,"","","","",""],["2026-01-18","Mohammad Islam","Retail Sales",87756,88237,481,5000,160,120,0,0,0,0,0,5280,"","","","",""],["2026-01-19","Mohammad Islam","Finance & Accounts",88237,88270,33,400,0,0,0,0,0,0,0,400,"","","","",""],["2026-01-19","Mohammad Islam","Administration",88270,88292,22,100,0,0,0,0,0,0,0,100,"","","","",""],["2026-01-19","Mohammad Islam","Finance & Accounts",88292,88307,15,0,0,120,0,0,0,0,0,120,"","","","",""],["2026-01-20","Mohammad Islam","Retail Sales",88307,88345,38,0,80,0,0,0,0,0,0,80,"","","","",""],["2026-01-20","Mohammad Islam","MES & Application Sales",88345,88372,27,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-01-22","Mohammad Islam","Finance & Accounts",88372,88389,17,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-01-22","Mohammad Islam","Human Resourse",88389,88485,96,1000,460,0,0,0,0,0,0,1460,"","","","",""],["2026-01-22","Mohammad Islam","Retail Sales",88485,88520,35,1000,0,120,0,0,0,0,0,1120,"","","","",""],["2026-01-25","Mohammad Islam","Finance & Accounts",88520,88532,12,808,1580,0,0,0,0,0,0,2388,"","","","",""],["2026-01-25","Mohammad Islam","Audit",88532,88819,287,3000,0,0,0,0,0,0,0,3000,"","","","",""],["2026-01-25","Mohammad Islam","Finance & Accounts",88819,88832,13,0,0,120,0,0,0,0,0,120,"","","","",""],["2026-01-26","Mohammad Islam","Retail Sales",88832,88980,148,3000,80,120,0,0,0,0,0,3200,"","","","",""],["2026-01-27","Mohammad Islam","Retail Sales",88980,89021,41,0,80,120,0,80,0,0,0,280,"","","","",""],["2026-01-27","Mohammad Islam","MES & Application Sales",89021,89109,88,1000,80,0,0,0,0,0,0,1080,"","","","",""],["2026-01-28","Mohammad Islam","Retail Sales",89109,89148,39,0,80,0,0,0,0,0,0,80,"","","","",""],["2026-01-29","Mohammad Islam","Retail Sales",89148,89187,39,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-01-29","Mohammad Islam","Management Expense",89187,89211,24,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-01-01","Shahidul Islam","Management Expense",41690,41768,78,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-01-02","Shahidul Islam","Management Expense",41768,41787,19,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-01-05","Shahidul Islam","Management Expense",41787,41815,28,4000,0,0,2010,0,0,0,0,6010,"","","","",""],["2026-01-26","Shahidul Islam","Management Expense",42362,42397,35,0,0,0,0,160,0,0,0,160,"","","","",""],["2026-01-27","Shahidul Islam","Management Expense",42397,42444,47,0,80,0,0,0,0,0,0,80,"","","","",""],["2026-01-28","Shahidul Islam","Management Expense",42444,42473,29,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-01-29","Shahidul Islam","Management Expense",42473,42498,25,0,80,0,0,80,0,0,0,160,"","","","",""],["2026-01-30","Shahidul Islam","Management Expense",42498,42519,21,4000,80,0,0,0,0,0,0,4080,"","","","",""],["2026-01-03","Shaha Alom","Finance & Accounts",97675,97740,65,3172,0,120,0,0,0,0,0,3292,"","","","",""],["2026-01-04","Shaha Alom","Finance & Accounts",97740,97780,40,0,0,0,0,100,0,0,0,100,"","","","",""],["2026-01-05","Shaha Alom","Finance & Accounts",97780,97797,17,256,0,0,0,0,0,0,0,256,"","","","",""],["2026-01-05","Shaha Alom","MES & Application Sales",97797,97848,51,1000,80,0,0,120,0,0,0,1200,"","","","",""],["2026-01-06","Shaha Alom","Retail Sales",97848,98085,237,3018,160,280,0,0,0,0,0,3458,"","","","",""],["2026-01-07","Shaha Alom","Finance & Accounts",98085,98103,18,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-01-07","Shaha Alom","Administration",98103,98217,114,1000,140,120,0,100,0,0,180,1540,"","","","",""],["2026-01-08","Shaha Alom","Management Expense",98217,98245,28,500,0,0,970,0,0,0,0,1470,"","","","",""],["2026-01-11","Shaha Alom","Finance & Accounts",98245,98260,15,500,0,0,0,0,0,0,0,500,"","","","",""],["2026-01-12","Shaha Alom","Finance & Accounts",98260,98277,17,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-01-12","Shaha Alom","Retail Sales",98277,98322,45,0,160,120,0,0,0,0,0,280,"","","","",""],["2026-01-13","Shaha Alom","Finance & Accounts",98322,98389,67,0,0,120,0,0,0,0,0,120,"","","","",""],["2026-01-14","Shaha Alom","Retail Sales",98389,98498,109,2000,280,240,0,0,0,0,0,2520,"","","","",""],["2026-01-15","Shaha Alom","Finance & Accounts",98498,98537,39,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-01-17","Shaha Alom","Finance & Accounts",98537,98556,19,974,0,0,0,0,0,0,0,974,"","","","",""],["2026-01-17","Shaha Alom","Technical Engineering",98556,98600,44,974,80,0,0,160,0,0,0,1214,"","","","",""],["2026-01-17","Shaha Alom","Retail Sales",98600,98660,60,974,160,120,0,0,0,0,0,1254,"","","","",""],["2026-01-19","Shaha Alom","Corporate Sales",98660,98961,301,2850,1155,280,0,100,800,0,0,5185,"","","","",""],["2026-01-20","Shaha Alom","Corporate Sales",98961,99205,244,3471,105,280,0,100,700,0,0,4656,"","","","",""],["2026-01-21","Shaha Alom","Corporate Sales",99205,99442,237,3000,990,280,0,0,0,0,0,4270,"","","","",""],["2026-01-22","Shaha Alom","Sales Management",99442,99556,114,1800,160,0,0,0,0,0,0,1960,"","","","",""],["2026-01-25","Shaha Alom","Retail Sales",99556,99632,76,1188,160,120,0,0,0,0,0,1468,"","","","",""],["2026-01-26","Shaha Alom","Finance & Accounts",99632,99649,17,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-01-26","Shaha Alom","MES & Application Sales",99649,99736,87,2100,280,120,0,150,0,0,0,2650,"","","","",""],["2026-01-26","Shaha Alom","Finance & Accounts",99736,99749,13,2355,0,120,0,0,0,0,0,2475,"","","","",""],["2026-01-27","Shaha Alom","Finance & Accounts",99749,99811,62,0,160,0,0,80,0,0,0,240,"","","","",""],["2026-01-28","Shaha Alom","Finance & Accounts",99811,99827,16,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-01-28","Shaha Alom","MES & Application Sales",99827,99875,48,0,160,0,0,230,0,0,0,390,"","","","",""],["2026-01-28","Shaha Alom","Finance & Accounts",99875,99909,34,0,0,120,0,0,0,0,0,120,"","","","",""],["2026-01-31","Shaha Alom","Finance & Accounts",99909,99924,15,200,0,0,0,0,0,0,0,200,"","","","",""],["2026-01-31","Shaha Alom","MES & Application Sales",99924,99961,37,800,0,0,0,0,0,0,0,800,"","","","",""],["2026-01-01","Akbar Hossain","Foreign Project",174997,175091,94,3050,80,280,0,110,0,0,0,3520,"","","","",""],["2026-01-03","Akbar Hossain","Foreign Project",175091,175109,18,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-01-04","Akbar Hossain","MES & Application Sales",175109,175170,61,770,0,0,0,60,0,0,0,830,"","","","",""],["2026-01-04","Akbar Hossain","Finance & Accounts",175170,175184,14,0,0,120,0,0,0,0,0,120,"","","","",""],["2026-01-05","Akbar Hossain","Technical Engineering",175184,175309,125,2000,450,0,0,0,0,0,0,2450,"","","","",""],["2026-01-05","Akbar Hossain","Finance & Accounts",175309,175323,14,430,0,120,0,0,0,0,0,550,"","","","",""],["2026-01-06","Akbar Hossain","Management Expense",175323,175383,60,500,160,0,0,200,0,0,0,860,"","","","",""],["2026-01-07","Akbar Hossain","Institutional Sales",175383,175481,98,1000,80,0,0,0,0,0,0,1080,"","","","",""],["2026-01-07","Akbar Hossain","Retail Sales",175481,175517,36,500,80,120,0,0,0,0,0,700,"","","","",""],["2026-01-08","Akbar Hossain","Finance & Accounts",175517,175552,35,1000,0,120,0,0,0,0,0,1120,"","","","",""],["2026-01-11","Akbar Hossain","Retail Sales",175552,175663,111,3000,480,120,0,150,0,0,0,3750,"","","","",""],["2026-01-12","Akbar Hossain","Retail Sales",175663,175709,46,1143,160,120,0,0,0,0,0,1423,"","","","",""],["2026-01-13","Akbar Hossain","Technical Engineering",175709,176093,384,3100,1480,280,0,0,800,0,0,5660,"","","","",""],["2026-01-14","Akbar Hossain","Technical Engineering",176093,176390,297,2800,1440,280,0,100,0,0,0,4620,"","","","",""],["2026-01-15","Akbar Hossain","Retail Sales",176390,176516,126,2000,320,0,0,0,0,0,0,2320,"","","","",""],["2026-01-17","Akbar Hossain","Retail Sales",176516,176562,46,0,240,0,0,0,0,0,0,240,"","","","",""],["2026-01-17","Akbar Hossain","Administration",176562,176602,40,1000,0,0,0,0,0,0,0,1000,"","","","",""],["2026-01-17","Akbar Hossain","Foreign Project",176602,176645,43,0,0,120,0,170,0,0,0,290,"","","","",""],["2026-01-18","Akbar Hossain","Foreign Project",176645,176707,62,1950,0,0,0,130,0,0,0,2080,"","","","",""],["2026-01-19","Akbar Hossain","Retail Sales",176707,177022,315,3100,410,160,0,0,0,0,0,3670,"","","","",""],["2026-01-20","Akbar Hossain","Finance & Accounts",177022,177038,16,500,0,0,0,0,0,0,0,500,"","","","",""],["2026-01-20","Akbar Hossain","Retail Sales",177038,177274,236,2182,160,280,0,0,0,0,0,2622,"","","","",""],["2026-01-21","Akbar Hossain","Retail Sales",177274,177359,85,2500,190,120,0,250,0,0,0,3060,"","","","",""],["2026-01-22","Akbar Hossain","Corporate Sales",177359,177745,386,4800,270,160,0,0,0,0,0,5230,"","","","",""],["2026-01-25","Akbar Hossain","Technical Engineering",177745,178060,315,5500,145,280,0,300,0,0,0,6225,"","","","",""],["2026-01-26","Akbar Hossain","Technical Engineering",178060,178387,327,5200,205,280,0,0,0,0,0,5685,"","","","",""],["2026-01-27","Akbar Hossain","Administration",178387,178408,21,475,0,0,0,0,0,0,0,475,"","","","",""],["2026-01-28","Akbar Hossain","Technical Engineering",178408,178542,134,3100,450,160,0,0,0,0,0,3710,"","","","",""],["2026-01-29","Akbar Hossain","Sales Management",178542,178575,33,475,0,0,0,0,0,0,0,475,"","","","",""],["2026-01-29","Akbar Hossain","MES & Application Sales",178575,178610,35,475,160,0,0,0,0,0,0,635,"","","","",""],["2026-01-29","Akbar Hossain","Retail Sales",178610,178649,39,1000,160,120,0,0,0,0,0,1280,"","","","",""],["2026-01-31","Akbar Hossain","Management Expense",178649,178678,29,475,0,0,0,0,0,0,0,475,"","","","",""],["2026-01-31","Akbar Hossain","Retail Sales",178678,178717,39,0,160,120,0,0,0,0,0,280,"","","","",""],["2026-02-01","Sumon Khan","Management Expense",84168,84251,83,7000,0,0,0,0,0,0,0,7000,"","","","",""],["2026-02-02","Sumon Khan","Management Expense",84251,84404,153,7000,320,0,0,200,0,0,0,7520,"","","","",""],["2026-02-03","Sumon Khan","Management Expense",84404,84462,58,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-02-04","Sumon Khan","Management Expense",84462,84570,108,7000,320,0,0,100,0,0,0,7420,"","","","",""],["2026-02-05","Sumon Khan","Management Expense",84570,84660,90,5000,160,0,0,100,0,0,0,5260,"","","","",""],["2026-02-06","Sumon Khan","Management Expense",84660,84669,9,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-02-07","Sumon Khan","Management Expense",84669,85049,380,7000,330,0,0,0,0,0,0,7330,"","","","",""],["2026-02-08","Sumon Khan","Management Expense",85049,85123,74,7000,80,0,0,0,0,0,0,7080,"","","","",""],["2026-02-09","Sumon Khan","Management Expense",85123,85216,93,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-02-10","Sumon Khan","Management Expense",85216,85305,89,5190,160,0,0,0,0,0,0,5350,"","","","",""],["2026-02-13","Sumon Khan","Management Expense",85305,85418,113,7000,80,0,4350,60,0,0,0,11490,"","","","",""],["2026-02-14","Sumon Khan","Management Expense",85418,85449,31,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-02-15","Sumon Khan","Management Expense",85449,85527,78,7000,80,0,0,200,0,0,0,7280,"","","","",""],["2026-02-16","Sumon Khan","Management Expense",85527,85657,130,0,320,0,0,100,0,0,0,420,"","","","",""],["2026-02-17","Sumon Khan","Management Expense",85657,85690,33,0,160,0,0,0,0,0,0,160,"","","","",""],["2026-02-18","Sumon Khan","Management Expense",85690,85775,85,7000,160,0,0,200,0,0,0,7360,"","","","",""],["2026-02-19","Sumon Khan","Management Expense",85775,85879,104,5700,240,0,0,0,0,0,50,5990,"","","","",""],["2026-02-20","Sumon Khan","Management Expense",85879,85900,21,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-02-21","Sumon Khan","Management Expense",85900,86002,102,0,160,0,0,200,0,0,0,360,"","","","",""],["2026-02-22","Sumon Khan","Management Expense",86002,86104,102,7000,240,0,0,0,0,0,0,7240,"","","","",""],["2026-02-23","Sumon Khan","Management Expense",86104,86179,75,0,160,0,0,100,0,0,0,260,"","","","",""],["2026-02-24","Sumon Khan","Management Expense",86179,86231,52,4090,160,0,0,0,0,0,0,4250,"","","","",""],["2026-02-25","Sumon Khan","Management Expense",86231,86449,218,0,2060,0,0,0,0,0,0,2060,"","","","",""],["2026-02-26","Sumon Khan","Management Expense",86449,86519,70,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-02-27","Sumon Khan","Management Expense",86519,86661,142,0,0,0,0,100,0,0,0,100,"","","","",""],["2026-02-01","Md Hanif","Foreign Project",167490,167575,85,7999,160,120,0,100,0,0,0,8379,"","","","",""],["2026-02-02","Md Hanif","Foreign Project",167575,167661,86,0,0,120,0,100,0,0,0,220,"","","","",""],["2026-02-03","Md Hanif","Foreign Project",167661,167762,101,0,80,120,0,90,0,0,0,290,"","","","",""],["2026-02-04","Md Hanif","Foreign Project",167762,167851,89,4000,0,120,0,60,0,0,160,4340,"","","","",""],["2026-02-05","Md Hanif","Foreign Project",167851,167937,86,2000,0,120,0,0,0,0,0,2120,"","","","",""],["2026-02-07","Md Hanif","Foreign Project",167937,167990,53,4000,0,240,0,0,0,0,160,4400,"","","","",""],["2026-02-08","Md Hanif","Foreign Project",167990,168058,68,0,160,120,200,0,0,0,0,480,"","","","",""],["2026-02-09","Md Hanif","Foreign Project",168058,168136,78,0,80,120,0,80,0,0,0,280,"","","","",""],["2026-02-10","Md Hanif","Foreign Project",168136,168615,479,4600,1250,240,0,0,0,0,0,6090,"","","","",""],["2026-02-13","Md Hanif","Foreign Project",168615,168707,92,4400,0,240,0,100,0,0,320,5060,"","","","",""],["2026-02-14","Md Hanif","Foreign Project",168707,168780,73,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-02-17","Md Hanif","Foreign Project",168780,168783,3,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-02-19","Md Hanif","Foreign Project",168783,168838,55,4500,0,0,0,80,0,0,0,4580,"","","","",""],["2026-02-21","Md Hanif","Foreign Project",168838,168900,62,0,0,0,0,80,0,0,0,80,"","","","",""],["2026-02-22","Md Hanif","Foreign Project",168900,168974,74,0,160,0,0,0,0,0,0,160,"","","","",""],["2026-02-23","Md Hanif","Foreign Project",168974,169038,64,4000,80,0,0,0,0,0,0,4080,"","","","",""],["2026-02-24","Md Hanif","Foreign Project",169038,169087,49,0,0,0,0,0,0,0,160,160,"","","","",""],["2026-02-25","Md Hanif","Foreign Project",169087,169160,73,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-02-26","Md Hanif","Foreign Project",169160,169250,90,0,80,0,0,0,0,0,0,80,"","","","",""],["2026-02-27","Md Hanif","Foreign Project",169250,169328,78,2000,0,170,0,0,0,0,150,2320,"","","","",""],["2026-02-28","Md Hanif","Foreign Project",169328,169440,112,0,80,0,0,0,0,0,0,80,"","","","",""],["2026-02-01","Shahidul Islam","Management Expense",42519,42576,57,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-02-07","Shahidul Islam","Management Expense",42576,42606,30,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-02-08","Shahidul Islam","Management Expense",42606,42625,19,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-02-09","Shahidul Islam","Management Expense",42625,42662,37,0,80,0,2345,80,0,0,0,2505,"","","","",""],["2026-02-10","Shahidul Islam","Management Expense",42662,42714,52,4000,80,0,0,0,0,0,0,4080,"","","","",""],["2026-02-11","Shahidul Islam","Management Expense",42714,42777,63,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-02-12","Shahidul Islam","Management Expense",42777,42818,41,4000,0,0,0,0,0,0,0,4000,"","","","",""],["2026-02-13","Shahidul Islam","Management Expense",42818,42870,52,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-02-14","Shahidul Islam","Management Expense",42870,42915,45,0,160,0,0,0,0,0,0,160,"","","","",""],["2026-02-15","Shahidul Islam","Management Expense",42915,42944,29,0,80,0,0,0,0,0,0,80,"","","","",""],["2026-02-16","Shahidul Islam","Management Expense",42944,42985,41,0,160,0,0,0,0,0,0,160,"","","","",""],["2026-02-17","Shahidul Islam","Management Expense",42985,43032,47,4000,0,0,0,0,0,0,0,4000,"","","","",""],["2026-02-19","Shahidul Islam","Management Expense",43032,43061,29,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-02-21","Shahidul Islam","Management Expense",43061,43082,21,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-02-28","Shahidul Islam","Management Expense",43082,43108,26,4000,0,0,0,0,0,0,0,4000,"","","","",""],["2026-02-01","Md. Liton","Sales Management",123017,123064,47,4500,160,120,0,0,0,0,0,4780,"","45000","2000","",""],["2026-02-03","Md. Liton","Sales Management",123064,123159,95,0,240,120,250,50,0,0,0,660,"","","","",""],["2026-02-05","Md. Liton","Sales Management",123159,123197,38,2000,160,0,0,0,0,0,0,2160,"","","","",""],["2026-02-07","Md. Liton","Sales Management",123197,123227,30,0,0,120,0,100,0,0,0,220,"","","","",""],["2026-02-08","Md. Liton","Sales Management",123227,123275,48,0,0,120,0,100,0,0,0,220,"","","","",""],["2026-02-09","Md. Liton","Sales Management",123275,123311,36,2440,160,0,0,0,0,0,0,2600,"","","","",""],["2026-02-10","Md. Liton","Sales Management",123311,123401,90,0,240,120,0,50,0,0,0,410,"","","","",""],["2026-02-13","Md. Liton","Sales Management",123401,123448,47,0,80,120,0,60,0,0,0,260,"","","","",""],["2026-02-14","Md. Liton","Sales Management",123448,123492,44,4500,80,120,0,60,0,0,0,4760,"","","","",""],["2026-02-15","Md. Liton","Sales Management",123492,123584,92,0,240,120,0,50,0,0,0,410,"","","","",""],["2026-02-16","Md. Liton","Sales Management",123584,123627,43,0,160,0,0,50,0,0,0,210,"","","","",""],["2026-02-17","Md. Liton","Sales Management",123627,123664,37,0,160,120,0,0,0,0,0,280,"","","","",""],["2026-02-18","Md. Liton","Sales Management",123664,123735,71,4600,320,0,0,100,0,0,0,5020,"","","","",""],["2026-02-19","Md. Liton","Sales Management",123735,123785,50,0,160,0,0,0,0,0,0,160,"","","","",""],["2026-02-21","Md. Liton","Sales Management",123785,123805,20,0,0,0,0,100,0,0,0,100,"","","","",""],["2026-02-22","Md. Liton","Sales Management",123805,123844,39,0,0,0,0,60,0,0,0,60,"","","","",""],["2026-02-23","Md. Liton","Sales Management",123844,123881,37,4600,160,0,0,0,0,0,0,4760,"","","","",""],["2026-02-24","Md. Liton","Sales Management",123881,123970,89,0,240,0,0,50,0,0,0,290,"","","","",""],["2026-02-25","Md. Liton","Sales Management",123970,124066,96,0,230,0,0,0,0,0,0,230,"","","","",""],["2026-02-26","Md. Liton","Sales Management",124066,124158,92,0,240,0,0,50,0,0,0,290,"","","","",""],["2026-02-28","Md. Liton","Sales Management",124158,124213,55,1000,160,50,0,0,0,0,0,1210,"","","","",""],["2026-02-01","Md Sabuz Miah","Sales Management",192629,192719,90,0,240,120,0,0,0,0,0,360,"","140000","39500","",""],["2026-02-02","Md Sabuz Miah","Sales Management",192719,192786,67,2800,0,0,0,100,0,0,0,2900,"","","","",""],["2026-02-08","Md Sabuz Miah","Sales Management",192786,192875,89,3000,80,120,0,100,0,0,0,3300,"","","","",""],["2026-02-09","Md Sabuz Miah","Sales Management",192875,192940,65,0,80,0,0,0,0,0,0,80,"","","","",""],["2026-02-10","Md Sabuz Miah","Sales Management",192940,193010,70,2005,80,120,0,0,0,0,0,2205,"","","","",""],["2026-02-14","Md Sabuz Miah","Sales Management",193010,193109,99,0,80,0,0,0,0,0,0,80,"","","","",""],["2026-02-15","Md Sabuz Miah","Sales Management",193109,193213,104,2500,80,0,650,100,0,0,0,3330,"","","","",""],["2026-02-16","Md Sabuz Miah","Sales Management",193213,193307,94,2800,80,120,0,100,0,0,0,3100,"","","","",""],["2026-02-17","Md Sabuz Miah","Sales Management",193307,193379,72,0,0,0,0,100,0,0,0,100,"","","","",""],["2026-02-18","Md Sabuz Miah","Sales Management",193379,193464,85,1640,80,0,0,0,0,0,0,1720,"","","","",""],["2026-02-19","Md Sabuz Miah","Sales Management",193464,193532,68,0,240,0,0,0,0,0,0,240,"","","","",""],["2026-02-22","Md Sabuz Miah","Sales Management",193532,193616,84,1329,0,0,0,50,0,0,0,1379,"","","","",""],["2026-02-23","Md Sabuz Miah","Sales Management",193616,193776,160,0,330,0,0,100,0,0,0,430,"","","","",""],["2026-02-24","Md Sabuz Miah","Sales Management",193776,193824,48,2800,160,50,0,100,0,0,0,3110,"","","","",""],["2026-02-25","Md Sabuz Miah","Sales Management",193824,193900,76,2800,240,0,0,160,0,0,0,3200,"","","","",""],["2026-02-26","Md Sabuz Miah","Sales Management",193900,193982,82,0,80,0,0,0,0,0,0,80,"","","","",""],["2026-02-28","Md Sabuz Miah","Sales Management",193982,194064,82,500,80,50,0,0,0,0,0,630,"","","","",""],["2026-02-01","Md Masud Rana","Corporate Sales",89395,89465,70,642,80,0,0,110,0,0,0,832,"","","","",""],["2026-02-01","Md Masud Rana","Management Expense",89465,89508,43,642,80,120,0,0,0,0,0,842,"","","","",""],["2026-02-02","Md Masud Rana","Finance & Accounts",89508,89532,24,641,0,0,0,0,0,0,0,641,"","","","",""],["2026-02-02","Md Masud Rana","Administration",89532,89584,52,641,0,0,0,0,0,0,0,641,"","","","",""],["2026-02-02","Md Masud Rana","Retail Sales",89584,89617,33,641,80,120,0,0,0,0,0,841,"","","","",""],["2026-02-03","Md Masud Rana","Corporate Sales",89617,89726,109,1322,60,0,0,0,0,0,0,1382,"","","","",""],["2026-02-08","Md Masud Rana","Retail Sales",89726,89776,50,1000,160,0,0,0,0,0,0,1160,"","","","",""],["2026-02-08","Md Masud Rana","Specification & Application sales",89776,89821,45,500,0,0,0,180,0,0,0,680,"","","","",""],["2026-02-08","Md Masud Rana","Finance & Accounts",89821,89834,13,500,0,120,120,0,0,0,0,740,"","","","",""],["2026-02-09","Md Masud Rana","Retail Sales",89834,89867,33,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-02-09","Md Masud Rana","Management Expense",89867,89878,11,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-02-09","Md Masud Rana","Retail Sales",89878,89906,28,0,80,0,0,0,0,0,0,80,"","","","",""],["2026-02-09","Md Masud Rana","Finance & Accounts",89906,89921,15,0,0,120,0,0,0,0,0,120,"","","","",""],["2026-02-10","Md Masud Rana","Human Resourse",89921,89999,78,2000,150,0,0,0,0,0,0,2150,"","","","",""],["2026-02-14","Md Masud Rana","Corporate Sales",89999,90071,72,1000,0,0,0,0,0,0,0,1000,"","","","",""],["2026-02-14","Md Masud Rana","Finance & Accounts",90071,90084,13,311,0,120,0,0,0,0,0,431,"","","","",""],["2026-02-15","Md Masud Rana","Corporate Sales",90084,90423,339,2879,150,120,0,0,0,0,0,3149,"","","","",""],["2026-02-15","Md Masud Rana","Finance & Accounts",90423,90435,12,0,0,120,0,0,0,0,0,120,"","","","",""],["2026-02-16","Md Masud Rana","Specification & Application sales",90435,90478,43,1490,80,0,0,100,0,0,0,1670,"","","","",""],["2026-02-17","Md Masud Rana","Foreign Project",90478,90535,57,1000,80,0,0,100,0,0,0,1180,"","","","",""],["2026-02-17","Md Masud Rana","Retail Sales",90535,90595,60,1000,0,0,0,0,0,0,0,1000,"","","","",""],["2026-02-17","Md Masud Rana","Foreign Project",90595,90637,42,0,0,160,0,0,0,0,0,160,"","","","",""],["2026-02-18","Md Masud Rana","Specification & Application sales",90637,90718,81,0,150,120,0,0,0,0,0,270,"","","","",""],["2026-02-18","Md Masud Rana","Finance & Accounts",90718,90730,12,1000,0,120,0,0,0,0,0,1120,"","","","",""],["2026-02-19","Md Masud Rana","Corporate Sales",90730,90770,40,1322,0,0,0,50,0,0,0,1372,"","","","",""],["2026-02-19","Md Masud Rana","Finance & Accounts",90770,90782,12,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-02-22","Md Masud Rana","Specification & Application sales",90782,90829,47,3034,80,0,0,100,0,0,0,3214,"","","","",""],["2026-02-23","Md Masud Rana","Specification & Application sales",90829,90888,59,0,80,0,0,50,0,0,0,130,"","","","",""],["2026-02-23","Md Masud Rana","Finance & Accounts",90888,90903,15,0,0,0,0,50,0,0,0,50,"","","","",""],["2026-02-24","Md Masud Rana","Retail Sales",90903,90979,76,0,160,0,0,0,0,0,0,160,"","","","",""],["2026-02-25","Md Masud Rana","Retail Sales",90979,91103,124,2000,120,0,0,100,0,0,0,2220,"","","","",""],["2026-02-26","Md Masud Rana","Corporate Sales",91103,91137,34,563,0,0,0,50,0,0,0,613,"","","","",""],["2026-02-28","Md Masud Rana","Specification & Application sales",91137,91224,87,563,80,0,730,50,0,0,0,1423,"","","","",""],["2026-02-01","Mohammad Islam","Retail Sales",89211,89248,37,1938,80,0,0,0,0,0,0,2018,"","","","",""],["2026-02-01","Mohammad Islam","Technical Engineering",89248,89292,44,1939,0,0,0,0,0,0,0,1939,"","","","",""],["2026-02-02","Mohammad Islam","Retail Sales",89292,89331,39,0,0,0,0,80,0,0,0,80,"","","","",""],["2026-02-02","Mohammad Islam","Sales Management",89331,89375,44,1938,80,0,0,0,0,0,0,2018,"","","","",""],["2026-02-03","Mohammad Islam","Retail Sales",89375,89518,143,1500,240,240,0,70,0,0,0,2050,"","","","",""],["2026-02-05","Mohammad Islam","Retail Sales",89518,89557,39,0,80,120,0,0,0,0,0,200,"","","","",""],["2026-02-05","Mohammad Islam","MES & Application Sales",89557,89567,10,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-02-08","Mohammad Islam","Technical Engineering",89567,89592,25,2000,0,0,0,60,0,0,0,2060,"","","","",""],["2026-02-09","Mohammad Islam","Head Office",89592,89622,30,3500,165,280,0,0,0,0,0,3945,"","","","",""],["2026-02-10","Mohammad Islam","Head Office",0,0,0,0,0,280,0,0,0,0,0,280,"","","","",""],["2026-02-11","Mohammad Islam","Head Office",0,0,0,0,0,280,0,0,0,0,0,280,"","","","",""],["2026-02-12","Mohammad Islam","Head Office",0,0,0,0,0,280,0,0,0,0,0,280,"","","","",""],["2026-02-13","Mohammad Islam","Head Office",89622,89665,43,0,85,280,0,0,0,0,0,365,"","","","",""],["2026-02-15","Mohammad Islam","Retail Sales",89665,89703,38,0,160,0,0,0,0,0,0,160,"","","","",""],["2026-02-15","Mohammad Islam","Finance & Accounts",89703,89719,16,762,0,0,0,0,0,0,0,762,"","","","",""],["2026-02-15","Mohammad Islam","Retail Sales",89719,89769,50,3000,0,120,0,0,0,0,0,3120,"","","","",""],["2026-02-16","Mohammad Islam","Retail Sales",89769,89884,115,5800,240,0,0,170,0,0,100,6310,"","","","",""],["2026-02-17","Mohammad Islam","Retail Sales",89884,89945,61,0,80,0,1300,0,0,0,0,1380,"","","","",""],["2026-02-18","Mohammad Islam","Retail Sales",89945,90017,72,0,160,0,0,0,0,0,0,160,"","","","",""],["2026-02-22","Mohammad Islam","Retail Sales",90017,90097,80,0,240,0,0,60,0,0,0,300,"","","","",""],["2026-02-23","Mohammad Islam","Retail Sales",90097,90173,76,0,240,0,0,0,0,0,0,240,"","","","",""],["2026-02-25","Mohammad Islam","Specification & Application sales",90173,90210,37,200,80,0,0,70,0,0,0,350,"","","","",""],["2026-02-26","Mohammad Islam","Retail Sales",90210,90286,76,0,240,0,0,0,0,0,0,240,"","","","",""],["2026-02-28","Mohammad Islam","Retail Sales",90286,90424,138,1300,400,0,0,80,0,0,0,1780,"","","","",""],["2026-02-03","Shaha Alom","Finance & Accounts",99961,100023,62,3280,160,120,0,80,0,0,0,3640,"","","","",""],["2026-02-05","Shaha Alom","Finance & Accounts",100023,100038,15,318,0,0,0,0,0,0,0,318,"","","","",""],["2026-02-05","Shaha Alom","Retail Sales",100038,100113,75,0,160,120,0,0,0,0,200,480,"","","","",""],["2026-02-07","Shaha Alom","Retail Sales",100113,100214,101,2000,280,280,0,160,0,0,180,2900,"","","","",""],["2026-02-08","Shaha Alom","Finance & Accounts",100214,100228,14,300,0,0,0,0,0,0,0,300,"","","","",""],["2026-02-08","Shaha Alom","Retail Sales",100228,100274,46,2000,160,120,0,0,0,0,0,2280,"","","","",""],["2026-02-10","Shaha Alom","Administration",100274,100308,34,800,240,0,0,0,0,0,0,1040,"","","","",""],["2026-02-10","Shaha Alom","Retail Sales",100308,100395,87,0,240,120,0,0,0,0,0,360,"","","","",""],["2026-02-16","Shaha Alom","Finance & Accounts",100395,100439,44,0,0,120,0,0,0,0,0,120,"","","","",""],["2026-02-17","Shaha Alom","Finance & Accounts",100439,100482,43,505,0,0,0,80,0,0,0,585,"","","","",""],["2026-02-17","Shaha Alom","Administration",100482,100515,33,200,0,120,0,70,0,0,0,390,"","","","",""],["2026-02-18","Shaha Alom","Corporate Sales",100515,100578,63,1000,0,0,0,60,0,0,0,1060,"","","","",""],["2026-02-19","Shaha Alom","Finance & Accounts",100578,100594,16,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-02-19","Shaha Alom","Technical Engineering",100594,100645,51,800,160,0,0,100,0,0,0,1060,"","","","",""],["2026-02-22","Shaha Alom","Finance & Accounts",100645,100679,34,750,0,0,0,100,0,0,0,850,"","","","",""],["2026-02-23","Shaha Alom","Administration",100679,100752,73,750,160,0,0,180,0,0,0,1090,"","","","",""],["2026-02-24","Shaha Alom","Finance & Accounts",100752,100789,37,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-02-25","Shaha Alom","Finance & Accounts",100789,100904,115,0,150,0,0,0,0,0,0,150,"","","","",""],["2026-02-26","Shaha Alom","Finance & Accounts",100904,100957,53,0,80,0,0,100,0,0,0,180,"","","","",""],["2026-02-28","Shaha Alom","Finance & Accounts",100957,101010,53,1000,0,0,0,0,0,0,0,1000,"","","","",""],["2026-02-01","Akbar Hossain","Finance & Accounts",178717,178734,17,1000,0,0,0,0,0,0,0,1000,"","","","",""],["2026-02-01","Akbar Hossain","Management Expense",178734,178764,30,1000,160,0,0,0,0,0,0,1160,"","","","",""],["2026-02-01","Akbar Hossain","Finance & Accounts",178764,178777,13,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-02-01","Akbar Hossain","Retail Sales",178777,178828,51,1000,0,120,0,0,0,0,0,1120,"","","","",""],["2026-02-02","Akbar Hossain","Sales Management",178828,178906,78,0,320,120,250,80,0,0,0,770,"","","","",""],["2026-02-02","Akbar Hossain","Finance & Accounts",178906,178932,26,0,0,120,0,0,0,0,0,120,"","","","",""],["2026-02-03","Akbar Hossain","Sales Management",178932,179038,106,2810,320,120,0,50,0,0,0,3300,"","","","",""],["2026-02-04","Akbar Hossain","Management Expense",179038,179087,49,0,160,120,0,0,0,0,0,280,"","","","",""],["2026-02-05","Akbar Hossain","Management Expense",179087,179133,46,1000,0,0,0,0,0,0,0,1000,"","","","",""],["2026-02-05","Akbar Hossain","Sales Management",179133,179185,52,1000,320,120,0,250,0,0,0,1690,"","","","",""],["2026-02-07","Akbar Hossain","Finance & Accounts",179185,179215,30,400,0,120,0,0,0,0,0,520,"","","","",""],["2026-02-08","Akbar Hossain","Institutional Sales",179215,179450,235,3160,1990,120,0,0,0,0,0,5270,"","","","",""],["2026-02-09","Akbar Hossain","Finance & Accounts",179450,179502,52,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-02-10","Akbar Hossain","Retail Sales",179502,179540,38,620,160,0,0,0,0,0,0,780,"","","","",""],["2026-02-10","Akbar Hossain","Administration",179540,179567,27,0,80,0,0,0,0,0,0,80,"","","","",""],["2026-02-16","Akbar Hossain","Corporate Sales",179724,179809,85,3000,0,0,0,50,0,0,0,3050,"","","","",""],["2026-02-17","Akbar Hossain","Technical Engineering",179809,179848,39,1000,0,0,0,100,0,0,0,1100,"","","","",""],["2026-02-17","Akbar Hossain","Finance & Accounts",179848,179879,31,500,0,120,0,0,0,0,0,620,"","","","",""],["2026-02-18","Akbar Hossain","Finance & Accounts",179879,179920,41,630,0,0,0,0,0,0,0,630,"","","","",""],["2026-02-19","Akbar Hossain","Retail Sales",179920,180009,89,1500,280,0,0,0,0,0,0,1780,"","","","",""],["2026-02-22","Akbar Hossain","Corporate Sales",180009,180064,55,1000,0,0,0,0,0,0,0,1000,"","","","",""],["2026-02-22","Akbar Hossain","Finance & Accounts",180064,180079,15,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-02-23","Akbar Hossain","Corporate Sales",180079,180131,52,755,80,0,0,160,0,0,0,995,"","","","",""],["2026-02-24","Akbar Hossain","Foreign Project",180131,180203,72,756,80,50,0,60,0,0,0,946,"","","","",""],["2026-02-25","Akbar Hossain","Finance & Accounts",180203,180249,46,755,0,0,0,0,0,0,0,755,"","","","",""],["2026-02-26","Akbar Hossain","Management Expense",180249,180348,99,2201,160,0,0,200,0,0,0,2561,"","","","",""],["2026-02-28","Akbar Hossain","Corporate Sales",180348,180636,288,3350,795,280,0,300,0,0,0,4725,"","","","",""],["2026-03-01","Sumon Khan","Management Expense",86661,86739,78,7000,160,0,0,0,0,0,0,7160,"","","","",""],["2026-03-04","Sumon Khan","Management Expense",86739,86834,95,4900,160,0,0,200,0,0,0,5260,"","","","",""],["2026-03-05","Sumon Khan","Management Expense",86834,86943,109,0,80,0,0,100,0,0,0,180,"","","","",""],["2026-03-06","Sumon Khan","Management Expense",86943,86968,25,0,160,0,0,0,0,0,0,160,"","","","",""],["2026-03-07","Sumon Khan","Management Expense",86968,87098,130,7000,80,0,0,0,0,0,0,7080,"","","","",""],["2026-03-08","Sumon Khan","Management Expense",87098,87155,57,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-09","Sumon Khan","Management Expense",87155,87359,204,9500,240,0,0,200,0,0,0,9940,"","","","",""],["2026-03-10","Sumon Khan","Management Expense",87359,87504,145,7000,160,0,0,0,0,0,0,7160,"","","","",""],["2026-03-11","Sumon Khan","Management Expense",87504,87611,107,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-12","Sumon Khan","Management Expense",87611,87712,101,2500,0,0,0,0,0,0,0,2500,"","","","",""],["2026-03-13","Sumon Khan","Management Expense",87712,87747,35,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-14","Sumon Khan","Management Expense",87747,87911,164,7000,240,0,1500,300,0,0,0,9040,"","","","",""],["2026-03-15","Sumon Khan","Management Expense",87911,87980,69,0,240,0,0,100,0,0,0,340,"","","","",""],["2026-03-16","Sumon Khan","Management Expense",87980,88194,214,4600,320,0,0,200,0,0,0,5120,"","","","",""],["2026-03-17","Sumon Khan","Management Expense",88194,88347,153,9899,160,0,0,200,0,0,0,10259,"","","","",""],["2026-03-18","Sumon Khan","Management Expense",88347,88482,135,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-19","Sumon Khan","Management Expense",88482,88494,12,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-20","Sumon Khan","Management Expense",88494,88506,12,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-21","Sumon Khan","Management Expense",88506,88519,13,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-22","Sumon Khan","Management Expense",88519,88531,12,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-23","Sumon Khan","Management Expense",88531,88543,12,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-24","Sumon Khan","Management Expense",88543,88556,13,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-25","Sumon Khan","Management Expense",88556,88568,12,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-26","Sumon Khan","Management Expense",88568,88581,13,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-27","Sumon Khan","Management Expense",88581,88593,12,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-28","Sumon Khan","Management Expense",88593,88720,127,7000,0,0,0,0,0,0,0,7000,"","","","",""],["2026-03-29","Sumon Khan","Management Expense",88720,88873,153,6000,240,0,0,150,0,0,0,6390,"","","","",""],["2026-03-30","Sumon Khan","Management Expense",88873,88947,74,5279,80,0,0,0,0,0,0,5359,"","","","",""],["2026-03-31","Sumon Khan","Management Expense",88947,89074,127,2000,320,0,0,100,0,0,0,2420,"","","","",""],["2026-03-01","Shahidul Islam","Management Expense",43108,43137,29,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-04","Shahidul Islam","Management Expense",43137,43174,37,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-08","Shahidul Islam","Management Expense",43174,43207,33,0,0,0,0,80,0,0,0,80,"","","","",""],["2026-03-14","Shahidul Islam","Management Expense",43207,43238,31,0,160,0,0,0,0,0,0,160,"","","","",""],["2026-03-15","Shahidul Islam","Management Expense",43238,43300,62,4000,80,0,2235,0,0,0,0,6315,"","","","",""],["2026-03-16","Shahidul Islam","Management Expense",43300,43330,30,0,80,0,0,0,0,0,0,80,"","","","",""],["2026-03-17","Shahidul Islam","Management Expense",43330,43360,30,0,80,0,0,0,0,0,0,80,"","","","",""],["2026-03-18","Shahidul Islam","Management Expense",43360,43402,42,4000,80,0,0,0,0,0,0,4080,"","","","",""],["2026-03-01","Md Hanif","Foreign Project",169440,169500,60,7020,80,0,0,0,0,0,0,7100,"","","","",""],["2026-03-02","Md Hanif","Foreign Project",169500,169577,77,0,80,0,0,0,0,0,0,80,"","","","",""],["2026-03-03","Md Hanif","Foreign Project",169577,169681,104,4800,0,0,0,50,0,0,0,4850,"","","","",""],["2026-03-04","Md Hanif","Foreign Project",169681,169756,75,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-05","Md Hanif","Foreign Project",169756,169830,74,1000,80,50,0,0,0,0,0,1130,"","","","",""],["2026-03-07","Md Hanif","Foreign Project",169830,169921,91,0,80,50,0,0,0,0,0,130,"","","","",""],["2026-03-08","Md Hanif","Foreign Project",169921,170006,85,4000,80,170,0,0,0,0,0,4250,"","","","",""],["2026-03-09","Md Hanif","Foreign Project",170006,170096,90,1500,80,0,0,0,0,0,0,1580,"","","","",""],["2026-03-10","Md Hanif","Foreign Project",170096,170155,59,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-11","Md Hanif","Foreign Project",170155,170228,73,4920,80,0,0,0,0,0,0,5000,"","","","",""],["2026-03-12","Md Hanif","Foreign Project",170228,170300,72,0,80,170,0,100,0,0,0,350,"","","","",""],["2026-03-13","Md Hanif","Foreign Project",170300,170933,633,10300,1250,50,0,0,0,0,150,11750,"","","","",""],["2026-03-14","Md Hanif","Foreign Project",170933,170963,30,0,0,120,0,100,0,0,0,220,"","","","",""],["2026-03-15","Md Hanif","Foreign Project",170963,171024,61,0,80,0,0,0,0,0,0,80,"","","","",""],["2026-03-16","Md Hanif","Foreign Project",171024,171123,99,0,80,0,0,0,0,0,0,80,"","","","",""],["2026-03-17","Md Hanif","Foreign Project",171123,171207,84,5000,80,0,0,50,0,0,180,5310,"","","","",""],["2026-03-18","Md Hanif","Foreign Project",171207,171285,78,2000,0,0,0,80,0,0,0,2080,"","","","",""],["2026-03-28","Md Hanif","Foreign Project",171285,171320,35,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-29","Md Hanif","Foreign Project",171320,171400,80,2000,0,120,0,100,0,0,0,2220,"","","","",""],["2026-03-30","Md Hanif","Foreign Project",171400,171477,77,0,80,120,0,50,0,0,0,250,"","","","",""],["2026-03-31","Md Hanif","Foreign Project",171477,171573,96,2500,80,120,0,50,0,0,0,2750,"","","","",""],["2026-03-01","Md. Liton","Sales Management",124213,124225,12,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-03","Md. Liton","Sales Management",124225,124309,84,3600,240,50,0,80,0,0,0,3970,"","","","",""],["2026-03-04","Md. Liton","Sales Management",124309,124348,39,0,0,0,0,160,0,0,0,160,"","","","",""],["2026-03-05","Md. Liton","Sales Management",124348,124447,99,4400,320,50,0,0,0,0,0,4770,"","","","",""],["2026-03-07","Md. Liton","Sales Management",124447,124485,38,0,80,0,0,50,0,0,0,130,"","","","",""],["2026-03-08","Md. Liton","Sales Management",124485,124532,47,0,160,50,0,100,0,0,0,310,"","","","",""],["2026-03-09","Md. Liton","Sales Management",124532,124599,67,1500,160,50,0,0,0,0,0,1710,"","","","",""],["2026-03-10","Md. Liton","Sales Management",124599,124674,75,1500,160,120,0,50,0,0,0,1830,"","","","",""],["2026-03-11","Md. Liton","Sales Management",124674,124734,60,0,160,170,0,60,0,0,0,390,"","","","",""],["2026-03-12","Md. Liton","Sales Management",124734,124813,79,0,320,170,0,100,0,0,0,590,"","","","",""],["2026-03-14","Md. Liton","Sales Management",124813,124824,11,3301,0,0,0,0,0,0,0,3301,"","","","",""],["2026-03-15","Md. Liton","Sales Management",124824,124914,90,0,320,0,0,100,0,0,0,420,"","","","",""],["2026-03-16","Md. Liton","Sales Management",124914,124952,38,0,80,0,0,110,0,0,0,190,"","","","",""],["2026-03-17","Md. Liton","Sales Management",124952,124991,39,0,160,120,0,50,0,0,200,530,"","","","",""],["2026-03-18","Md. Liton","Sales Management",124991,125030,39,4000,160,50,0,0,0,0,0,4210,"","","","",""],["2026-03-22","Md. Liton","Sales Management",125030,125117,87,0,160,120,0,0,0,0,300,580,"","","","",""],["2026-03-25","Md. Liton","Sales Management",125117,125133,16,2400,0,120,0,150,0,0,200,2870,"","","","",""],["2026-03-28","Md. Liton","Sales Management",125133,125197,64,1500,160,0,0,0,0,0,0,1660,"","","","",""],["2026-03-29","Md. Liton","Sales Management",125197,125294,97,0,320,120,0,60,0,0,0,500,"","","","",""],["2026-03-30","Md. Liton","Sales Management",125294,125335,41,3000,160,0,0,0,0,0,0,3160,"","","","",""],["2026-03-31","Md. Liton","Sales Management",125335,125385,50,0,160,120,0,140,0,0,0,420,"","","","",""],["2026-03-01","Md Sabuz Miah","Sales Management",194064,194155,91,0,240,50,0,100,0,0,0,390,"","","","",""],["2026-03-02","Md Sabuz Miah","Head Office",0,0,0,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-02","Md Sabuz Miah","Sales Management",194155,194223,68,2800,160,50,0,0,0,0,0,3010,"","","","",""],["2026-03-03","Md Sabuz Miah","Sales Management",194223,194283,60,0,160,50,0,190,0,0,0,400,"","","","",""],["2026-03-04","Md Sabuz Miah","Sales Management",194283,194384,101,1550,160,0,0,100,0,0,0,1810,"","","","",""],["2026-03-05","Md Sabuz Miah","Sales Management",194384,194458,74,0,80,50,0,60,0,0,0,190,"","","","",""],["2026-03-07","Md Sabuz Miah","Sales Management",194458,194550,92,2800,160,0,0,0,0,0,0,2960,"","","","",""],["2026-03-08","Md Sabuz Miah","Sales Management",194550,194626,76,0,160,50,0,100,0,0,0,310,"","","","",""],["2026-03-09","Md Sabuz Miah","Sales Management",194626,194744,118,1420,250,0,0,0,0,0,0,1670,"","","","",""],["2026-03-10","Md Sabuz Miah","Sales Management",194744,194819,75,0,80,0,0,50,0,0,0,130,"","","","",""],["2026-03-11","Md Sabuz Miah","Sales Management",194819,194928,109,2800,80,0,0,50,0,0,0,2930,"","","","",""],["2026-03-12","Md Sabuz Miah","Sales Management",194928,194992,64,0,80,0,0,0,0,0,0,80,"","","","",""],["2026-03-14","Md Sabuz Miah","Sales Management",194992,195079,87,1845,0,0,0,50,0,0,0,1895,"","","","",""],["2026-03-15","Md Sabuz Miah","Sales Management",195079,195158,79,0,80,0,0,100,0,0,0,180,"","","","",""],["2026-03-16","Md Sabuz Miah","Sales Management",195158,195263,105,2500,80,50,0,200,0,0,0,2830,"","","","",""],["2026-03-18","Md Sabuz Miah","Sales Management",195263,195364,101,1926,80,50,0,100,0,0,0,2156,"","","","",""],["2026-03-28","Md Sabuz Miah","Sales Management",195364,195439,75,1500,80,0,0,0,0,0,0,1580,"","","","",""],["2026-03-29","Md Sabuz Miah","Sales Management",195439,195523,84,0,80,120,0,0,0,0,0,200,"","","","",""],["2026-03-30","Md Sabuz Miah","Sales Management",195523,195600,77,2940,320,120,0,0,0,0,0,3380,"","","","",""],["2026-03-31","Md Sabuz Miah","Sales Management",195600,195933,333,4000,205,280,0,300,0,0,140,4925,"","","","",""],["2026-03-01","Md Masud Rana","Finance & Accounts",91224,91259,35,3510,0,0,0,0,0,0,0,3510,"","","","",""],["2026-03-01","Md Masud Rana","Head Office",0,0,0,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-02","Md Masud Rana","Finance & Accounts",91259,91282,23,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-02","Md Masud Rana","Corporate Sales",91282,91302,20,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-02","Md Masud Rana","Finance & Accounts",91302,91321,19,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-03","Md Masud Rana","Corporate Sales",91321,91399,78,758,200,0,0,0,0,0,0,958,"","","","",""],["2026-03-04","Md Masud Rana","Finance & Accounts",91399,91441,42,757,0,0,0,0,0,0,0,757,"","","","",""],["2026-03-05","Md Masud Rana","Technical Engineering",91441,91548,107,2000,290,0,0,0,0,0,0,2290,"","","","",""],["2026-03-07","Md Masud Rana","Technical Engineering",91548,91554,6,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-08","Md Masud Rana","Retail Sales",91554,91587,33,0,80,0,0,20,0,0,0,100,"","","","",""],["2026-03-08","Md Masud Rana","Administration",91587,91617,30,500,0,0,0,0,0,1600,0,2100,"","","","",""],["2026-03-09","Md Masud Rana","Retail Sales",91617,91681,64,2000,80,50,0,80,0,0,0,2210,"","","","",""],["2026-03-10","Md Masud Rana","Specification & Application sales",91681,91705,24,650,0,0,0,0,0,0,0,650,"","","","",""],["2026-03-11","Md Masud Rana","Corporate Sales",91705,91804,99,0,80,170,0,50,0,0,0,300,"","","","",""],["2026-03-12","Md Masud Rana","Retail Sales",91804,91879,75,0,240,0,0,0,0,0,0,240,"","","","",""],["2026-03-14","Md Masud Rana","Retail Sales",91879,91967,88,0,160,170,0,0,0,0,0,330,"","","","",""],["2026-03-15","Md Masud Rana","Technical Engineering",91967,92239,272,3510,1250,0,0,0,0,0,0,4760,"","","","",""],["2026-03-16","Md Masud Rana","Corporate Sales",92239,92302,63,1000,80,0,0,0,0,0,0,1080,"","","","",""],["2026-03-17","Md Masud Rana","Management Expense",92302,92371,69,500,0,50,0,160,0,0,0,710,"","","","",""],["2026-03-18","Md Masud Rana","Administration",92371,92396,25,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-28","Md Masud Rana","Administration",92396,92408,12,406,0,0,0,0,0,0,0,406,"","","","",""],["2026-03-29","Md Masud Rana","Specification & Application sales",92408,92449,41,1000,0,0,0,80,0,0,0,1080,"","","","",""],["2026-03-30","Md Masud Rana","Finance & Accounts",92449,92466,17,406,0,120,0,0,0,0,0,526,"","","","",""],["2026-03-31","Md Masud Rana","Management Expense",92466,92527,61,1000,80,0,0,0,0,0,0,1080,"","","","",""],["2026-03-01","Mohammad Islam","Retail Sales",90424,90462,38,1900,160,0,0,0,0,0,0,2060,"","","","",""],["2026-03-01","Mohammad Islam","Finance & Accounts",90462,90497,35,1900,160,0,0,160,0,0,0,2220,"","","","",""],["2026-03-01","Mohammad Islam","Head Office",90497,90530,33,1900,0,0,0,0,0,0,0,1900,"","","","",""],["2026-03-02","Mohammad Islam","Retail Sales",90530,90605,75,0,240,50,0,0,0,0,0,290,"","","","",""],["2026-03-03","Mohammad Islam","Retail Sales",90605,90682,77,0,240,50,0,0,0,0,0,290,"","","","",""],["2026-03-04","Mohammad Islam","Retail Sales",90682,90758,76,5400,80,0,150,150,0,0,0,5780,"","","","",""],["2026-03-05","Mohammad Islam","Retail Sales",90758,90831,73,2600,160,50,1000,0,0,0,0,3810,"","","","",""],["2026-03-07","Mohammad Islam","Retail Sales",90831,90868,37,0,160,50,0,0,0,0,0,210,"","","","",""],["2026-03-08","Mohammad Islam","Foreign Project",90868,90885,17,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-08","Mohammad Islam","Retail Sales",90885,90923,38,0,160,50,0,100,0,0,0,310,"","","","",""],["2026-03-09","Mohammad Islam","Technical Engineering",90923,91051,128,3000,510,0,0,0,0,0,0,3510,"","","","",""],["2026-03-10","Mohammad Islam","Retail Sales",91051,91140,89,3440,240,0,0,100,0,0,0,3780,"","","","",""],["2026-03-11","Mohammad Islam","Administration",91140,91145,5,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-12","Mohammad Islam","Administration",91145,91185,40,500,160,0,0,0,0,0,0,660,"","","","",""],["2026-03-14","Mohammad Islam","Corporate Sales",91185,91436,251,3880,425,0,0,0,0,0,0,4305,"","","","",""],["2026-03-15","Mohammad Islam","Retail Sales",91436,91512,76,1500,240,50,0,0,0,0,0,1790,"","","","",""],["2026-03-16","Mohammad Islam","Retail Sales",91512,91610,98,0,240,0,0,70,0,0,0,310,"","","","",""],["2026-03-18","Mohammad Islam","Retail Sales",91610,91653,43,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-19","Mohammad Islam","Retail Sales",91653,91702,49,2750,0,0,0,0,0,0,320,3070,"","","","",""],["2026-03-28","Mohammad Islam","Retail Sales",91702,91777,75,0,80,0,0,0,0,0,0,80,"","","","",""],["2026-03-29","Mohammad Islam","Retail Sales",91777,91853,76,0,240,0,0,0,0,0,0,240,"","","","",""],["2026-03-30","Mohammad Islam","Retail Sales",91853,91961,108,0,320,0,0,100,0,0,0,420,"","","","",""],["2026-03-31","Mohammad Islam","Retail Sales",91961,91999,38,0,160,0,0,0,0,0,0,160,"","","","",""],["2026-03-01","Shaha Alom","Project Sales",101010,101275,265,3204,65,280,0,200,0,0,0,3749,"","","","",""],["2026-03-02","Shaha Alom","Project Sales",101275,101374,99,2600,560,280,0,200,0,0,0,3640,"","","","",""],["2026-03-02","Shaha Alom","Head Office",0,0,0,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-03","Shaha Alom","Project Sales",101374,101659,285,2771,65,280,0,0,0,0,0,3116,"","","","",""],["2026-03-04","Shaha Alom","Finance & Accounts",101659,101677,18,2000,0,0,0,0,0,0,0,2000,"","","","",""],["2026-03-05","Shaha Alom","Finance & Accounts",101677,101737,60,0,0,0,0,60,0,0,0,60,"","","","",""],["2026-03-07","Shaha Alom","Finance & Accounts",101737,101787,50,0,80,0,0,100,0,0,0,180,"","","","",""],["2026-03-08","Shaha Alom","Finance & Accounts",101787,101801,14,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-09","Shaha Alom","Finance & Accounts",101801,101844,43,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-10","Shaha Alom","Finance & Accounts",101844,101880,36,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-11","Shaha Alom","Finance & Accounts",101880,101909,29,1600,0,0,0,130,0,0,0,1730,"","","","",""],["2026-03-12","Shaha Alom","Finance & Accounts",101909,101936,27,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-14","Shaha Alom","Finance & Accounts",101936,101952,16,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-14","Shaha Alom","Foreign Project",101952,102020,68,0,160,0,0,0,0,0,0,160,"","","","",""],["2026-03-15","Shaha Alom","Technical Engineering",102020,102139,119,3662,370,0,0,0,0,0,0,4032,"","","","",""],["2026-03-16","Shaha Alom","Finance & Accounts",102139,102156,17,1000,0,0,0,0,0,0,0,1000,"","","","",""],["2026-03-16","Shaha Alom","Foreign Project",102156,102215,59,1424,80,0,0,0,0,0,0,1504,"","","","",""],["2026-03-18","Shaha Alom","Finance & Accounts",102215,102243,28,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-28","Shaha Alom","Finance & Accounts",102243,102279,36,1200,0,120,0,100,0,0,0,1420,"","","","",""],["2026-03-29","Shaha Alom","Finance & Accounts",102279,102293,14,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-30","Shaha Alom","Finance & Accounts",102293,102306,13,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-31","Shaha Alom","Finance & Accounts",102306,102334,28,0,0,120,0,0,0,0,0,120,"","","","",""],["2026-03-01","Akbar Hossain","Corporate Sales",180636,180904,268,3000,795,280,0,0,700,0,0,4775,"","","","",""],["2026-03-01","Akbar Hossain","Head Office",0,0,0,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-02","Akbar Hossain","Sales Management",180904,180993,89,1308,240,50,250,0,0,0,0,1848,"","","","",""],["2026-03-03","Akbar Hossain","Finance & Accounts",180993,181037,44,1000,160,0,0,50,0,0,0,1210,"","","","",""],["2026-03-04","Akbar Hossain","Specification & Application sales",181037,181099,62,1000,80,0,0,0,0,0,0,1080,"","","","",""],["2026-03-05","Akbar Hossain","Administration",181099,181159,60,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-05","Akbar Hossain","Finance & Accounts",181159,181174,15,703,0,0,0,0,0,0,0,703,"","","","",""],["2026-03-07","Akbar Hossain","Retail Sales",181174,181212,38,704,160,0,0,0,0,0,0,864,"","","","",""],["2026-03-08","Akbar Hossain","Corporate Sales",181212,181279,67,1970,0,0,0,60,0,0,0,2030,"","","","",""],["2026-03-08","Akbar Hossain","Finance & Accounts",181279,181312,33,0,0,50,0,0,0,0,0,50,"","","","",""],["2026-03-10","Akbar Hossain","Administration",181312,181334,22,703,0,0,0,0,0,0,0,703,"","","","",""],["2026-03-10","Akbar Hossain","Finance & Accounts",181334,181349,15,0,0,120,0,0,0,0,0,120,"","","","",""],["2026-03-11","Akbar Hossain","Retail Sales",181349,181425,76,1000,320,0,0,0,0,0,0,1320,"","","","",""],["2026-03-12","Akbar Hossain","Specification & Application sales",181425,181514,89,1420,240,50,0,80,0,0,0,1790,"","","","",""],["2026-03-13","Akbar Hossain","Specification & Application sales",181514,181590,76,0,80,50,0,140,0,0,0,270,"","","","",""],["2026-03-13","Akbar Hossain","Management Expense",181590,181632,42,785,0,120,0,0,0,0,0,905,"","","","",""],["2026-03-14","Akbar Hossain","Corporate Sales",181632,181749,117,3000,320,0,0,50,0,0,0,3370,"","","","",""],["2026-03-14","Akbar Hossain","Management Expense",181749,181787,38,0,0,120,0,0,0,0,0,120,"","","","",""],["2026-03-15","Akbar Hossain","Finance & Accounts",181787,181821,34,0,0,0,0,0,0,0,0,0,"","","","",""],["2026-03-16","Akbar Hossain","Specification & Application sales",181821,181857,36,0,80,0,0,60,0,0,0,140,"","","","",""],["2026-03-17","Akbar Hossain","Management Expense",181857,181929,72,3260,0,170,0,0,0,0,0,3430,"","","","",""],["2026-03-18","Akbar Hossain","Administration",181929,181976,47,1700,0,0,0,80,0,0,0,1780,"","","","",""],["2026-03-28","Akbar Hossain","Audit",183150,183221,71,1700,0,0,230,0,0,0,0,1930,"","","","",""],["2026-03-29","Akbar Hossain","Finance & Accounts",183221,183253,32,560,0,120,0,0,0,0,0,680,"","","","",""],["2026-03-30","Akbar Hossain","Specification & Application sales",183253,183342,89,1000,0,0,0,100,0,0,0,1100,"","","","",""],["2026-03-31","Akbar Hossain","Technical Engineering",183342,183385,43,1000,80,0,0,0,0,0,0,1080,"","","","",""]];
 
-function updateKPIs(){
-  document.getElementById('k-total').textContent=DATA.length;
-  document.getElementById('k-pending').textContent=DATA.filter(r=>r.status.includes('Pending')).length;
-  document.getElementById('k-fuel').textContent=fm(DATA.reduce((s,r)=>s+r.fuel,0));
-  document.getElementById('k-km').textContent=DATA.reduce((s,r)=>s+r.km,0).toLocaleString()+' km';
-  document.getElementById('k-drivers').textContent=new Set(DATA.map(r=>r.driver)).size;
+let allRows = [], filtered = [], sortCol = "date", sortDir = -1;
+let cMonthly = null, cDriver = null;
+
+window.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("app").style.display = "block";
+  loadData();
+});
+
+// ─── Main load ───────────────────────────────────
+async function loadData() {
+  hideErr();
+  if (!CONFIG.shareLink || CONFIG.shareLink.includes("PASTE_YOUR") || CONFIG.shareLink.trim() === "") {
+    // No share link → use embedded snapshot
+    showBanner("📋 Showing data snapshot from Excel file. To load live data, add your OneDrive share link in the CONFIG section.");
+    loadEmbedded();
+    return;
+  }
+  hideBanner();
+  showLoading("Downloading Excel file…");
+  try {
+    const downloadUrl = shareToDownload(CONFIG.shareLink);
+    const resp = await fetch(downloadUrl);
+    if (!resp.ok) throw new Error(`Cannot download file (HTTP ${resp.status}). Check your share link.`);
+    const buf = await resp.arrayBuffer();
+    updateLoading("Parsing data…");
+    const wb = XLSX.read(buf, { type: "array", cellDates: false });
+    const ws = wb.Sheets["File Entry"];
+    if (!ws) throw new Error('Sheet "File Entry" not found.');
+    const raw = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
+    parseExcelRows(raw);
+    finishLoad("Live Excel data loaded.");
+  } catch(e) {
+    hideLoading();
+    showErr("Error loading live data: " + e.message + " — Falling back to embedded snapshot.");
+    loadEmbedded();
+  }
 }
 
-function buildCharts(){
-  const mo={'Jan 2026':12400,'Feb 2026':15800,'Mar 2026':18200,'Apr 2026':16900,'May 2026':21300,'Jun 2026':DATA.reduce((s,r)=>s+r.fuel,0)};
-  if(cM)cM.destroy();
-  cM=new Chart(document.getElementById('chartMonthly'),{type:'bar',data:{labels:Object.keys(mo),datasets:[{data:Object.values(mo),backgroundColor:'#0078d4',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>'৳'+v.toLocaleString()}}}}});
-  const bd={};DATA.forEach(r=>{bd[r.driver]=(bd[r.driver]||0)+r.fuel;});
-  const top=Object.entries(bd).sort((a,b)=>b[1]-a[1]);
-  if(cD)cD.destroy();
-  cD=new Chart(document.getElementById('chartDriver'),{type:'bar',data:{labels:top.map(d=>d[0]),datasets:[{data:top.map(d=>d[1]),backgroundColor:'#e63946',borderRadius:4}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:v=>'৳'+v.toLocaleString()}}}}});
+function loadEmbedded() {
+  allRows = EMBEDDED_DATA.map(r => {
+    const fuel = +r[6];
+    const toll = +r[7], food = +r[8], maint = +r[9];
+    const park = +r[10], hotel = +r[11], fine = +r[12], others = +r[13];
+    const total = +r[14] || (fuel + toll + food + maint + park + hotel + fine + others);
+    const status = String(r[19] || "").trim() || "Manual Entry";
+    return {
+      date: r[0], driver: String(r[1]), dept: String(r[2]),
+      kmStart: +r[3], kmEnd: +r[4], km: +r[5],
+      fuel, toll, food, maintenance: maint, parking: park,
+      hotel, fine, others, total,
+      month: String(r[15]), billFrom: String(r[16]), billTo: String(r[17]),
+      vehicle: String(r[18]), status,
+      _dateStr: String(r[0]), _dateNum: 0
+    };
+  });
+  finishLoad("Embedded snapshot: " + allRows.length + " records.");
 }
 
-function populateFilters(){
-  const dSel=document.getElementById('f-driver');
-  dSel.innerHTML='<option value="">All Drivers</option>'+[...new Set(DATA.map(r=>r.driver))].sort().map(d=>'<option>'+d+'</option>').join('');
-  const mSel=document.getElementById('f-month');
-  mSel.innerHTML='<option value="">All Months</option><option>Jun 2026</option>';
+function shareToDownload(link) {
+  if (link.includes("download=1")) return link;
+  if (link.includes("sharepoint.com") || link.includes("onedrive.live.com"))
+    return link.includes("?") ? link + "&download=1" : link + "?download=1";
+  return link;
 }
 
-function filter(){
-  const st=document.getElementById('f-status').value;
-  const dr=document.getElementById('f-driver').value;
-  const se=document.getElementById('f-search').value.toLowerCase();
-  filtered=DATA.filter(r=>{
-    if(st&&!r.status.includes(st))return false;
-    if(dr&&r.driver!==dr)return false;
-    if(se&&!JSON.stringify(r).toLowerCase().includes(se))return false;
+// ─── Parse live Excel rows (SheetJS format) ──────
+function parseExcelRows(raw) {
+  // Row 0 = title, 1 = blank, 2 = headers, 3+ = data
+  allRows = [];
+  for (let i = 3; i < raw.length; i++) {
+    const r = raw[i];
+    if (!r[0] && !r[1]) continue;
+
+    // Fuel = sum of Gas-1…Octane (cols G–K = indices 6–10)
+    const fuel = num(r[6]) + num(r[7]) + num(r[8]) + num(r[9]) + num(r[10]);
+
+    // KM = Total KM formula col (F=5) — always None in saved file;
+    // fallback: End KM (E=4) minus Start KM (D=3)
+    const km = num(r[5]) || Math.max(0, num(r[4]) - num(r[3]));
+
+    const toll = num(r[13]);
+    const food = num(r[14]);
+    const maintenance = num(r[15]);
+    const parking = num(r[16]);
+    const hotel = num(r[17]);
+    const fine = num(r[18]);
+    const others = num(r[19]);
+
+    // Total = Grand Total formula (X=23) — None in saved file; calculate from parts
+    const total = num(r[23]) || (fuel + toll + food + maintenance + parking + hotel + fine + others);
+
+    // Status: empty for old manual data, "Pending Review" for new form submissions
+    const status = str(r[30]) || "Manual Entry";
+
+    allRows.push({
+      date: r[0], driver: str(r[1]), dept: str(r[2]),
+      kmStart: num(r[3]), kmEnd: num(r[4]), km,
+      fuel, toll, food, maintenance, parking, hotel, fine, others, total,
+      month: str(r[24]), billFrom: str(r[25]), billTo: str(r[26]),
+      vehicle: str(r[27]), status,
+      _dateNum: typeof r[0] === "number" ? r[0] : 0,
+      _dateStr: ""
+    });
+  }
+}
+
+function finishLoad(msg) {
+  updateKPIs(); buildCharts(); populateFilters(); filter();
+  document.getElementById("last-updated").textContent =
+    "Updated: " + new Date().toLocaleTimeString() + " · " + msg;
+  hideLoading();
+}
+
+// ─── Date helpers ─────────────────────────────────
+function parseDate(row) {
+  // Handles both Excel serial (live) and ISO string (embedded)
+  if (row._dateNum && row._dateNum > 0) {
+    return new Date((row._dateNum - 25569) * 86400 * 1000);
+  }
+  if (row._dateStr || typeof row.date === "string") {
+    const s = row._dateStr || String(row.date);
+    if (s && s !== "None" && s.length >= 10) return new Date(s.substring(0,10));
+  }
+  return null;
+}
+
+function fmtDate(row) {
+  const d = parseDate(row);
+  if (!d || isNaN(d)) return String(row.date || "–");
+  return d.toLocaleDateString("en-GB", { day:"2-digit", month:"short", year:"numeric" });
+}
+
+function getMonthLabel(row) {
+  const d = parseDate(row);
+  if (d && !isNaN(d)) return d.toLocaleDateString("en-US", { month:"short", year:"numeric" });
+  return row.month || "Unknown";
+}
+
+function isThisMonth(row) {
+  const d = parseDate(row);
+  if (!d || isNaN(d)) return false;
+  const now = new Date();
+  return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+}
+
+function getDateSort(row) {
+  if (row._dateNum && row._dateNum > 0) return row._dateNum;
+  const d = parseDate(row);
+  return d ? d.getTime() / 86400000 + 25569 : 0;
+}
+
+// ─── KPIs ─────────────────────────────────────────
+function updateKPIs() {
+  const thisMonth = allRows.filter(isThisMonth);
+  document.getElementById("k-total").textContent = allRows.length.toLocaleString();
+  document.getElementById("k-pending").textContent =
+    allRows.filter(r => r.status === "Pending Review").length;
+  document.getElementById("k-fuel").textContent =
+    fmtMoney(thisMonth.reduce((s,r) => s+r.fuel, 0));
+  document.getElementById("k-km").textContent =
+    thisMonth.reduce((s,r) => s+r.km, 0).toLocaleString() + " km";
+  const drivers = new Set(thisMonth.map(r => r.driver).filter(Boolean));
+  document.getElementById("k-drivers").textContent = drivers.size;
+}
+
+// ─── Charts ───────────────────────────────────────
+function buildCharts() {
+  const monthly = {};
+  allRows.forEach(r => {
+    const lbl = getMonthLabel(r);
+    monthly[lbl] = (monthly[lbl] || 0) + r.fuel;
+  });
+  const mKeys = Object.keys(monthly).slice(-9);
+  if (cMonthly) cMonthly.destroy();
+  cMonthly = new Chart(document.getElementById("chartMonthly"), {
+    type: "bar",
+    data: { labels: mKeys, datasets: [{ data: mKeys.map(k => Math.round(monthly[k])), backgroundColor: "#0078d4", borderRadius: 4 }] },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+      scales: { y: { ticks: { callback: v => "৳"+v.toLocaleString() } } } }
+  });
+
+  const byDriver = {};
+  allRows.forEach(r => { if (r.driver) byDriver[r.driver] = (byDriver[r.driver]||0) + r.fuel; });
+  const top = Object.entries(byDriver).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  if (cDriver) cDriver.destroy();
+  cDriver = new Chart(document.getElementById("chartDriver"), {
+    type: "bar",
+    data: { labels: top.map(d=>d[0]), datasets: [{ data: top.map(d=>Math.round(d[1])), backgroundColor: "#e63946", borderRadius: 4 }] },
+    options: { indexAxis:"y", responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+      scales: { x: { ticks: { callback: v => "৳"+v.toLocaleString() } } } }
+  });
+}
+
+// ─── Filters ──────────────────────────────────────
+function populateFilters() {
+  const drivers = [...new Set(allRows.map(r=>r.driver).filter(Boolean))].sort();
+  document.getElementById("f-driver").innerHTML =
+    '<option value="">All Drivers</option>' + drivers.map(d=>`<option>${d}</option>`).join("");
+
+  const months = [...new Set(allRows.map(getMonthLabel))].filter(m=>m!=="Unknown");
+  document.getElementById("f-month").innerHTML =
+    '<option value="">All Months</option>' + months.map(m=>`<option>${m}</option>`).join("");
+}
+
+function filter() {
+  const status = document.getElementById("f-status").value;
+  const driver = document.getElementById("f-driver").value;
+  const month  = document.getElementById("f-month").value;
+  const search = document.getElementById("f-search").value.toLowerCase();
+  filtered = allRows.filter(r => {
+    if (status && r.status !== status) return false;
+    if (driver && r.driver !== driver) return false;
+    if (month  && getMonthLabel(r) !== month) return false;
+    if (search && !JSON.stringify(r).toLowerCase().includes(search)) return false;
     return true;
   });
-  sortRows();renderTable();
+  sortRows(); renderTable();
 }
 
-function srt(col){if(sortCol===col)sortDir*=-1;else{sortCol=col;sortDir=-1;}sortRows();renderTable();}
-function sortRows(){
-  const key={date:'_d',driver:'driver',km:'km',fuel:'fuel',total:'total',status:'status'}[sortCol]||sortCol;
-  filtered.sort((a,b)=>{let av=a[key]??0,bv=b[key]??0;if(typeof av==='string'){av=av.toLowerCase();bv=bv.toLowerCase();}return av<bv?-sortDir:av>bv?sortDir:0;});
+// ─── Sort ─────────────────────────────────────────
+function sort(col) {
+  if (sortCol === col) sortDir *= -1; else { sortCol = col; sortDir = -1; }
+  sortRows(); renderTable();
+}
+function sortRows() {
+  filtered.sort((a,b) => {
+    let av, bv;
+    if (sortCol === "date") { av = getDateSort(a); bv = getDateSort(b); }
+    else { const k={driver:"driver",dept:"dept",km:"km",fuel:"fuel",total:"total",status:"status"}[sortCol]||sortCol; av=a[k]??0; bv=b[k]??0; }
+    if (typeof av==="string"){ av=av.toLowerCase(); bv=bv.toLowerCase(); }
+    return av<bv ? -sortDir : av>bv ? sortDir : 0;
+  });
 }
 
-function renderTable(){
-  const tbody=document.getElementById('tbody');
-  document.getElementById('rec-count').textContent=filtered.length+' records';
-  const sc={'Approved':'badge-approved','Rejected':'badge-rejected'};
-  tbody.innerHTML=filtered.map(r=>{
-    const bc=sc[r.status]||'badge-pending';
-    return '<tr><td>'+r.date+'</td><td><strong>'+r.driver+'</strong></td><td class="muted">'+r.dept+'</td><td class="amount">'+r.km.toLocaleString()+' km</td><td class="amount">'+fm(r.fuel)+'</td><td>'+fm(r.toll)+'</td><td>'+fm(r.food)+'</td><td>'+fm(r.others)+'</td><td class="amount">'+fm(r.total)+'</td><td class="muted">'+r.vehicle+'</td><td><span class="badge '+bc+'">'+r.status+'</span></td><td class="muted">'+r.from+' – '+r.to+'</td></tr>';
-  }).join('');
+// ─── Table ────────────────────────────────────────
+function renderTable() {
+  const tbody = document.getElementById("tbody");
+  document.getElementById("rec-count").textContent =
+    filtered.length + " record" + (filtered.length!==1?"s":"");
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="12"><div class="empty">No records found</div></td></tr>`;
+    return;
+  }
+  const sc = {"Approved":"badge-approved","Rejected":"badge-rejected","Manual Entry":"badge-manual"};
+  tbody.innerHTML = filtered.map(r => {
+    const bc = sc[r.status] || "badge-pending";
+    const othersSum = r.toll+r.food+r.maintenance+r.parking+r.hotel+r.fine+r.others;
+    const period = (r.billFrom||r.billTo) ? `${r.billFrom||""}–${r.billTo||""}` : "–";
+    return `<tr>
+      <td>${fmtDate(r)}</td>
+      <td><strong>${r.driver||"–"}</strong></td>
+      <td class="muted">${r.dept||"–"}</td>
+      <td class="amount">${r.km ? r.km.toLocaleString()+" km" : "–"}</td>
+      <td class="amount">${fmtMoney(r.fuel)}</td>
+      <td>${fmtMoney(r.toll)}</td>
+      <td>${fmtMoney(r.food)}</td>
+      <td>${fmtMoney(othersSum)}</td>
+      <td class="amount">${fmtMoney(r.total)}</td>
+      <td class="muted">${r.vehicle||"–"}</td>
+      <td><span class="badge ${bc}">${r.status}</span></td>
+      <td class="muted">${period}</td>
+    </tr>`;
+  }).join("");
 }
 
-function render(){updateKPIs();buildCharts();populateFilters();filter();}
-window.addEventListener('DOMContentLoaded',render);
+// ─── Utilities ────────────────────────────────────
+function str(v) { return v!==undefined&&v!==null ? String(v).trim() : ""; }
+function num(v) { return typeof v==="number" ? v : parseFloat(v)||0; }
+function fmtMoney(n) { return n ? "৳"+Math.round(n).toLocaleString() : "–"; }
+function showLoading(msg) { document.getElementById("loading-text").textContent=msg; document.getElementById("loading").style.display="flex"; }
+function updateLoading(msg) { document.getElementById("loading-text").textContent=msg; }
+function hideLoading() { document.getElementById("loading").style.display="none"; }
+function showErr(msg) { const el=document.getElementById("err"); el.textContent="⚠️ "+msg; el.style.display="block"; }
+function hideErr() { document.getElementById("err").style.display="none"; }
+function showBanner(msg) { const el=document.getElementById("info-banner"); el.textContent=msg; el.style.display="block"; }
+function hideBanner() { document.getElementById("info-banner").style.display="none"; }
 </script>
 </body>
 </html>
