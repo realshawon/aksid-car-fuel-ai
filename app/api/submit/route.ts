@@ -72,7 +72,7 @@ export async function POST(request) {
       if (key.startsWith('image_') && value instanceof Blob) {
         const buf = await value.arrayBuffer();
         const base64 = Buffer.from(buf).toString('base64');
-        imageFiles.push({ base64, mediaType: value.type || 'image/jpeg', name: value.name || key });
+        imageFiles.push({ base64, mediaType: value.type || 'image/jpeg', name: (value as File).name || key });
       }
     }
 
