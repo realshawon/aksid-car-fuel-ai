@@ -15,7 +15,7 @@ export default function SubmitPage() {
   const [date, setDate] = useState(today());
   const [periodFrom, setPeriodFrom] = useState('');
   const [periodTo, setPeriodTo] = useState('');
-  const [files, setFiles] = useState([]);
+  const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState([]);
   const [status, setStatus] = useState('idle');
   const [result, setResult] = useState(null);
@@ -26,7 +26,7 @@ export default function SubmitPage() {
     if (!newFiles) return;
     const arr = Array.from(newFiles).slice(0, 50 - files.length);
     setFiles(prev => [...prev, ...arr].slice(0, 50));
-    arr.forEach(f => {
+    arr.forEach((f: File) => {
       const reader = new FileReader();
       reader.onload = e => setPreviews(p => [...p, e.target.result]);
       reader.readAsDataURL(f);
