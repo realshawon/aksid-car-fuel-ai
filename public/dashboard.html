@@ -4,196 +4,163 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AKSID Car Fuel Bill Dashboard</title>
-<!-- SheetJS for reading Excel files -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<!-- Chart.js for charts -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: #1a1a2e; }
-#login-screen { display: none; }
-.header {
-  background: linear-gradient(135deg, #1a1a2e, #16213e); color: white;
-  padding: 0 24px; height: 58px; display: flex; align-items: center;
-  justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,.3);
-}
-.header-title { font-size: 18px; font-weight: 700; }
-.header-right { display: flex; align-items: center; gap: 14px; font-size: 13px; }
-.last-updated { color: #a0aec0; font-size: 12px; }
-.btn-refresh { background: #38a169; color: white; border: none; padding: 7px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
-.btn-refresh:hover { background: #2f855a; }
-.kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; padding: 18px 20px 0; }
-.kpi-card { background: white; border-radius: 10px; padding: 18px; box-shadow: 0 1px 4px rgba(0,0,0,.08); border-left: 4px solid #e63946; }
-.kpi-card.blue { border-left-color: #0078d4; }
-.kpi-card.green { border-left-color: #38a169; }
-.kpi-card.orange { border-left-color: #dd6b20; }
-.kpi-card.purple { border-left-color: #805ad5; }
-.kpi-label { font-size: 11px; color: #718096; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
-.kpi-value { font-size: 26px; font-weight: 800; color: #1a1a2e; margin: 5px 0 2px; }
-.kpi-sub { font-size: 11px; color: #a0aec0; }
-.filters { background: white; margin: 14px 20px 0; border-radius: 10px; padding: 14px 18px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
-.filter-group { display: flex; align-items: center; gap: 8px; }
-.filter-group label { font-size: 12px; font-weight: 700; color: #4a5568; white-space: nowrap; }
-select, input[type="text"] { border: 1px solid #e2e8f0; border-radius: 6px; padding: 6px 10px; font-size: 13px; color: #1a1a2e; background: white; cursor: pointer; }
-select:focus, input[type="text"]:focus { outline: none; border-color: #0078d4; }
-.search-input { min-width: 180px; }
-.charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 14px 20px 0; }
-.chart-card { background: white; border-radius: 10px; padding: 18px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
-.chart-card h3 { font-size: 13px; font-weight: 700; color: #4a5568; margin-bottom: 14px; }
-.chart-wrap { position: relative; height: 190px; }
-.table-card { background: white; margin: 14px 20px 24px; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,.08); overflow: hidden; }
-.table-top { padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e2e8f0; }
-.table-top h3 { font-size: 14px; font-weight: 700; }
-.record-count { font-size: 12px; color: #718096; }
-.table-wrap { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 900px; }
-th { background: #f7fafc; padding: 9px 12px; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: #718096; border-bottom: 1px solid #e2e8f0; white-space: nowrap; cursor: pointer; user-select: none; }
-th:hover { color: #0078d4; background: #edf2f7; }
-td { padding: 10px 12px; border-bottom: 1px solid #f0f4f8; vertical-align: middle; }
-tr:hover td { background: #f7fafc; }
-tr:last-child td { border-bottom: none; }
-.badge { display: inline-block; padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; }
-.badge-pending { background: #fef3c7; color: #92400e; }
-.badge-approved { background: #d1fae5; color: #065f46; }
-.badge-rejected { background: #fee2e2; color: #991b1b; }
-.amount { font-weight: 700; }
-.muted { color: #a0aec0; font-size: 11px; }
-#loading { position: fixed; inset: 0; background: rgba(26,26,46,.85); z-index: 999; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 14px; }
-.spinner { width: 44px; height: 44px; border: 4px solid rgba(255,255,255,.2); border-top-color: #0078d4; border-radius: 50%; animation: spin 1s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.loading-text { color: white; font-size: 15px; font-weight: 600; }
-.err { background: #fee2e2; color: #991b1b; padding: 12px 18px; margin: 14px 20px; border-radius: 8px; font-size: 13px; display: none; }
-#app { display: none; }
-.empty { text-align: center; padding: 40px; color: #a0aec0; font-size: 14px; }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;background:#f0f2f5;color:#1a1a2e}
+.header{background:linear-gradient(135deg,#1a1a2e,#16213e);color:white;padding:0 24px;height:58px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.header-title{font-size:18px;font-weight:700}
+.header-right{display:flex;align-items:center;gap:14px;font-size:13px}
+.last-updated{color:#a0aec0;font-size:12px}
+.btn-refresh{background:#38a169;color:white;border:none;padding:7px 16px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;padding:18px 20px 0}
+.kpi-card{background:white;border-radius:10px;padding:18px;box-shadow:0 1px 4px rgba(0,0,0,.08);border-left:4px solid #e63946}
+.kpi-card.blue{border-left-color:#0078d4}.kpi-card.green{border-left-color:#38a169}.kpi-card.orange{border-left-color:#dd6b20}.kpi-card.purple{border-left-color:#805ad5}
+.kpi-label{font-size:11px;color:#718096;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.kpi-value{font-size:26px;font-weight:800;color:#1a1a2e;margin:5px 0 2px}
+.kpi-sub{font-size:11px;color:#a0aec0}
+.filters{background:white;margin:14px 20px 0;border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.filter-group{display:flex;align-items:center;gap:8px}
+.filter-group label{font-size:12px;font-weight:700;color:#4a5568;white-space:nowrap}
+select,input[type=text]{border:1px solid #e2e8f0;border-radius:6px;padding:6px 10px;font-size:13px;color:#1a1a2e;background:white;cursor:pointer}
+select:focus,input[type=text]:focus{outline:none;border-color:#0078d4}
+.search-input{min-width:180px}
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:14px 20px 0}
+.chart-card{background:white;border-radius:10px;padding:18px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.chart-card h3{font-size:13px;font-weight:700;color:#4a5568;margin-bottom:14px}
+.chart-wrap{position:relative;height:190px}
+.table-card{background:white;margin:14px 20px 24px;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.08);overflow:hidden}
+.table-top{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e2e8f0}
+.table-top h3{font-size:14px;font-weight:700}
+.record-count{font-size:12px;color:#718096}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:900px}
+th{background:#f7fafc;padding:9px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#718096;border-bottom:1px solid #e2e8f0;white-space:nowrap;cursor:pointer;user-select:none}
+th:hover{color:#0078d4;background:#edf2f7}
+td{padding:10px 12px;border-bottom:1px solid #f0f4f8;vertical-align:middle}
+tr:hover td{background:#f7fafc}
+tr:last-child td{border-bottom:none}
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.badge-pending{background:#fef3c7;color:#92400e}
+.badge-approved{background:#d1fae5;color:#065f46}
+.badge-rejected{background:#fee2e2;color:#991b1b}
+.amount{font-weight:700}
+.muted{color:#a0aec0;font-size:11px}
+.demo-banner{background:#0078d4;color:white;text-align:center;padding:8px;font-size:13px;font-weight:600}
 </style>
 </head>
 <body>
-<div id="loading"><div class="spinner"></div><div class="loading-text" id="loading-text">Loading fuel data…</div></div>
-<div id="app">
-  <div class="header">
-    <div class="header-title">🚗 AKSID Car Fuel Bill Dashboard</div>
-    <div class="header-right"><span class="last-updated" id="last-updated"></span><button class="btn-refresh" onclick="loadData()">↻ Refresh</button></div>
-  </div>
-  <div class="err" id="err"></div>
-  <div class="kpi-row">
-    <div class="kpi-card"><div class="kpi-label">Total Submissions</div><div class="kpi-value" id="k-total">–</div><div class="kpi-sub">All time</div></div>
-    <div class="kpi-card orange"><div class="kpi-label">Pending Review</div><div class="kpi-value" id="k-pending">–</div><div class="kpi-sub">Awaiting approval</div></div>
-    <div class="kpi-card blue"><div class="kpi-label">Fuel Cost (Month)</div><div class="kpi-value" id="k-fuel">–</div><div class="kpi-sub">BDT this month</div></div>
-    <div class="kpi-card green"><div class="kpi-label">Total KM (Month)</div><div class="kpi-value" id="k-km">–</div><div class="kpi-sub">This month</div></div>
-    <div class="kpi-card purple"><div class="kpi-label">Active Drivers</div><div class="kpi-value" id="k-drivers">–</div><div class="kpi-sub">This month</div></div>
-  </div>
-  <div class="charts-row">
-    <div class="chart-card"><h3>📊 Monthly Fuel Cost (BDT)</h3><div class="chart-wrap"><canvas id="chartMonthly"></canvas></div></div>
-    <div class="chart-card"><h3>👤 Top Drivers by Fuel Cost</h3><div class="chart-wrap"><canvas id="chartDriver"></canvas></div></div>
-  </div>
-  <div class="filters">
-    <div class="filter-group"><label>Status:</label><select id="f-status" onchange="filter()"><option value="">All</option><option>Pending Review</option><option>Approved</option><option>Rejected</option></select></div>
-    <div class="filter-group"><label>Driver:</label><select id="f-driver" onchange="filter()"><option value="">All Drivers</option></select></div>
-    <div class="filter-group"><label>Month:</label><select id="f-month" onchange="filter()"><option value="">All Months</option></select></div>
-    <div class="filter-group"><label>Search:</label><input class="search-input" type="text" id="f-search" placeholder="Name, vehicle, dept…" oninput="filter()"></div>
-  </div>
-  <div class="table-card">
-    <div class="table-top"><h3>📋 Fuel Bill Submissions</h3><span class="record-count" id="rec-count"></span></div>
-    <div class="table-wrap"><table><thead><tr>
-      <th onclick="sort('date')">Date ↕</th><th onclick="sort('driver')">Driver ↕</th><th>Department</th>
-      <th onclick="sort('km')">Total KM ↕</th><th onclick="sort('fuel')">Fuel Cost ↕</th>
-      <th>Toll</th><th>Food</th><th>Others</th><th onclick="sort('total')">Total ↕</th>
-      <th>Vehicle No</th><th onclick="sort('status')">Status ↕</th><th>Bill Period</th>
-    </tr></thead><tbody id="tbody"></tbody></table></div>
+<div class="demo-banner">📊 LIVE DASHBOARD — OneDrive link add korle real data dekhabe | <a href="https://github.com/realshawon/aksid-car-fuel-ai/blob/main/public/dashboard.html" style="color:#fff;text-decoration:underline">Update shareLink in GitHub</a></div>
+<div class="header">
+  <div class="header-title">🚗 AKSID Car Fuel Bill Dashboard</div>
+  <div class="header-right">
+    <span class="last-updated" id="last-updated">Demo Data — June 2026</span>
+    <button class="btn-refresh" onclick="render()">↻ Refresh</button>
   </div>
 </div>
+<div class="kpi-row">
+  <div class="kpi-card"><div class="kpi-label">Total Submissions</div><div class="kpi-value" id="k-total">–</div><div class="kpi-sub">All time</div></div>
+  <div class="kpi-card orange"><div class="kpi-label">Pending Review</div><div class="kpi-value" id="k-pending">–</div><div class="kpi-sub">Awaiting approval</div></div>
+  <div class="kpi-card blue"><div class="kpi-label">Fuel Cost (Month)</div><div class="kpi-value" id="k-fuel">–</div><div class="kpi-sub">BDT this month</div></div>
+  <div class="kpi-card green"><div class="kpi-label">Total KM (Month)</div><div class="kpi-value" id="k-km">–</div><div class="kpi-sub">This month</div></div>
+  <div class="kpi-card purple"><div class="kpi-label">Active Drivers</div><div class="kpi-value" id="k-drivers">–</div><div class="kpi-sub">This month</div></div>
+</div>
+<div class="charts-row">
+  <div class="chart-card"><h3>📊 Monthly Fuel Cost (BDT)</h3><div class="chart-wrap"><canvas id="chartMonthly"></canvas></div></div>
+  <div class="chart-card"><h3>👤 Top Drivers by Fuel Cost</h3><div class="chart-wrap"><canvas id="chartDriver"></canvas></div></div>
+</div>
+<div class="filters">
+  <div class="filter-group"><label>Status:</label><select id="f-status" onchange="filter()"><option value="">All</option><option>Pending Review</option><option>Approved</option><option>Rejected</option></select></div>
+  <div class="filter-group"><label>Driver:</label><select id="f-driver" onchange="filter()"><option value="">All Drivers</option></select></div>
+  <div class="filter-group"><label>Month:</label><select id="f-month" onchange="filter()"><option value="">All Months</option></select></div>
+  <div class="filter-group"><label>Search:</label><input class="search-input" type="text" id="f-search" placeholder="Name, vehicle, dept…" oninput="filter()"></div>
+</div>
+<div class="table-card">
+  <div class="table-top"><h3>📋 Fuel Bill Submissions</h3><span class="record-count" id="rec-count"></span></div>
+  <div class="table-wrap"><table>
+    <thead><tr>
+      <th onclick="srt('date')">Date ↕</th><th onclick="srt('driver')">Driver ↕</th><th>Department</th>
+      <th onclick="srt('km')">Total KM ↕</th><th onclick="srt('fuel')">Fuel Cost ↕</th>
+      <th>Toll</th><th>Food</th><th>Others</th><th onclick="srt('total')">Total ↕</th>
+      <th>Vehicle</th><th onclick="srt('status')">Status ↕</th><th>Bill Period</th>
+    </tr></thead>
+    <tbody id="tbody"></tbody>
+  </table></div>
+</div>
 <script>
-const CONFIG = { shareLink: "PASTE_YOUR_ONEDRIVE_SHARE_LINK_HERE" };
-let allRows=[],filtered=[],sortCol="date",sortDir=-1,cMonthly=null,cDriver=null;
-window.addEventListener("DOMContentLoaded",()=>{document.getElementById("app").style.display="block";loadData();});
-async function loadData(){
-  if(!CONFIG.shareLink||CONFIG.shareLink.includes("PASTE_YOUR")){showErr("Please update the shareLink in CONFIG.");return;}
-  showLoading("Downloading Excel file…");
-  try{
-    const url=CONFIG.shareLink.includes("download=1")?CONFIG.shareLink:(CONFIG.shareLink.includes("?")?CONFIG.shareLink+"&download=1":CONFIG.shareLink+"?download=1");
-    const resp=await fetch(url);
-    if(!resp.ok)throw new Error("Could not download file ("+resp.status+")");
-    const buf=await resp.arrayBuffer();
-    updateLoading("Parsing data…");
-    const wb=XLSX.read(buf,{type:"array",cellDates:false});
-    const ws=wb.Sheets["File Entry"];
-    if(!ws)throw new Error('Sheet "File Entry" not found.');
-    const raw=XLSX.utils.sheet_to_json(ws,{header:1,defval:""});
-    parseRows(raw);updateKPIs();buildCharts();populateFilters();filter();
-    document.getElementById("last-updated").textContent="Updated: "+new Date().toLocaleTimeString();
-    hideLoading();
-  }catch(e){hideLoading();showErr("Error: "+e.message);}
-}
-function parseRows(raw){
-  allRows=[];
-  for(let i=3;i<raw.length;i++){
-    const r=raw[i];if(!r[0]&&!r[1])continue;
-    allRows.push({date:r[0],driver:s(r[1]),dept:s(r[2]),kmStart:n(r[3]),kmEnd:n(r[4]),km:n(r[5]),fuel:n(r[6]),toll:n(r[13]),food:n(r[14]),maintenance:n(r[15]),parking:n(r[16]),hotel:n(r[17]),fine:n(r[18]),others:n(r[19]),total:n(r[23]),month:s(r[24]),billFrom:s(r[25]),billTo:s(r[26]),vehicle:s(r[27]),status:s(r[30])||"Pending Review",_d:typeof r[0]==="number"?r[0]:0});
-  }
-}
-function s(v){return v!=null?String(v).trim():"";}
-function n(v){return typeof v==="number"?v:parseFloat(v)||0;}
-function toJS(serial){if(!serial||typeof serial!=="number")return null;return new Date((serial-25569)*86400*1000);}
-function fmtDate(v){const d=toJS(v);if(!d)return s(v);return d.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"});}
-function fmtMoney(n){if(!n)return"–";return"৳"+Math.round(n).toLocaleString();}
-function monthLabel(r){const d=toJS(r._d);if(d)return d.toLocaleDateString("en-US",{month:"short",year:"numeric"});return r.month||"Unknown";}
-function isThisMo(r){const d=toJS(r._d);if(!d)return false;const now=new Date();return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();}
+const DATA=[
+  {date:'01 Jun 2026',driver:'Milon Hossain',dept:'Operations',km:320,fuel:4200,toll:300,food:500,others:200,total:5200,vehicle:'DHA-1234',status:'Approved',from:'01 Jun',to:'15 Jun',_d:1},
+  {date:'03 Jun 2026',driver:'Karim Uddin',dept:'Sales',km:280,fuel:3800,toll:250,food:400,others:150,total:4600,vehicle:'DHA-5678',status:'Approved',from:'01 Jun',to:'15 Jun',_d:3},
+  {date:'05 Jun 2026',driver:'Rahim Sheikh',dept:'Delivery',km:410,fuel:5500,toll:400,food:600,others:300,total:6800,vehicle:'DHA-9012',status:'Pending Review',from:'01 Jun',to:'15 Jun',_d:5},
+  {date:'08 Jun 2026',driver:'Jabbar Ali',dept:'Logistics',km:190,fuel:2600,toll:200,food:300,others:100,total:3200,vehicle:'DHA-3456',status:'Pending Review',from:'01 Jun',to:'15 Jun',_d:8},
+  {date:'10 Jun 2026',driver:'Milon Hossain',dept:'Operations',km:350,fuel:4700,toll:350,food:550,others:250,total:5850,vehicle:'DHA-1234',status:'Approved',from:'01 Jun',to:'15 Jun',_d:10},
+  {date:'12 Jun 2026',driver:'Sumon Das',dept:'Admin',km:140,fuel:1900,toll:150,food:200,others:80,total:2330,vehicle:'DHA-7890',status:'Rejected',from:'01 Jun',to:'15 Jun',_d:12},
+  {date:'15 Jun 2026',driver:'Karim Uddin',dept:'Sales',km:300,fuel:4100,toll:280,food:450,others:180,total:5010,vehicle:'DHA-5678',status:'Pending Review',from:'16 Jun',to:'30 Jun',_d:15},
+  {date:'18 Jun 2026',driver:'Rahim Sheikh',dept:'Delivery',km:380,fuel:5100,toll:380,food:580,others:280,total:6340,vehicle:'DHA-9012',status:'Approved',from:'16 Jun',to:'30 Jun',_d:18},
+  {date:'20 Jun 2026',driver:'Rashed Khan',dept:'Security',km:160,fuel:2200,toll:180,food:250,others:90,total:2720,vehicle:'DHA-2345',status:'Pending Review',from:'16 Jun',to:'30 Jun',_d:20},
+  {date:'22 Jun 2026',driver:'Jabbar Ali',dept:'Logistics',km:420,fuel:5700,toll:420,food:620,others:320,total:7060,vehicle:'DHA-3456',status:'Pending Review',from:'16 Jun',to:'30 Jun',_d:22},
+];
+let filtered=[...DATA],sortCol='date',sortDir=-1;
+let cM=null,cD=null;
+
+function fm(n){return n?'৳'+Math.round(n).toLocaleString():'–';}
+
 function updateKPIs(){
-  const tm=allRows.filter(isThisMo);
-  document.getElementById("k-total").textContent=allRows.length.toLocaleString();
-  document.getElementById("k-pending").textContent=allRows.filter(r=>r.status.includes("Pending")).length;
-  document.getElementById("k-fuel").textContent=fmtMoney(tm.reduce((s,r)=>s+r.fuel,0));
-  document.getElementById("k-km").textContent=tm.reduce((s,r)=>s+r.km,0).toLocaleString()+" km";
-  document.getElementById("k-drivers").textContent=new Set(tm.map(r=>r.driver).filter(Boolean)).size;
+  document.getElementById('k-total').textContent=DATA.length;
+  document.getElementById('k-pending').textContent=DATA.filter(r=>r.status.includes('Pending')).length;
+  document.getElementById('k-fuel').textContent=fm(DATA.reduce((s,r)=>s+r.fuel,0));
+  document.getElementById('k-km').textContent=DATA.reduce((s,r)=>s+r.km,0).toLocaleString()+' km';
+  document.getElementById('k-drivers').textContent=new Set(DATA.map(r=>r.driver)).size;
 }
+
 function buildCharts(){
-  const mo={};allRows.forEach(r=>{const l=monthLabel(r);mo[l]=(mo[l]||0)+r.fuel;});
-  const mk=Object.keys(mo).slice(-9);
-  if(cMonthly)cMonthly.destroy();
-  cMonthly=new Chart(document.getElementById("chartMonthly"),{type:"bar",data:{labels:mk,datasets:[{data:mk.map(k=>Math.round(mo[k])),backgroundColor:"#0078d4",borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>"৳"+v.toLocaleString()}}}}});
-  const bd={};allRows.forEach(r=>{if(r.driver)bd[r.driver]=(bd[r.driver]||0)+r.fuel;});
-  const top=Object.entries(bd).sort((a,b)=>b[1]-a[1]).slice(0,8);
-  if(cDriver)cDriver.destroy();
-  cDriver=new Chart(document.getElementById("chartDriver"),{type:"bar",data:{labels:top.map(d=>d[0]),datasets:[{data:top.map(d=>Math.round(d[1])),backgroundColor:"#e63946",borderRadius:4}]},options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:v=>"৳"+v.toLocaleString()}}}}});
+  const mo={'Jan 2026':12400,'Feb 2026':15800,'Mar 2026':18200,'Apr 2026':16900,'May 2026':21300,'Jun 2026':DATA.reduce((s,r)=>s+r.fuel,0)};
+  if(cM)cM.destroy();
+  cM=new Chart(document.getElementById('chartMonthly'),{type:'bar',data:{labels:Object.keys(mo),datasets:[{data:Object.values(mo),backgroundColor:'#0078d4',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>'৳'+v.toLocaleString()}}}}});
+  const bd={};DATA.forEach(r=>{bd[r.driver]=(bd[r.driver]||0)+r.fuel;});
+  const top=Object.entries(bd).sort((a,b)=>b[1]-a[1]);
+  if(cD)cD.destroy();
+  cD=new Chart(document.getElementById('chartDriver'),{type:'bar',data:{labels:top.map(d=>d[0]),datasets:[{data:top.map(d=>d[1]),backgroundColor:'#e63946',borderRadius:4}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:v=>'৳'+v.toLocaleString()}}}}});
 }
+
 function populateFilters(){
-  const dSel=document.getElementById("f-driver");
-  dSel.innerHTML='<option value="">All Drivers</option>'+[...new Set(allRows.map(r=>r.driver).filter(Boolean))].sort().map(d=>`<option>${d}</option>`).join("");
-  const mSel=document.getElementById("f-month");
-  mSel.innerHTML='<option value="">All Months</option>'+[...new Set(allRows.map(monthLabel))].filter(m=>m!=="Unknown").map(m=>`<option>${m}</option>`).join("");
+  const dSel=document.getElementById('f-driver');
+  dSel.innerHTML='<option value="">All Drivers</option>'+[...new Set(DATA.map(r=>r.driver))].sort().map(d=>'<option>'+d+'</option>').join('');
+  const mSel=document.getElementById('f-month');
+  mSel.innerHTML='<option value="">All Months</option><option>Jun 2026</option>';
 }
+
 function filter(){
-  const st=document.getElementById("f-status").value,dr=document.getElementById("f-driver").value,mo=document.getElementById("f-month").value,se=document.getElementById("f-search").value.toLowerCase();
-  filtered=allRows.filter(r=>{
+  const st=document.getElementById('f-status').value;
+  const dr=document.getElementById('f-driver').value;
+  const se=document.getElementById('f-search').value.toLowerCase();
+  filtered=DATA.filter(r=>{
     if(st&&!r.status.includes(st))return false;
     if(dr&&r.driver!==dr)return false;
-    if(mo&&monthLabel(r)!==mo)return false;
     if(se&&!JSON.stringify(r).toLowerCase().includes(se))return false;
     return true;
   });
   sortRows();renderTable();
 }
-function sort(col){if(sortCol===col)sortDir*=-1;else{sortCol=col;sortDir=-1;}sortRows();renderTable();}
+
+function srt(col){if(sortCol===col)sortDir*=-1;else{sortCol=col;sortDir=-1;}sortRows();renderTable();}
 function sortRows(){
-  const key={date:"_d",driver:"driver",dept:"dept",km:"km",fuel:"fuel",total:"total",status:"status"}[sortCol]||sortCol;
-  filtered.sort((a,b)=>{let av=a[key]??0,bv=b[key]??0;if(typeof av==="string"){av=av.toLowerCase();bv=bv.toLowerCase();}return av<bv?-sortDir:av>bv?sortDir:0;});
+  const key={date:'_d',driver:'driver',km:'km',fuel:'fuel',total:'total',status:'status'}[sortCol]||sortCol;
+  filtered.sort((a,b)=>{let av=a[key]??0,bv=b[key]??0;if(typeof av==='string'){av=av.toLowerCase();bv=bv.toLowerCase();}return av<bv?-sortDir:av>bv?sortDir:0;});
 }
+
 function renderTable(){
-  const tbody=document.getElementById("tbody");
-  document.getElementById("rec-count").textContent=filtered.length+" record"+(filtered.length!==1?"s":"");
-  if(!filtered.length){tbody.innerHTML='<tr><td colspan="12"><div class="empty">No records found</div></td></tr>';return;}
-  const sc={"Approved":"badge-approved","Rejected":"badge-rejected"};
+  const tbody=document.getElementById('tbody');
+  document.getElementById('rec-count').textContent=filtered.length+' records';
+  const sc={'Approved':'badge-approved','Rejected':'badge-rejected'};
   tbody.innerHTML=filtered.map(r=>{
-    const bc=sc[r.status]||"badge-pending";
-    const ot=r.toll+r.food+r.maintenance+r.parking+r.hotel+r.fine+r.others;
-    const pd=(r.billFrom||r.billTo)?r.billFrom+" – "+r.billTo:"–";
-    return '<tr><td>'+fmtDate(r._d)+'</td><td><strong>'+r.driver+'</strong></td><td class="muted">'+r.dept+'</td><td class="amount">'+(r.km?r.km.toLocaleString()+" km":"–")+'</td><td class="amount">'+fmtMoney(r.fuel)+'</td><td>'+fmtMoney(r.toll)+'</td><td>'+fmtMoney(r.food)+'</td><td>'+fmtMoney(ot)+'</td><td class="amount">'+fmtMoney(r.total||r.fuel+ot)+'</td><td class="muted">'+r.vehicle+'</td><td><span class="badge '+bc+'">'+r.status+'</span></td><td class="muted">'+pd+'</td></tr>';
-  }).join("");
+    const bc=sc[r.status]||'badge-pending';
+    return '<tr><td>'+r.date+'</td><td><strong>'+r.driver+'</strong></td><td class="muted">'+r.dept+'</td><td class="amount">'+r.km.toLocaleString()+' km</td><td class="amount">'+fm(r.fuel)+'</td><td>'+fm(r.toll)+'</td><td>'+fm(r.food)+'</td><td>'+fm(r.others)+'</td><td class="amount">'+fm(r.total)+'</td><td class="muted">'+r.vehicle+'</td><td><span class="badge '+bc+'">'+r.status+'</span></td><td class="muted">'+r.from+' – '+r.to+'</td></tr>';
+  }).join('');
 }
-function showLoading(msg){document.getElementById("loading-text").textContent=msg;document.getElementById("loading").style.display="flex";}
-function updateLoading(msg){document.getElementById("loading-text").textContent=msg;}
-function hideLoading(){document.getElementById("loading").style.display="none";}
-function showErr(msg){const el=document.getElementById("err");el.textContent="⚠️ "+msg;el.style.display="block";}
+
+function render(){updateKPIs();buildCharts();populateFilters();filter();}
+window.addEventListener('DOMContentLoaded',render);
 </script>
 </body>
 </html>
