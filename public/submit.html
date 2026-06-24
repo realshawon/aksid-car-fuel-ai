@@ -118,9 +118,32 @@ input.error, select.error { border-color: #e53e3e; }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* ── File Upload Area ── */
+.file-upload-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.file-drop {
+  border: 2px dashed #cbd5e0; border-radius: 8px; padding: 20px 16px;
+  text-align: center; cursor: pointer; transition: border-color .2s, background .2s;
+  background: #f7fafc; position: relative;
+}
+.file-drop:hover, .file-drop.dragover { border-color: #0078d4; background: #ebf8ff; }
+.file-drop.has-file { border-color: #48bb78; background: #f0fff4; border-style: solid; }
+.file-drop.error-file { border-color: #e53e3e; background: #fff5f5; }
+.file-drop input[type="file"] {
+  position: absolute; inset: 0; opacity: 0; cursor: pointer;
+  width: 100%; height: 100%; border: none; padding: 0;
+}
+.file-drop-icon { font-size: 28px; margin-bottom: 6px; }
+.file-drop-label { font-size: 13px; font-weight: 700; color: #4a5568; display: block; }
+.file-drop-hint  { font-size: 11px; color: #a0aec0; margin-top: 2px; }
+.file-name-display {
+  font-size: 12px; color: #276749; font-weight: 600; margin-top: 6px;
+  word-break: break-all; display: none;
+}
+
 /* ── Responsive ── */
 @media (max-width: 560px) {
   .form-grid { grid-template-columns: 1fr; }
+  .file-upload-grid { grid-template-columns: 1fr; }
   .header-title { font-size: 15px; }
   .page-body { padding: 16px 12px 48px; }
 }
@@ -269,7 +292,64 @@ input.error, select.error { border-color: #e53e3e; }
 
     <hr class="section-divider">
 
-    <!-- ── Section 4: Notes ── -->
+    <!-- ── Section 4: Bill Period ── -->
+    <div class="section-header">📅 Bill Period</div>
+    <div class="form-body">
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label>Bill Period From <span class="req">*</span></label>
+          <input type="date" id="billFrom" required>
+          <span class="input-hint">Start date of this fuel bill period</span>
+        </div>
+
+        <div class="form-group">
+          <label>Bill Period To <span class="req">*</span></label>
+          <input type="date" id="billTo" required>
+          <span class="input-hint">End date of this fuel bill period</span>
+        </div>
+
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- ── Section 5: Attachments ── -->
+    <div class="section-header">📎 Attachments</div>
+    <div class="form-body">
+      <p style="font-size:13px; color:#4a5568; margin-bottom:14px;">
+        Upload both documents below. Accepted: <strong>PDF, JPG, PNG</strong> — max 5 MB each.
+      </p>
+      <div class="file-upload-grid">
+
+        <div class="form-group">
+          <label>Fuel Bill PDF <span class="req">*</span></label>
+          <div class="file-drop" id="dropFuelBill">
+            <input type="file" id="fileFuelBill" accept=".pdf,.jpg,.jpeg,.png" onchange="handleFile('fuelBill')">
+            <div class="file-drop-icon">📄</div>
+            <span class="file-drop-label">Click or drag &amp; drop</span>
+            <span class="file-drop-hint">Fuel bill PDF / image</span>
+            <div class="file-name-display" id="nameFuelBill"></div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Driver Log Sheet <span class="req">*</span></label>
+          <div class="file-drop" id="dropLogSheet">
+            <input type="file" id="fileLogSheet" accept=".pdf,.jpg,.jpeg,.png" onchange="handleFile('logSheet')">
+            <div class="file-drop-icon">📋</div>
+            <span class="file-drop-label">Click or drag &amp; drop</span>
+            <span class="file-drop-hint">Driver log sheet PDF / image</span>
+            <div class="file-name-display" id="nameLogSheet"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- ── Section 6: Notes ── -->
     <div class="section-header">📝 Additional Notes</div>
     <div class="form-body">
       <div class="form-group">
@@ -280,7 +360,7 @@ input.error, select.error { border-color: #e53e3e; }
 
     <!-- ── Status messages ── -->
     <div class="msg loading" id="msgLoading"><div class="spinner"></div> Submitting your expense report…</div>
-    <div class="msg success" id="msgSuccess">✅ Expense submitted successfully! Your report has been recorded.</div>
+    <div class="msg success" id="msgSuccess">✅ Expense submitted successfully! Your report and attachments have been recorded.</div>
     <div class="msg error"   id="msgError">❌ <span id="errText">Submission failed. Please try again.</span></div>
 
     <!-- ── Submit ── -->
@@ -296,8 +376,11 @@ input.error, select.error { border-color: #e53e3e; }
 </div><!-- /page-body -->
 
 <script>
-/* ── CONFIG: paste your webhook URL here ── */
-const WEBHOOK_URL = 'https://hook.eu1.make.com/3p84j4bc467u06fgnwp8p8n95w4rvfwf';  // Make.com: AKSID Car Fuel Bill Webhook (Active ✓)
+/* ── CONFIG ── */
+const WEBHOOK_URL = 'https://hook.eu1.make.com/3p84j4bc467u06fgnwp8p8n95w4rvfwf';
+
+/* ── File store ── */
+const files = { fuelBill: null, logSheet: null };
 
 /* ── Auto-set today's date ── */
 document.getElementById('tripDate').value = new Date().toISOString().slice(0,10);
@@ -307,9 +390,8 @@ function calcKm() {
   const s = +document.getElementById('kmStart').value || 0;
   const e = +document.getElementById('kmEnd').value || 0;
   const diff = e - s;
-  const box = document.getElementById('kmSummary');
   document.getElementById('kmCalc').textContent = diff > 0 ? diff : 0;
-  box.style.display = (s > 0 || e > 0) ? 'block' : 'none';
+  document.getElementById('kmSummary').style.display = (s > 0 || e > 0) ? 'block' : 'none';
 }
 document.getElementById('kmStart').addEventListener('input', calcKm);
 document.getElementById('kmEnd').addEventListener('input', calcKm);
@@ -322,65 +404,137 @@ function calcTotal() {
 }
 costIds.forEach(id => document.getElementById(id).addEventListener('input', calcTotal));
 
+/* ── File handling ── */
+function handleFile(key) {
+  const inputId  = key === 'fuelBill' ? 'fileFuelBill' : 'fileLogSheet';
+  const dropId   = key === 'fuelBill' ? 'dropFuelBill' : 'dropLogSheet';
+  const nameId   = key === 'fuelBill' ? 'nameFuelBill' : 'nameLogSheet';
+  const input    = document.getElementById(inputId);
+  const drop     = document.getElementById(dropId);
+  const nameEl   = document.getElementById(nameId);
+  const file     = input.files[0];
+
+  if (!file) return;
+
+  const maxBytes = 5 * 1024 * 1024; // 5 MB
+  if (file.size > maxBytes) {
+    drop.classList.add('error-file');
+    drop.classList.remove('has-file');
+    nameEl.textContent = '⚠️ File too large (max 5 MB)';
+    nameEl.style.display = 'block';
+    files[key] = null;
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    files[key] = { name: file.name, size: file.size, type: file.type, base64: ev.target.result.split(',')[1] };
+    drop.classList.add('has-file');
+    drop.classList.remove('error-file');
+    nameEl.textContent = '✅ ' + file.name;
+    nameEl.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+/* ── Drag-and-drop wiring ── */
+['dropFuelBill','dropLogSheet'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('dragover',  e => { e.preventDefault(); el.classList.add('dragover'); });
+  el.addEventListener('dragleave', () => el.classList.remove('dragover'));
+  el.addEventListener('drop', e => {
+    e.preventDefault();
+    el.classList.remove('dragover');
+    const key = id === 'dropFuelBill' ? 'fuelBill' : 'logSheet';
+    const inputId = key === 'fuelBill' ? 'fileFuelBill' : 'fileLogSheet';
+    const input = document.getElementById(inputId);
+    const dt = new DataTransfer();
+    dt.items.add(e.dataTransfer.files[0]);
+    input.files = dt.files;
+    handleFile(key);
+  });
+});
+
 /* ── Validation ── */
 function validate() {
-  const required = ['driver','dept','tripDate','kmStart','kmEnd','fuel'];
+  const required = ['driver','dept','tripDate','kmStart','kmEnd','fuel','billFrom','billTo'];
   let ok = true;
   required.forEach(id => {
     const el = document.getElementById(id);
     if (!el.value.trim()) { el.classList.add('error'); ok = false; }
     else el.classList.remove('error');
   });
+
   const s = +document.getElementById('kmStart').value;
   const e = +document.getElementById('kmEnd').value;
-  if (s > 0 && e > 0 && e <= s) {
-    document.getElementById('kmEnd').classList.add('error');
-    ok = false;
+  if (s > 0 && e > 0 && e <= s) { document.getElementById('kmEnd').classList.add('error'); ok = false; }
+
+  const bFrom = document.getElementById('billFrom').value;
+  const bTo   = document.getElementById('billTo').value;
+  if (bFrom && bTo && bTo < bFrom) { document.getElementById('billTo').classList.add('error'); ok = false; }
+
+  if (!files.fuelBill) {
+    document.getElementById('dropFuelBill').classList.add('error-file'); ok = false;
+  } else {
+    document.getElementById('dropFuelBill').classList.remove('error-file');
   }
+  if (!files.logSheet) {
+    document.getElementById('dropLogSheet').classList.add('error-file'); ok = false;
+  } else {
+    document.getElementById('dropLogSheet').classList.remove('error-file');
+  }
+
   return ok;
 }
 
 /* ── Submit ── */
 async function submitForm() {
   if (!validate()) {
-    showMsg('error', 'Please fill in all required fields correctly.');
+    showMsg('error', 'Please fill in all required fields and upload both documents.');
     return;
   }
 
-  const s = +document.getElementById('kmStart').value || 0;
-  const e = +document.getElementById('kmEnd').value || 0;
-  const km = e - s;
+  const s     = +document.getElementById('kmStart').value || 0;
+  const e     = +document.getElementById('kmEnd').value || 0;
+  const km    = e - s;
   const total = costIds.reduce((sum, id) => sum + (+document.getElementById(id).value || 0), 0);
-  const now = new Date();
+  const now   = new Date();
 
   const payload = {
-    submittedAt: now.toISOString(),
-    date:        document.getElementById('tripDate').value,
-    driver:      document.getElementById('driver').value,
-    dept:        document.getElementById('dept').value,
-    vehicle:     document.getElementById('vehicle').value,
-    kmStart:     s,
-    kmEnd:       e,
-    km:          km,
-    fuel:        +document.getElementById('fuel').value || 0,
-    toll:        +document.getElementById('toll').value || 0,
-    food:        +document.getElementById('food').value || 0,
-    maintenance: +document.getElementById('maintenance').value || 0,
-    parking:     +document.getElementById('parking').value || 0,
-    hotel:       +document.getElementById('hotel').value || 0,
-    fine:        +document.getElementById('fine').value || 0,
-    others:      +document.getElementById('others').value || 0,
-    total:       total,
-    notes:       document.getElementById('notes').value.trim(),
-    status:      'Pending Review',
-    month:       now.toLocaleString('en-US', { month: 'short', year: 'numeric' })
+    submittedAt:      now.toISOString(),
+    date:             document.getElementById('tripDate').value,
+    driver:           document.getElementById('driver').value,
+    dept:             document.getElementById('dept').value,
+    vehicle:          document.getElementById('vehicle').value,
+    kmStart:          s,
+    kmEnd:            e,
+    km:               km,
+    fuel:             +document.getElementById('fuel').value || 0,
+    toll:             +document.getElementById('toll').value || 0,
+    food:             +document.getElementById('food').value || 0,
+    maintenance:      +document.getElementById('maintenance').value || 0,
+    parking:          +document.getElementById('parking').value || 0,
+    hotel:            +document.getElementById('hotel').value || 0,
+    fine:             +document.getElementById('fine').value || 0,
+    others:           +document.getElementById('others').value || 0,
+    total:            total,
+    notes:            document.getElementById('notes').value.trim(),
+    billPeriodFrom:   document.getElementById('billFrom').value,
+    billPeriodTo:     document.getElementById('billTo').value,
+    status:           'Pending Review',
+    month:            now.toLocaleString('en-US', { month: 'short', year: 'numeric' }),
+    fuelBillFileName: files.fuelBill.name,
+    fuelBillType:     files.fuelBill.type,
+    fuelBillBase64:   files.fuelBill.base64,
+    logSheetFileName: files.logSheet.name,
+    logSheetType:     files.logSheet.type,
+    logSheetBase64:   files.logSheet.base64,
   };
 
   showMsg('loading');
   document.getElementById('submitBtn').disabled = true;
 
   if (!WEBHOOK_URL || WEBHOOK_URL === 'YOUR_WEBHOOK_URL_HERE') {
-    /* Demo mode: just show success without actually POSTing */
     await new Promise(r => setTimeout(r, 1200));
     showMsg('success');
     document.getElementById('submitBtn').disabled = false;
@@ -396,7 +550,7 @@ async function submitForm() {
     });
     if (res.ok) {
       showMsg('success');
-      setTimeout(clearForm, 2500);
+      setTimeout(clearForm, 3000);
     } else {
       showMsg('error', `Server returned ${res.status}. Please contact IT.`);
     }
@@ -408,21 +562,35 @@ async function submitForm() {
 }
 
 function showMsg(type, text) {
-  ['loading','success','error'].forEach(t => document.getElementById('msg'+t.charAt(0).toUpperCase()+t.slice(1)).style.display='none');
+  ['loading','success','error'].forEach(t =>
+    document.getElementById('msg'+t.charAt(0).toUpperCase()+t.slice(1)).style.display='none');
   if (type === 'error' && text) document.getElementById('errText').textContent = text;
   document.getElementById('msg'+type.charAt(0).toUpperCase()+type.slice(1)).style.display='flex';
 }
 
 function clearForm() {
-  ['driver','dept','vehicle','kmStart','kmEnd','fuel','toll','food','maintenance','parking','hotel','fine','others','notes']
+  ['driver','dept','vehicle','kmStart','kmEnd','fuel','toll','food','maintenance',
+   'parking','hotel','fine','others','notes','billFrom','billTo']
     .forEach(id => document.getElementById(id).value = '');
   document.getElementById('tripDate').value = new Date().toISOString().slice(0,10);
   document.getElementById('totalAmount').textContent = '0.00';
   document.getElementById('kmSummary').style.display = 'none';
   ['loading','success','error'].forEach(t =>
-    document.getElementById('msg'+t.charAt(0).toUpperCase()+t.slice(1)).style.display='none'
-  );
+    document.getElementById('msg'+t.charAt(0).toUpperCase()+t.slice(1)).style.display='none');
   document.querySelectorAll('.error').forEach(el => el.classList.remove('error'));
+
+  /* Reset file uploads */
+  files.fuelBill = null; files.logSheet = null;
+  ['fileFuelBill','fileLogSheet'].forEach(id => document.getElementById(id).value = '');
+  ['dropFuelBill','dropLogSheet'].forEach(id => {
+    const d = document.getElementById(id);
+    d.classList.remove('has-file','error-file');
+  });
+  ['nameFuelBill','nameLogSheet'].forEach(id => {
+    const n = document.getElementById(id);
+    n.textContent = ''; n.style.display = 'none';
+  });
+
   document.getElementById('submitBtn').disabled = false;
 }
 </script>
