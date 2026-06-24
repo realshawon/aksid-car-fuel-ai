@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AKSID Transport Expense Dashboard</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -229,7 +228,7 @@ tr:last-child td { border-bottom: none; }
 // Leave blank to show embedded snapshot data.
 // ══════════════════════════════════════════════════
 const CONFIG = {
-  shareLink: "/api/excel"
+  shareLink: "/fuel-data.json"
 };
 
 // ── Embedded real data (snapshot from Excel) ─────
@@ -247,53 +246,30 @@ window.addEventListener("DOMContentLoaded", () => {
 // ─── Main load ───────────────────────────────────
 async function loadData() {
   hideErr();
-  if (!CONFIG.shareLink || CONFIG.shareLink.includes("PASTE_YOUR") || CONFIG.shareLink.trim() === "") {
-    // No share link → use embedded snapshot
-    showBanner("📋 Showing data snapshot from Excel file. To load live data, add your OneDrive share link in the CONFIG section.");
-    loadEmbedded();
-    return;
-  }
   hideBanner();
-  showLoading("Downloading Excel file…");
+  showLoading("Loading live data…");
   try {
-    const downloadUrl = shareToDownload(CONFIG.shareLink);
-    const resp = await fetch(downloadUrl);
-    if (!resp.ok) throw new Error(`Cannot download file (HTTP ${resp.status}). Check your share link.`);
-    const buf = await resp.arrayBuffer();
-    updateLoading("Parsing data…");
-    const wb = XLSX.read(buf, { type: "array", cellDates: false });
-    const ws = wb.Sheets["File Entry"];
-    if (!ws) throw new Error('Sheet "File Entry" not found.');
-    const raw = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
-    parseExcelRows(raw);
-    finishLoad("Live Excel data loaded.");
+    const resp = await fetch(CONFIG.shareLink + "?t=" + Date.now());
+    if (!resp.ok) throw new Error("HTTP " + resp.status);
+    const data = await resp.json();
+    if (!data.rows || !data.rows.length) throw new Error("No data in file");
+    allRows = data.rows;
+    allRows.forEach(r => {
+      r.fuel = +r.fuel||0; r.toll = +r.toll||0; r.food = +r.food||0;
+      r.maintenance = +r.maintenance||0; r.parking = +r.parking||0;
+      r.hotel = +r.hotel||0; r.fine = +r.fine||0; r.others = +r.others||0;
+      r.total = +r.total||0; r.km = +r.km||0;
+      r.kmStart = +r.kmStart||0; r.kmEnd = +r.kmEnd||0;
+      if (!r._dateStr && r.date) r._dateStr = String(r.date);
+    });
+    const updated = data.updated ? new Date(data.updated).toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}) : "today";
+    finishLoad("Live data: " + allRows.length + " records (as of " + updated + ")");
   } catch(e) {
     hideLoading();
-    showErr("Error loading live data: " + e.message + " — Falling back to embedded snapshot.");
+    showErr("Could not load live data (" + e.message + "). Showing embedded snapshot.");
     loadEmbedded();
   }
 }
-
-function loadEmbedded() {
-  allRows = EMBEDDED_DATA.map(r => {
-    const fuel = +r[6];
-    const toll = +r[7], food = +r[8], maint = +r[9];
-    const park = +r[10], hotel = +r[11], fine = +r[12], others = +r[13];
-    const total = +r[14] || (fuel + toll + food + maint + park + hotel + fine + others);
-    const status = String(r[19] || "").trim() || "Manual Entry";
-    return {
-      date: r[0], driver: String(r[1]), dept: String(r[2]),
-      kmStart: +r[3], kmEnd: +r[4], km: +r[5],
-      fuel, toll, food, maintenance: maint, parking: park,
-      hotel, fine, others, total,
-      month: String(r[15]), billFrom: String(r[16]), billTo: String(r[17]),
-      vehicle: String(r[18]), status,
-      _dateStr: String(r[0]), _dateNum: 0
-    };
-  });
-  finishLoad("Embedded snapshot: " + allRows.length + " records.");
-}
-
 function shareToDownload(link) {
   if (link.includes("download=1")) return link;
   if (link.includes("sharepoint.com") || link.includes("onedrive.live.com"))
