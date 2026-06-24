@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AKSID Transport Expense — Submission Form</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: #1a1a2e; min-height: 100vh; }
+
+/* ── Header (identical to dashboard) ── */
+.header {
+  background: linear-gradient(135deg, #1a1a2e, #16213e); color: white;
+  padding: 0 24px; height: 58px; display: flex; align-items: center;
+  justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,.3);
+  position: sticky; top: 0; z-index: 100;
+}
+.header-title { font-size: 18px; font-weight: 700; }
+.header-nav { display: flex; gap: 10px; }
+.nav-btn {
+  background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2);
+  padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600;
+  cursor: pointer; text-decoration: none; display: inline-flex; align-items: center;
+  transition: background .2s;
+}
+.nav-btn:hover { background: rgba(255,255,255,0.2); }
+.nav-btn.active { background: #0078d4; border-color: #0078d4; }
+
+/* ── Page body ── */
+.page-body { max-width: 720px; margin: 0 auto; padding: 24px 20px 48px; }
+
+.page-heading {
+  background: white; border-radius: 10px; padding: 20px 24px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08); margin-bottom: 18px;
+  border-left: 4px solid #0078d4;
+}
+.page-heading h2 { font-size: 18px; font-weight: 800; color: #1a1a2e; }
+.page-heading p { font-size: 13px; color: #718096; margin-top: 4px; }
+
+/* ── Form card ── */
+.form-card {
+  background: white; border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08); overflow: hidden;
+}
+.section-header {
+  background: #f7fafc; padding: 12px 20px;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .5px; color: #4a5568;
+}
+.form-body { padding: 20px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group.full { grid-column: 1 / -1; }
+label {
+  font-size: 12px; font-weight: 700; color: #4a5568; text-transform: uppercase;
+  letter-spacing: .4px;
+}
+label .req { color: #e53e3e; margin-left: 2px; }
+input, select, textarea {
+  border: 1px solid #e2e8f0; border-radius: 6px; padding: 9px 12px;
+  font-size: 14px; color: #1a1a2e; background: white; font-family: inherit;
+  transition: border-color .2s, box-shadow .2s;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none; border-color: #0078d4; box-shadow: 0 0 0 3px rgba(0,120,212,.12);
+}
+input.error, select.error { border-color: #e53e3e; }
+.input-hint { font-size: 11px; color: #a0aec0; margin-top: 2px; }
+
+/* Divider between sections */
+.section-divider { border: none; border-top: 1px solid #e2e8f0; margin: 0; }
+
+/* KM summary */
+.km-summary {
+  background: #ebf8ff; border: 1px solid #bee3f8; border-radius: 6px;
+  padding: 10px 14px; font-size: 13px; color: #2c5282; font-weight: 600;
+  display: none; margin-top: 4px;
+}
+
+/* Cost total */
+.total-display {
+  background: #f0fff4; border: 1px solid #9ae6b4; border-radius: 6px;
+  padding: 12px 16px; display: flex; justify-content: space-between;
+  align-items: center;
+}
+.total-display .label { font-size: 13px; font-weight: 700; color: #276749; }
+.total-display .amount { font-size: 22px; font-weight: 800; color: #276749; }
+
+/* Submit section */
+.submit-section { padding: 20px; border-top: 1px solid #e2e8f0; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.btn-submit {
+  background: #0078d4; color: white; border: none; padding: 12px 32px;
+  border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer;
+  transition: background .2s, transform .1s;
+}
+.btn-submit:hover { background: #005fa3; }
+.btn-submit:active { transform: scale(.98); }
+.btn-submit:disabled { background: #a0aec0; cursor: not-allowed; }
+.btn-clear {
+  background: none; color: #718096; border: 1px solid #e2e8f0; padding: 12px 20px;
+  border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+  transition: border-color .2s;
+}
+.btn-clear:hover { border-color: #a0aec0; color: #4a5568; }
+
+/* Status messages */
+.msg {
+  display: none; padding: 14px 18px; border-radius: 8px; font-size: 14px;
+  font-weight: 600; margin: 0 20px 20px; align-items: center; gap: 10px;
+}
+.msg.success { background: #f0fff4; color: #276749; border: 1px solid #9ae6b4; display: flex; }
+.msg.error   { background: #fff5f5; color: #c53030; border: 1px solid #fed7d7; display: flex; }
+.msg.loading { background: #ebf8ff; color: #2b6cb0; border: 1px solid #bee3f8; display: flex; }
+.spinner {
+  width: 18px; height: 18px; border: 3px solid #bee3f8; border-top-color: #2b6cb0;
+  border-radius: 50%; animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Responsive ── */
+@media (max-width: 560px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .header-title { font-size: 15px; }
+  .page-body { padding: 16px 12px 48px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ HEADER (same as dashboard) ═══════════════ -->
+<header class="header">
+  <div class="header-title">🚗 AKSID Transport Expense</div>
+  <nav class="header-nav">
+    <a class="nav-btn active" href="/submit.html">📝 Submit</a>
+    <a class="nav-btn" href="/dashboard.html">📊 Dashboard</a>
+  </nav>
+</header>
+
+<!-- ═══════════════ PAGE BODY ═══════════════ -->
+<div class="page-body">
+
+  <div class="page-heading">
+    <h2>📋 Transport Expense Submission Form</h2>
+    <p>Fill in the details below for your trip. All fields marked <span style="color:#e53e3e">*</span> are required.</p>
+  </div>
+
+  <div class="form-card">
+
+    <!-- ── Section 1: Driver Info ── -->
+    <div class="section-header">👤 Driver Information</div>
+    <div class="form-body">
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label>Driver Name <span class="req">*</span></label>
+          <select id="driver" required>
+            <option value="">— Select Driver —</option>
+            <option>Akbar Hossain</option>
+            <option>Md Hanif</option>
+            <option>Md Masud Rana</option>
+            <option>Md Sabuz Miah</option>
+            <option>Md. Liton</option>
+            <option>Mohammad Islam</option>
+            <option>Shaha Alom</option>
+            <option>Shahidul Islam</option>
+            <option>Sumon Khan</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Department <span class="req">*</span></label>
+          <input type="text" id="dept" placeholder="e.g. Operations" required>
+        </div>
+
+        <div class="form-group">
+          <label>Trip Date <span class="req">*</span></label>
+          <input type="date" id="tripDate" required>
+        </div>
+
+        <div class="form-group">
+          <label>Vehicle / Registration</label>
+          <input type="text" id="vehicle" placeholder="e.g. Dhaka Metro GA-1234">
+        </div>
+
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- ── Section 2: KM ── -->
+    <div class="section-header">📍 Kilometre Reading</div>
+    <div class="form-body">
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label>Start KM <span class="req">*</span></label>
+          <input type="number" id="kmStart" placeholder="0" min="0" required>
+        </div>
+
+        <div class="form-group">
+          <label>End KM <span class="req">*</span></label>
+          <input type="number" id="kmEnd" placeholder="0" min="0" required>
+        </div>
+
+        <div class="form-group full">
+          <div class="km-summary" id="kmSummary">📏 Total Distance: <span id="kmCalc">0</span> km</div>
+        </div>
+
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- ── Section 3: Expenses ── -->
+    <div class="section-header">💰 Expense Breakdown (BDT)</div>
+    <div class="form-body">
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label>Fuel Cost <span class="req">*</span></label>
+          <input type="number" id="fuel" placeholder="0.00" min="0" step="0.01" required>
+        </div>
+
+        <div class="form-group">
+          <label>Toll</label>
+          <input type="number" id="toll" placeholder="0.00" min="0" step="0.01">
+        </div>
+
+        <div class="form-group">
+          <label>Food</label>
+          <input type="number" id="food" placeholder="0.00" min="0" step="0.01">
+        </div>
+
+        <div class="form-group">
+          <label>Maintenance</label>
+          <input type="number" id="maintenance" placeholder="0.00" min="0" step="0.01">
+        </div>
+
+        <div class="form-group">
+          <label>Parking</label>
+          <input type="number" id="parking" placeholder="0.00" min="0" step="0.01">
+        </div>
+
+        <div class="form-group">
+          <label>Hotel</label>
+          <input type="number" id="hotel" placeholder="0.00" min="0" step="0.01">
+        </div>
+
+        <div class="form-group">
+          <label>Fine</label>
+          <input type="number" id="fine" placeholder="0.00" min="0" step="0.01">
+        </div>
+
+        <div class="form-group">
+          <label>Others</label>
+          <input type="number" id="others" placeholder="0.00" min="0" step="0.01">
+        </div>
+
+        <div class="form-group full">
+          <div class="total-display">
+            <span class="label">🧾 Total Expense</span>
+            <span class="amount">৳ <span id="totalAmount">0.00</span></span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- ── Section 4: Notes ── -->
+    <div class="section-header">📝 Additional Notes</div>
+    <div class="form-body">
+      <div class="form-group">
+        <label>Notes / Purpose of Trip</label>
+        <textarea id="notes" rows="3" placeholder="Describe the trip purpose, any special circumstances…" style="resize:vertical; min-height:80px;"></textarea>
+      </div>
+    </div>
+
+    <!-- ── Status messages ── -->
+    <div class="msg loading" id="msgLoading"><div class="spinner"></div> Submitting your expense report…</div>
+    <div class="msg success" id="msgSuccess">✅ Expense submitted successfully! Your report has been recorded.</div>
+    <div class="msg error"   id="msgError">❌ <span id="errText">Submission failed. Please try again.</span></div>
+
+    <!-- ── Submit ── -->
+    <div class="submit-section">
+      <button class="btn-submit" id="submitBtn" onclick="submitForm()">Submit Expense</button>
+      <button class="btn-clear" onclick="clearForm()">Clear Form</button>
+      <span style="font-size:12px; color:#a0aec0; flex:1; text-align:right;">
+        Fields marked <span style="color:#e53e3e">*</span> are required
+      </span>
+    </div>
+
+  </div><!-- /form-card -->
+</div><!-- /page-body -->
+
+<script>
+/* ── CONFIG: paste your webhook URL here ── */
+const WEBHOOK_URL = 'YOUR_WEBHOOK_URL_HERE';   // Power Automate or Make.com HTTP trigger
+
+/* ── Auto-set today's date ── */
+document.getElementById('tripDate').value = new Date().toISOString().slice(0,10);
+
+/* ── KM calculation ── */
+function calcKm() {
+  const s = +document.getElementById('kmStart').value || 0;
+  const e = +document.getElementById('kmEnd').value || 0;
+  const diff = e - s;
+  const box = document.getElementById('kmSummary');
+  document.getElementById('kmCalc').textContent = diff > 0 ? diff : 0;
+  box.style.display = (s > 0 || e > 0) ? 'block' : 'none';
+}
+document.getElementById('kmStart').addEventListener('input', calcKm);
+document.getElementById('kmEnd').addEventListener('input', calcKm);
+
+/* ── Total expense calculation ── */
+const costIds = ['fuel','toll','food','maintenance','parking','hotel','fine','others'];
+function calcTotal() {
+  const total = costIds.reduce((sum, id) => sum + (+document.getElementById(id).value || 0), 0);
+  document.getElementById('totalAmount').textContent = total.toFixed(2);
+}
+costIds.forEach(id => document.getElementById(id).addEventListener('input', calcTotal));
+
+/* ── Validation ── */
+function validate() {
+  const required = ['driver','dept','tripDate','kmStart','kmEnd','fuel'];
+  let ok = true;
+  required.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el.value.trim()) { el.classList.add('error'); ok = false; }
+    else el.classList.remove('error');
+  });
+  const s = +document.getElementById('kmStart').value;
+  const e = +document.getElementById('kmEnd').value;
+  if (s > 0 && e > 0 && e <= s) {
+    document.getElementById('kmEnd').classList.add('error');
+    ok = false;
+  }
+  return ok;
+}
+
+/* ── Submit ── */
+async function submitForm() {
+  if (!validate()) {
+    showMsg('error', 'Please fill in all required fields correctly.');
+    return;
+  }
+
+  const s = +document.getElementById('kmStart').value || 0;
+  const e = +document.getElementById('kmEnd').value || 0;
+  const km = e - s;
+  const total = costIds.reduce((sum, id) => sum + (+document.getElementById(id).value || 0), 0);
+  const now = new Date();
+
+  const payload = {
+    submittedAt: now.toISOString(),
+    date:        document.getElementById('tripDate').value,
+    driver:      document.getElementById('driver').value,
+    dept:        document.getElementById('dept').value,
+    vehicle:     document.getElementById('vehicle').value,
+    kmStart:     s,
+    kmEnd:       e,
+    km:          km,
+    fuel:        +document.getElementById('fuel').value || 0,
+    toll:        +document.getElementById('toll').value || 0,
+    food:        +document.getElementById('food').value || 0,
+    maintenance: +document.getElementById('maintenance').value || 0,
+    parking:     +document.getElementById('parking').value || 0,
+    hotel:       +document.getElementById('hotel').value || 0,
+    fine:        +document.getElementById('fine').value || 0,
+    others:      +document.getElementById('others').value || 0,
+    total:       total,
+    notes:       document.getElementById('notes').value.trim(),
+    status:      'Pending Review',
+    month:       now.toLocaleString('en-US', { month: 'short', year: 'numeric' })
+  };
+
+  showMsg('loading');
+  document.getElementById('submitBtn').disabled = true;
+
+  if (!WEBHOOK_URL || WEBHOOK_URL === 'YOUR_WEBHOOK_URL_HERE') {
+    /* Demo mode: just show success without actually POSTing */
+    await new Promise(r => setTimeout(r, 1200));
+    showMsg('success');
+    document.getElementById('submitBtn').disabled = false;
+    setTimeout(clearForm, 2500);
+    return;
+  }
+
+  try {
+    const res = await fetch(WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (res.ok) {
+      showMsg('success');
+      setTimeout(clearForm, 2500);
+    } else {
+      showMsg('error', `Server returned ${res.status}. Please contact IT.`);
+    }
+  } catch (err) {
+    showMsg('error', 'Network error. Check your connection and try again.');
+  } finally {
+    document.getElementById('submitBtn').disabled = false;
+  }
+}
+
+function showMsg(type, text) {
+  ['loading','success','error'].forEach(t => document.getElementById('msg'+t.charAt(0).toUpperCase()+t.slice(1)).style.display='none');
+  if (type === 'error' && text) document.getElementById('errText').textContent = text;
+  document.getElementById('msg'+type.charAt(0).toUpperCase()+type.slice(1)).style.display='flex';
+}
+
+function clearForm() {
+  ['driver','dept','vehicle','kmStart','kmEnd','fuel','toll','food','maintenance','parking','hotel','fine','others','notes']
+    .forEach(id => document.getElementById(id).value = '');
+  document.getElementById('tripDate').value = new Date().toISOString().slice(0,10);
+  document.getElementById('totalAmount').textContent = '0.00';
+  document.getElementById('kmSummary').style.display = 'none';
+  ['loading','success','error'].forEach(t =>
+    document.getElementById('msg'+t.charAt(0).toUpperCase()+t.slice(1)).style.display='none'
+  );
+  document.querySelectorAll('.error').forEach(el => el.classList.remove('error'));
+  document.getElementById('submitBtn').disabled = false;
+}
+</script>
+</body>
+</html>
