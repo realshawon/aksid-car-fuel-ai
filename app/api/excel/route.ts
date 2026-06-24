@@ -7,9 +7,10 @@ const ONEDRIVE_SHARE_LINK = process.env.ONEDRIVE_SHARE_LINK ||
 
 function toDownloadUrl(shareLink: string): string {
   // Convert OneDrive/SharePoint sharing link to direct download URL
+  // IMPORTANT: Keep existing params (e.g. ?e=xxx sharing token) — stripping them breaks auth
   if (shareLink.includes('sharepoint.com') || shareLink.includes('onedrive.live.com')) {
-    // Remove existing query params and add ?download=1
-    return shareLink.replace(/\?.*$/, '') + '?download=1';
+    if (shareLink.includes('download=1')) return shareLink;
+    return shareLink.includes('?') ? shareLink + '&download=1' : shareLink + '?download=1';
   }
   return shareLink;
 }
