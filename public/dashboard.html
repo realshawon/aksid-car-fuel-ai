@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AKSID Car Fuel Bill Dashboard</title>
+<title>AKSID Transport Expense Dashboard</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
@@ -11,7 +11,7 @@
 body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: #1a1a2e; }
 #login-screen { display: none; }
 .header {
-  background: linear-gradient(135deg, #1a1a2e, #16213e); color: white;
+  background: linear-gradient(135deg, #1a1a2e, #16213e); color: white;h
   padding: 0 24px; height: 58px; display: flex; align-items: center;
   justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,.3);
 }
@@ -107,12 +107,12 @@ tr:last-child td { border-bottom: none; }
 
 <div id="loading">
   <div class="spinner"></div>
-  <div class="loading-text" id="loading-text">Loading fuel data…</div>
+  <div class="loading-text" id="loading-text">Loading transport data…</div>
 </div>
 
 <div id="app">
   <div class="header">
-    <div class="header-title">🚗 AKSID Car Fuel Bill Dashboard</div>
+    <div class="header-title">🚗 AKSID Transport Expense Dashboard</div>
     <div class="header-right">
       <span class="last-updated" id="last-updated"></span>
       <button class="btn-refresh" onclick="loadData()">↻ Refresh</button>
@@ -134,7 +134,7 @@ tr:last-child td { border-bottom: none; }
       <div class="kpi-sub">Awaiting approval</div>
     </div>
     <div class="kpi-card blue">
-      <div class="kpi-label">Fuel Cost (Month)</div>
+      <div class="kpi-label">Transport Cost (Month)</div>
       <div class="kpi-value" id="k-fuel">–</div>
       <div class="kpi-sub">BDT this month</div>
     </div>
@@ -152,11 +152,11 @@ tr:last-child td { border-bottom: none; }
 
   <div class="charts-row">
     <div class="chart-card">
-      <h3>📊 Monthly Fuel Cost (BDT)</h3>
+      <h3>📊 Monthly Transport Cost (BDT)</h3>
       <div class="chart-wrap"><canvas id="chartMonthly"></canvas></div>
     </div>
     <div class="chart-card">
-      <h3>👤 Top Drivers by Fuel Cost</h3>
+      <h3>👤 Top Drivers by Transport Cost</h3>
       <div class="chart-wrap"><canvas id="chartDriver"></canvas></div>
     </div>
   </div>
@@ -192,7 +192,7 @@ tr:last-child td { border-bottom: none; }
 
   <div class="table-card">
     <div class="table-top">
-      <h3>📋 Fuel Bill Submissions</h3>
+      <h3>📋 Transport Expense Submissions</h3>
       <span class="record-count" id="rec-count"></span>
     </div>
     <div class="table-wrap">
@@ -229,7 +229,7 @@ tr:last-child td { border-bottom: none; }
 // Leave blank to show embedded snapshot data.
 // ══════════════════════════════════════════════════
 const CONFIG = {
-  shareLink: ""   // ← PASTE YOUR ONEDRIVE SHARE LINK HERE
+  shareLink: "https://aksidcorpcom-my.sharepoint.com/:x:/g/personal/it_aksidcorp_com/IQDgZtT3QuO0RYrrLENNAbWaAacWd46Xo3p0mCC_-SrFOWg?e=c7bfHE"
 };
 
 // ── Embedded real data (snapshot from Excel) ─────
