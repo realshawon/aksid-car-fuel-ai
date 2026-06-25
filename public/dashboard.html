@@ -10,7 +10,7 @@
 body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: #1a1a2e; }
 #login-screen { display: none; }
 .header {
-  background: linear-gradient(135deg, #1a1a2e, #16213e); color: white;h
+  background: linear-gradient(135deg, #1a1a2e, #16213e); color: white;
   padding: 0 24px; height: 58px; display: flex; align-items: center;
   justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,.3);
 }
@@ -135,17 +135,17 @@ tr:last-child td { border-bottom: none; }
     <div class="kpi-card blue">
       <div class="kpi-label">Transport Cost (Month)</div>
       <div class="kpi-value" id="k-fuel">–</div>
-      <div class="kpi-sub">BDT this month</div>
+      <div class="kpi-sub" id="k-fuel-sub">BDT this month</div>
     </div>
     <div class="kpi-card green">
       <div class="kpi-label">Total KM (Month)</div>
       <div class="kpi-value" id="k-km">–</div>
-      <div class="kpi-sub">This month</div>
+      <div class="kpi-sub" id="k-km-sub">This month</div>
     </div>
     <div class="kpi-card purple">
       <div class="kpi-label">Active Drivers</div>
       <div class="kpi-value" id="k-drivers">–</div>
-      <div class="kpi-sub">This month</div>
+      <div class="kpi-sub" id="k-drivers-sub">This month</div>
     </div>
   </div>
 
@@ -202,7 +202,7 @@ tr:last-child td { border-bottom: none; }
             <th onclick="sort('driver')">Driver ↕</th>
             <th onclick="sort('dept')">Department</th>
             <th onclick="sort('km')">Total KM ↕</th>
-            <th onclick="sort('fuel')">Fuel Cost ↕</th>
+            <th onclick="sort('fuel')">Transport Cost ↕</th>
             <th>Toll</th>
             <th>Food</th>
             <th>Others</th>
@@ -254,6 +254,7 @@ async function loadData() {
     const data = await resp.json();
     if (!data.rows || !data.rows.length) throw new Error("No data in file");
     allRows = data.rows;
+    // Ensure numeric fields are numbers
     allRows.forEach(r => {
       r.fuel = +r.fuel||0; r.toll = +r.toll||0; r.food = +r.food||0;
       r.maintenance = +r.maintenance||0; r.parking = +r.parking||0;
@@ -270,6 +271,27 @@ async function loadData() {
     loadEmbedded();
   }
 }
+
+function loadEmbedded() {
+  allRows = EMBEDDED_DATA.map(r => {
+    const fuel = +r[6];
+    const toll = +r[7], food = +r[8], maint = +r[9];
+    const park = +r[10], hotel = +r[11], fine = +r[12], others = +r[13];
+    const total = +r[14] || (fuel + toll + food + maint + park + hotel + fine + others);
+    const status = String(r[19] || "").trim() || "Manual Entry";
+    return {
+      date: r[0], driver: String(r[1]), dept: String(r[2]),
+      kmStart: +r[3], kmEnd: +r[4], km: +r[5],
+      fuel, toll, food, maintenance: maint, parking: park,
+      hotel, fine, others, total,
+      month: String(r[15]), billFrom: String(r[16]), billTo: String(r[17]),
+      vehicle: String(r[18]), status,
+      _dateStr: String(r[0]), _dateNum: 0
+    };
+  });
+  finishLoad("Embedded snapshot: " + allRows.length + " records.");
+}
+
 function shareToDownload(link) {
   if (link.includes("download=1")) return link;
   if (link.includes("sharepoint.com") || link.includes("onedrive.live.com"))
@@ -350,11 +372,13 @@ function getMonthLabel(row) {
   return row.month || "Unknown";
 }
 
-function isThisMonth(row) {
-  const d = parseDate(row);
-  if (!d || isNaN(d)) return false;
-  const now = new Date();
-  return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+function getLatestMonthDate() {
+  let latest = null;
+  for (const row of allRows) {
+    const d = parseDate(row);
+    if (d && !isNaN(d)) { if (!latest || d > latest) latest = d; }
+  }
+  return latest;
 }
 
 function getDateSort(row) {
@@ -365,16 +389,30 @@ function getDateSort(row) {
 
 // ─── KPIs ─────────────────────────────────────────
 function updateKPIs() {
-  const thisMonth = allRows.filter(isThisMonth);
+  const latestDate = getLatestMonthDate();
+  const latestRows = latestDate
+    ? allRows.filter(r => {
+        const d = parseDate(r);
+        return d && !isNaN(d) && d.getMonth() === latestDate.getMonth() && d.getFullYear() === latestDate.getFullYear();
+      })
+    : [];
+  const latestLabel = latestDate
+    ? latestDate.toLocaleDateString("en-US", { month: "short", year: "numeric" })
+    : "this month";
+
   document.getElementById("k-total").textContent = allRows.length.toLocaleString();
   document.getElementById("k-pending").textContent =
     allRows.filter(r => r.status === "Pending Review").length;
   document.getElementById("k-fuel").textContent =
-    fmtMoney(thisMonth.reduce((s,r) => s+r.fuel, 0));
+    fmtMoney(latestRows.reduce((s,r) => s+r.fuel, 0));
   document.getElementById("k-km").textContent =
-    thisMonth.reduce((s,r) => s+r.km, 0).toLocaleString() + " km";
-  const drivers = new Set(thisMonth.map(r => r.driver).filter(Boolean));
+    latestRows.reduce((s,r) => s+r.km, 0).toLocaleString() + " km";
+  const drivers = new Set(latestRows.map(r => r.driver).filter(Boolean));
   document.getElementById("k-drivers").textContent = drivers.size;
+
+  document.getElementById("k-fuel-sub").textContent = "BDT " + latestLabel;
+  document.getElementById("k-km-sub").textContent = latestLabel;
+  document.getElementById("k-drivers-sub").textContent = latestLabel;
 }
 
 // ─── Charts ───────────────────────────────────────
