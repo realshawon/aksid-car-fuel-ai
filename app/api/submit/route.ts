@@ -6,7 +6,6 @@ const GITHUB_REPO  = 'aksid-car-fuel-ai';
 const GITHUB_PATH  = 'public/fuel-data.json';
 
 function formatDate(isoDate: string): string {
-  // "2026-01-06" -> "06 Jan 2026"
   const d = new Date(isoDate + 'T00:00:00Z');
   return d.toLocaleDateString('en-GB', {
     day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC',
@@ -24,7 +23,6 @@ async function updateFuelData(row: Record<string, unknown>): Promise<{ ok: boole
     'User-Agent': 'aksid-fuel-bill/1.0',
   };
 
-  // 1. GET current file + SHA
   const getRes = await fetch(apiUrl, { headers, cache: 'no-store' });
   if (!getRes.ok) {
     return { ok: false, error: `GitHub GET failed: ${getRes.status} ${await getRes.text()}` };
@@ -33,14 +31,12 @@ async function updateFuelData(row: Record<string, unknown>): Promise<{ ok: boole
   const currentJson = Buffer.from(fileData.content, 'base64').toString('utf8');
   const fuelData = JSON.parse(currentJson) as { rows: unknown[]; updated: string; count: number };
 
-  // 2. Append row
   fuelData.rows.push(row);
   fuelData.count = fuelData.rows.length;
   fuelData.updated = new Date().toISOString();
 
   const newContent = Buffer.from(JSON.stringify(fuelData, null, 2)).toString('base64');
 
-  // 3. PUT updated file
   const putRes = await fetch(apiUrl, {
     method: 'PUT',
     headers: { ...headers, 'Content-Type': 'application/json' },
@@ -66,6 +62,7 @@ export async function POST(request: NextRequest) {
       date:         formatDate(dateStr),
       _dateStr:     dateStr,
       _dateNum:     new Date(dateStr + 'T00:00:00Z').getTime(),
+      submittedAt:  payload.submittedAt  ?? new Date().toISOString(),
       driver:       payload.driver       ?? '',
       dept:         payload.dept         ?? '',
       vehicle:      payload.vehicle      ?? '',
