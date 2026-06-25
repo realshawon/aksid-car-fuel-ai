@@ -22,6 +22,12 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
   border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer;
 }
 .btn-refresh:hover { background: #2f855a; }
+.btn-submit {
+  background: #0078d4; color: white; border: none; padding: 7px 16px;
+  border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer;
+  text-decoration: none; display: inline-block; white-space: nowrap;
+}
+.btn-submit:hover { background: #005fa3; }
 .kpi-row {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 14px; padding: 18px 20px 0;
@@ -114,7 +120,8 @@ tr:last-child td { border-bottom: none; }
     <div class="header-title">ð AKSID Transport Expense Dashboard</div>
     <div class="header-right">
       <span class="last-updated" id="last-updated"></span>
-      <button class="btn-refresh" onclick="loadData()">â» Refresh</button>
+      <a href="/submit.html" class="btn-submit">+ Submit Expense</a>
+      <button class="btn-refresh" onclick="loadData()">&#8635; Refresh</button>
     </div>
   </div>
 
