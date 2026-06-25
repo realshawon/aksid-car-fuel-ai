@@ -210,6 +210,7 @@ tr:last-child td { border-bottom: none; }
             <th>Vehicle No</th>
             <th onclick="sort('status')">Status ↕</th>
             <th>Bill Period</th>
+            <th>Attachments</th>
           </tr>
         </thead>
         <tbody id="tbody"></tbody>
@@ -511,6 +512,7 @@ function renderTable() {
       <td class="muted">${r.vehicle||"–"}</td>
       <td><span class="badge ${bc}">${r.status}</span></td>
       <td class="muted">${period}</td>
+      <td>${[r.fuelBillUrl ? `<a href="${r.fuelBillUrl}" target="_blank" style="font-size:11px;color:#0078d4;text-decoration:none;" title="Fuel Bill">📄 Bill</a>` : "", r.logSheetUrl ? `<a href="${r.logSheetUrl}" target="_blank" style="font-size:11px;color:#0078d4;text-decoration:none;margin-left:6px;" title="Log Sheet">📋 Log</a>` : ""].filter(Boolean).join("") || "<span class='muted'>–</span>"}</td>
     </tr>`;
   }).join("");
 }
