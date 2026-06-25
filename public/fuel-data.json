@@ -1,5 +1,34 @@
 {
-  "rows": [],
-  "updated": "2026-06-25T10:25:24.086Z",
-  "count": 0
+  "rows": [
+    {
+      "date": "25 Jun 2026",
+      "_dateStr": "2026-06-25",
+      "_dateNum": 1782345600000,
+      "submittedAt": "2026-06-25T10:38:46.780Z",
+      "driver": "Md Masud Rana",
+      "dept": "Technical Engineering",
+      "vehicle": "Dhaka C-9999",
+      "kmStart": 60000,
+      "kmEnd": 60200,
+      "km": 200,
+      "fuel": 12000,
+      "toll": 400,
+      "food": 0,
+      "maintenance": 500,
+      "parking": 0,
+      "hotel": 0,
+      "fine": 0,
+      "others": 0,
+      "total": 12900,
+      "month": "Jun 2026",
+      "billFrom": "2026-06-01",
+      "billTo": "2026-06-25",
+      "status": "Pending Review",
+      "remarks": "E2E file-upload test",
+      "fuelBillUrl": "https://raw.githubusercontent.com/realshawon/aksid-car-fuel-ai/main/attachments/2026-06-25T10-38-46-780_Md_Masud_Rana_fuel.pdf",
+      "logSheetUrl": "https://raw.githubusercontent.com/realshawon/aksid-car-fuel-ai/main/attachments/2026-06-25T10-38-46-780_Md_Masud_Rana_log.pdf"
+    }
+  ],
+  "updated": "2026-06-25T10:38:53.000Z",
+  "count": 1
 }
