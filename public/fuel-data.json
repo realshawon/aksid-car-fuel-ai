@@ -1,34 +1,5 @@
 {
-  "rows": [
-    {
-      "date": "25 Jun 2026",
-      "_dateStr": "2026-06-25",
-      "_dateNum": 1782345600000,
-      "submittedAt": "2026-06-25T11:01:08.520Z",
-      "driver": "Md Masud Rana",
-      "dept": "Operations",
-      "vehicle": "Dhaka Metro GA-1234",
-      "kmStart": 15200,
-      "kmEnd": 15350,
-      "km": 150,
-      "fuel": 3500,
-      "toll": 200,
-      "food": 300,
-      "maintenance": 0,
-      "parking": 100,
-      "hotel": 0,
-      "fine": 0,
-      "others": 0,
-      "total": 4100,
-      "month": "Jun 2026",
-      "billFrom": "2026-06-01",
-      "billTo": "2026-06-30",
-      "status": "Pending Review",
-      "remarks": "Full system test – Dhaka to Gazipur route for parts pickup",
-      "fuelBillUrl": "https://raw.githubusercontent.com/realshawon/aksid-car-fuel-ai/main/attachments/2026-06-25T11-01-08-520_Md_Masud_Rana_fuel.pdf",
-      "logSheetUrl": "https://raw.githubusercontent.com/realshawon/aksid-car-fuel-ai/main/attachments/2026-06-25T11-01-08-520_Md_Masud_Rana_log.pdf"
-    }
-  ],
-  "updated": "2026-06-25T11:01:15.773Z",
-  "count": 1
+  "rows": [],
+  "updated": "2026-06-25T11:01:53.747Z",
+  "count": 0
 }
