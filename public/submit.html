@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AKSID Transport Expense — Submission Form</title>
+<title>AKSID Transport Expense â Submission Form</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: #1a1a2e; min-height: 100vh; }
 
-/* ── Header (identical to dashboard) ── */
+/* ââ Header (identical to dashboard) ââ */
 .header {
   background: linear-gradient(135deg, #1a1a2e, #16213e); color: white;
   padding: 0 24px; height: 58px; display: flex; align-items: center;
@@ -26,7 +26,7 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
 .nav-btn:hover { background: rgba(255,255,255,0.2); }
 .nav-btn.active { background: #0078d4; border-color: #0078d4; }
 
-/* ── Page body ── */
+/* ââ Page body ââ */
 .page-body { max-width: 720px; margin: 0 auto; padding: 24px 20px 48px; }
 
 .page-heading {
@@ -37,7 +37,7 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
 .page-heading h2 { font-size: 18px; font-weight: 800; color: #1a1a2e; }
 .page-heading p { font-size: 13px; color: #718096; margin-top: 4px; }
 
-/* ── Form card ── */
+/* ââ Form card ââ */
 .form-card {
   background: white; border-radius: 10px;
   box-shadow: 0 1px 4px rgba(0,0,0,.08); overflow: hidden;
@@ -118,7 +118,7 @@ input.error, select.error { border-color: #e53e3e; }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ── File Upload Area ── */
+/* ââ File Upload Area ââ */
 .file-upload-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .file-drop {
   border: 2px dashed #cbd5e0; border-radius: 8px; padding: 20px 16px;
@@ -140,7 +140,7 @@ input.error, select.error { border-color: #e53e3e; }
   word-break: break-all; display: none;
 }
 
-/* ── Responsive ── */
+/* ââ Responsive ââ */
 @media (max-width: 560px) {
   .form-grid { grid-template-columns: 1fr; }
   .file-upload-grid { grid-template-columns: 1fr; }
@@ -151,34 +151,34 @@ input.error, select.error { border-color: #e53e3e; }
 </head>
 <body>
 
-<!-- ═══════════════ HEADER (same as dashboard) ═══════════════ -->
+<!-- âââââââââââââââ HEADER (same as dashboard) âââââââââââââââ -->
 <header class="header">
-  <div class="header-title">🚗 AKSID Transport Expense</div>
+  <div class="header-title">ð AKSID Transport Expense</div>
   <nav class="header-nav">
-    <a class="nav-btn active" href="/submit.html">📝 Submit</a>
-    <a class="nav-btn" href="/dashboard.html">📊 Dashboard</a>
+    <a class="nav-btn active" href="/submit.html">ð Submit</a>
+    <a class="nav-btn" href="/dashboard.html">ð Dashboard</a>
   </nav>
 </header>
 
-<!-- ═══════════════ PAGE BODY ═══════════════ -->
+<!-- âââââââââââââââ PAGE BODY âââââââââââââââ -->
 <div class="page-body">
 
   <div class="page-heading">
-    <h2>📋 Transport Expense Submission Form</h2>
+    <h2>ð Transport Expense Submission Form</h2>
     <p>Fill in the details below for your trip. All fields marked <span style="color:#e53e3e">*</span> are required.</p>
   </div>
 
   <div class="form-card">
 
-    <!-- ── Section 1: Driver Info ── -->
-    <div class="section-header">👤 Driver Information</div>
+    <!-- ââ Section 1: Driver Info ââ -->
+    <div class="section-header">ð¤ Driver Information</div>
     <div class="form-body">
       <div class="form-grid">
 
         <div class="form-group">
           <label>Driver Name <span class="req">*</span></label>
           <select id="driver" required>
-            <option value="">— Select Driver —</option>
+            <option value="">â Select Driver â</option>
             <option>Akbar Hossain</option>
             <option>Md Hanif</option>
             <option>Md Masud Rana</option>
@@ -211,8 +211,8 @@ input.error, select.error { border-color: #e53e3e; }
 
     <hr class="section-divider">
 
-    <!-- ── Section 2: KM ── -->
-    <div class="section-header">📍 Kilometre Reading</div>
+    <!-- ââ Section 2: KM ââ -->
+    <div class="section-header">ð Kilometre Reading</div>
     <div class="form-body">
       <div class="form-grid">
 
@@ -227,7 +227,7 @@ input.error, select.error { border-color: #e53e3e; }
         </div>
 
         <div class="form-group full">
-          <div class="km-summary" id="kmSummary">📏 Total Distance: <span id="kmCalc">0</span> km</div>
+          <div class="km-summary" id="kmSummary">ð Total Distance: <span id="kmCalc">0</span> km</div>
         </div>
 
       </div>
@@ -235,8 +235,8 @@ input.error, select.error { border-color: #e53e3e; }
 
     <hr class="section-divider">
 
-    <!-- ── Section 3: Expenses ── -->
-    <div class="section-header">💰 Expense Breakdown (BDT)</div>
+    <!-- ââ Section 3: Expenses ââ -->
+    <div class="section-header">ð° Expense Breakdown (BDT)</div>
     <div class="form-body">
       <div class="form-grid">
 
@@ -282,8 +282,8 @@ input.error, select.error { border-color: #e53e3e; }
 
         <div class="form-group full">
           <div class="total-display">
-            <span class="label">🧾 Total Expense</span>
-            <span class="amount">৳ <span id="totalAmount">0.00</span></span>
+            <span class="label">ð§¾ Total Expense</span>
+            <span class="amount">à§³ <span id="totalAmount">0.00</span></span>
           </div>
         </div>
 
@@ -292,8 +292,8 @@ input.error, select.error { border-color: #e53e3e; }
 
     <hr class="section-divider">
 
-    <!-- ── Section 4: Bill Period ── -->
-    <div class="section-header">📅 Bill Period</div>
+    <!-- ââ Section 4: Bill Period ââ -->
+    <div class="section-header">ð Bill Period</div>
     <div class="form-body">
       <div class="form-grid">
 
@@ -314,11 +314,11 @@ input.error, select.error { border-color: #e53e3e; }
 
     <hr class="section-divider">
 
-    <!-- ── Section 5: Attachments ── -->
-    <div class="section-header">📎 Attachments</div>
+    <!-- ââ Section 5: Attachments ââ -->
+    <div class="section-header">ð Attachments</div>
     <div class="form-body">
       <p style="font-size:13px; color:#4a5568; margin-bottom:14px;">
-        Upload both documents below. Accepted: <strong>PDF, JPG, PNG</strong> — max 5 MB each.
+        Upload both documents below. Accepted: <strong>PDF, JPG, PNG</strong> â max 5 MB each.
       </p>
       <div class="file-upload-grid">
 
@@ -326,7 +326,7 @@ input.error, select.error { border-color: #e53e3e; }
           <label>Fuel Bill PDF <span class="req">*</span></label>
           <div class="file-drop" id="dropFuelBill">
             <input type="file" id="fileFuelBill" accept=".pdf,.jpg,.jpeg,.png" onchange="handleFile('fuelBill')">
-            <div class="file-drop-icon">📄</div>
+            <div class="file-drop-icon">ð</div>
             <span class="file-drop-label">Click or drag &amp; drop</span>
             <span class="file-drop-hint">Fuel bill PDF / image</span>
             <div class="file-name-display" id="nameFuelBill"></div>
@@ -337,7 +337,7 @@ input.error, select.error { border-color: #e53e3e; }
           <label>Driver Log Sheet <span class="req">*</span></label>
           <div class="file-drop" id="dropLogSheet">
             <input type="file" id="fileLogSheet" accept=".pdf,.jpg,.jpeg,.png" onchange="handleFile('logSheet')">
-            <div class="file-drop-icon">📋</div>
+            <div class="file-drop-icon">ð</div>
             <span class="file-drop-label">Click or drag &amp; drop</span>
             <span class="file-drop-hint">Driver log sheet PDF / image</span>
             <div class="file-name-display" id="nameLogSheet"></div>
@@ -349,21 +349,21 @@ input.error, select.error { border-color: #e53e3e; }
 
     <hr class="section-divider">
 
-    <!-- ── Section 6: Notes ── -->
-    <div class="section-header">📝 Additional Notes</div>
+    <!-- ââ Section 6: Notes ââ -->
+    <div class="section-header">ð Additional Notes</div>
     <div class="form-body">
       <div class="form-group">
         <label>Notes / Purpose of Trip</label>
-        <textarea id="notes" rows="3" placeholder="Describe the trip purpose, any special circumstances…" style="resize:vertical; min-height:80px;"></textarea>
+        <textarea id="notes" rows="3" placeholder="Describe the trip purpose, any special circumstancesâ¦" style="resize:vertical; min-height:80px;"></textarea>
       </div>
     </div>
 
-    <!-- ── Status messages ── -->
-    <div class="msg loading" id="msgLoading"><div class="spinner"></div> Submitting your expense report…</div>
-    <div class="msg success" id="msgSuccess">✅ Expense submitted successfully! Your report and attachments have been recorded.</div>
-    <div class="msg error"   id="msgError">❌ <span id="errText">Submission failed. Please try again.</span></div>
+    <!-- ââ Status messages ââ -->
+    <div class="msg loading" id="msgLoading"><div class="spinner"></div> Submitting your expense reportâ¦</div>
+    <div class="msg success" id="msgSuccess">â Expense submitted successfully! Your report and attachments have been recorded.</div>
+    <div class="msg error"   id="msgError">â <span id="errText">Submission failed. Please try again.</span></div>
 
-    <!-- ── Submit ── -->
+    <!-- ââ Submit ââ -->
     <div class="submit-section">
       <button class="btn-submit" id="submitBtn" onclick="submitForm()">Submit Expense</button>
       <button class="btn-clear" onclick="clearForm()">Clear Form</button>
@@ -376,16 +376,16 @@ input.error, select.error { border-color: #e53e3e; }
 </div><!-- /page-body -->
 
 <script>
-/* ── CONFIG ── */
-const WEBHOOK_URL = 'https://hook.eu1.make.com/3p84j4bc467u06fgnwp8p8n95w4rvfwf';
+/* ââ CONFIG ââ */
+const WEBHOOK_URL = '/api/submit';
 
-/* ── File store ── */
+/* ââ File store ââ */
 const files = { fuelBill: null, logSheet: null };
 
-/* ── Auto-set today's date ── */
+/* ââ Auto-set today's date ââ */
 document.getElementById('tripDate').value = new Date().toISOString().slice(0,10);
 
-/* ── KM calculation ── */
+/* ââ KM calculation ââ */
 function calcKm() {
   const s = +document.getElementById('kmStart').value || 0;
   const e = +document.getElementById('kmEnd').value || 0;
@@ -396,7 +396,7 @@ function calcKm() {
 document.getElementById('kmStart').addEventListener('input', calcKm);
 document.getElementById('kmEnd').addEventListener('input', calcKm);
 
-/* ── Total expense calculation ── */
+/* ââ Total expense calculation ââ */
 const costIds = ['fuel','toll','food','maintenance','parking','hotel','fine','others'];
 function calcTotal() {
   const total = costIds.reduce((sum, id) => sum + (+document.getElementById(id).value || 0), 0);
@@ -404,7 +404,7 @@ function calcTotal() {
 }
 costIds.forEach(id => document.getElementById(id).addEventListener('input', calcTotal));
 
-/* ── File handling ── */
+/* ââ File handling ââ */
 function handleFile(key) {
   const inputId  = key === 'fuelBill' ? 'fileFuelBill' : 'fileLogSheet';
   const dropId   = key === 'fuelBill' ? 'dropFuelBill' : 'dropLogSheet';
@@ -420,7 +420,7 @@ function handleFile(key) {
   if (file.size > maxBytes) {
     drop.classList.add('error-file');
     drop.classList.remove('has-file');
-    nameEl.textContent = '⚠️ File too large (max 5 MB)';
+    nameEl.textContent = 'â ï¸ File too large (max 5 MB)';
     nameEl.style.display = 'block';
     files[key] = null;
     return;
@@ -431,13 +431,13 @@ function handleFile(key) {
     files[key] = { name: file.name, size: file.size, type: file.type, base64: ev.target.result.split(',')[1] };
     drop.classList.add('has-file');
     drop.classList.remove('error-file');
-    nameEl.textContent = '✅ ' + file.name;
+    nameEl.textContent = 'â ' + file.name;
     nameEl.style.display = 'block';
   };
   reader.readAsDataURL(file);
 }
 
-/* ── Drag-and-drop wiring ── */
+/* ââ Drag-and-drop wiring ââ */
 ['dropFuelBill','dropLogSheet'].forEach(id => {
   const el = document.getElementById(id);
   el.addEventListener('dragover',  e => { e.preventDefault(); el.classList.add('dragover'); });
@@ -455,7 +455,7 @@ function handleFile(key) {
   });
 });
 
-/* ── Validation ── */
+/* ââ Validation ââ */
 function validate() {
   const required = ['driver','dept','tripDate','kmStart','kmEnd','fuel','billFrom','billTo'];
   let ok = true;
@@ -487,7 +487,7 @@ function validate() {
   return ok;
 }
 
-/* ── Submit ── */
+/* ââ Submit ââ */
 async function submitForm() {
   if (!validate()) {
     showMsg('error', 'Please fill in all required fields and upload both documents.');
