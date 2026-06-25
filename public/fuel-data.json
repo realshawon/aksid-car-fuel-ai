@@ -26,8 +26,35 @@
       "remarks": "Test submission - Claude auto-test",
       "fuelBillUrl": "",
       "logSheetUrl": ""
+    },
+    {
+      "date": "25 Jun 2026",
+      "_dateStr": "2026-06-25",
+      "_dateNum": 1782345600000,
+      "driver": "Md Hanif",
+      "dept": "Foreign Project Department",
+      "vehicle": "Dhaka B-5678",
+      "kmStart": 45000,
+      "kmEnd": 45150,
+      "km": 150,
+      "fuel": 8000,
+      "toll": 300,
+      "food": 500,
+      "maintenance": 0,
+      "parking": 0,
+      "hotel": 0,
+      "fine": 0,
+      "others": 0,
+      "total": 8800,
+      "month": "Jun 2026",
+      "billFrom": "2026-06-20",
+      "billTo": "2026-06-25",
+      "status": "Pending Review",
+      "remarks": "E2E test by Claude",
+      "fuelBillUrl": "",
+      "logSheetUrl": ""
     }
   ],
-  "updated": "2026-06-25T10:03:05.582Z",
-  "count": 1
+  "updated": "2026-06-25T10:06:13.551Z",
+  "count": 2
 }
