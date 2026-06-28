@@ -87,6 +87,12 @@ tr:last-child td { border-bottom: none; }
 .badge-approved { background: #d1fae5; color: #065f46; }
 .badge-rejected { background: #fee2e2; color: #991b1b; }
 .badge-manual { background: #e9d8fd; color: #553c9a; }
+.action-btns { display: flex; gap: 4px; margin-top: 5px; }
+.btn-approve { background: #065f46; color: #fff; border: none; border-radius: 6px; padding: 3px 10px; font-size: 11px; font-weight: 700; cursor: pointer; }
+.btn-approve:hover { background: #047857; }
+.btn-reject  { background: #991b1b; color: #fff; border: none; border-radius: 6px; padding: 3px 10px; font-size: 11px; font-weight: 700; cursor: pointer; }
+.btn-reject:hover  { background: #b91c1c; }
+.btn-approve:disabled, .btn-reject:disabled { opacity: 0.5; cursor: not-allowed; }
 .amount { font-weight: 700; }
 .muted { color: #a0aec0; font-size: 11px; }
 #loading {
@@ -227,19 +233,19 @@ tr:last-child td { border-bottom: none; }
 </div>
 
 <script>
-// ══════════════════════════════════════════════════
-// ⚙️  CONFIGURATION
+// ââââââââââââââââââââââââââââââââââââââââââââââââââ
+// âï¸  CONFIGURATION
 // Set your OneDrive share link below to load live data.
 // How to get it:
-//   Open OneDrive → right-click Excel file → Share
-//   Set to "Anyone with the link can view" → Copy link
+//   Open OneDrive â right-click Excel file â Share
+//   Set to "Anyone with the link can view" â Copy link
 // Leave blank to show embedded snapshot data.
-// ══════════════════════════════════════════════════
+// ââââââââââââââââââââââââââââââââââââââââââââââââââ
 const CONFIG = {
   shareLink: "/api/fuel-data"
 };
 
-// ── Embedded real data (snapshot from Excel) ─────
+// ââ Embedded real data (snapshot from Excel) âââââ
 // Format: [date, driver, dept, kmStart, kmEnd, km, fuel, toll, food, maint, parking, hotel, fine, others, total, month, billFrom, billTo, vehicle, status]
 const EMBEDDED_DATA = [];
 
@@ -251,7 +257,7 @@ window.addEventListener("DOMContentLoaded", () => {
   loadData();
 });
 
-// ─── Main load ───────────────────────────────────
+// âââ Main load âââââââââââââââââââââââââââââââââââ
 async function loadData() {
   hideErr();
   hideBanner();
@@ -307,7 +313,7 @@ function shareToDownload(link) {
   return link;
 }
 
-// ─── Parse live Excel rows (SheetJS format) ──────
+// âââ Parse live Excel rows (SheetJS format) ââââââ
 function parseExcelRows(raw) {
   // Row 0 = title, 1 = blank, 2 = headers, 3+ = data
   allRows = [];
@@ -318,7 +324,7 @@ function parseExcelRows(raw) {
     // Fuel = sum of Gas-1...Octane (cols G-K = indices 6-10)
     const fuel = num(r[6]) + num(r[7]) + num(r[8]) + num(r[9]) + num(r[10]);
 
-    // KM = Total KM formula col (F=5) — always None in saved file;
+    // KM = Total KM formula col (F=5) â always None in saved file;
     // fallback: End KM (E=4) minus Start KM (D=3)
     const km = num(r[5]) || Math.max(0, num(r[4]) - num(r[3]));
 
@@ -330,7 +336,7 @@ function parseExcelRows(raw) {
     const fine = num(r[18]);
     const others = num(r[19]);
 
-    // Total = Grand Total formula (X=23) — None in saved file; calculate from parts
+    // Total = Grand Total formula (X=23) â None in saved file; calculate from parts
     const total = num(r[23]) || (fuel + toll + food + maintenance + parking + hotel + fine + others);
 
     // Status: empty for old manual data, "Pending Review" for new form submissions
@@ -355,7 +361,7 @@ function finishLoad(msg) {
   hideLoading();
 }
 
-// ─── Date helpers ─────────────────────────────────
+// âââ Date helpers âââââââââââââââââââââââââââââââââ
 function parseDate(row) {
   // Handles both Excel serial (live) and ISO string (embedded)
   if (row._dateNum && row._dateNum > 0) {
@@ -395,7 +401,7 @@ function getDateSort(row) {
   return d ? d.getTime() / 86400000 + 25569 : 0;
 }
 
-// ─── KPIs ─────────────────────────────────────────
+// âââ KPIs âââââââââââââââââââââââââââââââââââââââââ
 function updateKPIs() {
   const latestDate = getLatestMonthDate();
   const latestRows = latestDate
@@ -423,7 +429,7 @@ function updateKPIs() {
   document.getElementById("k-drivers-sub").textContent = latestLabel;
 }
 
-// ─── Charts ───────────────────────────────────────
+// âââ Charts âââââââââââââââââââââââââââââââââââââââ
 function buildCharts() {
   const monthly = {};
   allRows.forEach(r => {
@@ -451,7 +457,7 @@ function buildCharts() {
   });
 }
 
-// ─── Filters ──────────────────────────────────────
+// âââ Filters ââââââââââââââââââââââââââââââââââââââ
 function populateFilters() {
   const drivers = [...new Set(allRows.map(r=>r.driver).filter(Boolean))].sort();
   document.getElementById("f-driver").innerHTML =
@@ -477,7 +483,7 @@ function filter() {
   sortRows(); renderTable();
 }
 
-// ─── Sort ─────────────────────────────────────────
+// âââ Sort âââââââââââââââââââââââââââââââââââââââââ
 function sort(col) {
   if (sortCol === col) sortDir *= -1; else { sortCol = col; sortDir = -1; }
   sortRows(); renderTable();
@@ -492,7 +498,7 @@ function sortRows() {
   });
 }
 
-// ─── Table ────────────────────────────────────────
+// âââ Table ââââââââââââââââââââââââââââââââââââââââ
 function renderTable() {
   const tbody = document.getElementById("tbody");
   document.getElementById("rec-count").textContent =
@@ -517,14 +523,17 @@ function renderTable() {
       <td>${fmtMoney(othersSum)}</td>
       <td class="amount">${fmtMoney(r.total)}</td>
       <td class="muted">${r.vehicle||"-"}</td>
-      <td><span class="badge ${bc}">${r.status}</span></td>
+      <td>
+        <span class="badge ${bc}">${r.status}</span>
+        ${r.status === "Pending Review" && r.submittedAt ? `<div class="action-btns"><button class="btn-approve" onclick="dashApprove('${r.submittedAt}','approve',this)">✅ Approve</button><button class="btn-reject" onclick="dashApprove('${r.submittedAt}','reject',this)">❌ Reject</button></div>` : ""}
+      </td>
       <td class="muted">${period}</td>
       <td>${[r.fuelBillUrl ? `<a href="${r.fuelBillUrl}" target="_blank" style="font-size:11px;color:#0078d4;text-decoration:none;" title="Fuel Bill">Bill</a>` : "", r.logSheetUrl ? `<a href="${r.logSheetUrl}" target="_blank" style="font-size:11px;color:#0078d4;text-decoration:none;margin-left:6px;" title="Log Sheet">Log</a>` : ""].filter(Boolean).join("") || "<span class='muted'>-</span>"}</td>
     </tr>`;
   }).join("");
 }
 
-// ─── Utilities ────────────────────────────────────
+// âââ Utilities ââââââââââââââââââââââââââââââââââââ
 function str(v) { return v!==undefined&&v!==null ? String(v).trim() : ""; }
 function num(v) { return typeof v==="number" ? v : parseFloat(v)||0; }
 function fmtMoney(n) { return n ? "Tk"+Math.round(n).toLocaleString() : "-"; }
@@ -535,5 +544,29 @@ function showErr(msg) { const el=document.getElementById("err"); el.textContent=
 function hideErr() { document.getElementById("err").style.display="none"; }
 function showBanner(msg) { const el=document.getElementById("info-banner"); el.textContent=msg; el.style.display="block"; }
 function hideBanner() { document.getElementById("info-banner").style.display="none"; }
+
+
+// ─── Dashboard Approve / Reject ───────────────────
+async function dashApprove(id, action, btn) {
+  if (!confirm((action === "approve" ? "✅ Approve" : "❌ Reject") + " this submission?")) return;
+  var row = btn.closest("tr");
+  var btns = row.querySelectorAll(".btn-approve, .btn-reject");
+  btns.forEach(function(b) { b.disabled = true; });
+  try {
+    var url = "/api/approve?id=" + encodeURIComponent(id) + "&action=" + action;
+    var resp = await fetch(url);
+    if (resp.ok) {
+      showBanner((action === "approve" ? "✅ Approved!" : "❌ Rejected!") + " Refreshing...");
+      setTimeout(function() { hideBanner(); loadData(); }, 1500);
+    } else {
+      var text = await resp.text();
+      alert("Error: " + text);
+      btns.forEach(function(b) { b.disabled = false; });
+    }
+  } catch(e) {
+    alert("Network error: " + e.message);
+    btns.forEach(function(b) { b.disabled = false; });
+  }
+}
 </script>
 </body>
