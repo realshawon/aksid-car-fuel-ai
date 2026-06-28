@@ -260,7 +260,7 @@ async function loadData() {
     const resp = await fetch(CONFIG.shareLink + "?t=" + Date.now());
     if (!resp.ok) throw new Error("HTTP " + resp.status);
     const data = await resp.json();
-    if (!data.rows || !data.rows.length) throw new Error("No data in file");
+    if (!data.rows || !data.rows.length) { hideLoading(); loadEmbedded(); return; }
     allRows = data.rows;
     // Ensure numeric fields are numbers
     allRows.forEach(r => {
