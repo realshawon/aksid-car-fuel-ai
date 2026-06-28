@@ -37,8 +37,41 @@
         "Driver Log Sheet attachment Ã¢ÂÂ upload to GitHub failed"
       ],
       "needsManualReview": true
+    },
+    {
+      "date": "28 Jun 2026",
+      "_dateStr": "2026-06-28",
+      "_dateNum": 1782604800000,
+      "submittedAt": "2026-06-28T07:35:15.033Z",
+      "driver": "Md Hanif",
+      "dept": "",
+      "vehicle": "Dhaka Metro GA-1234",
+      "kmStart": 0,
+      "kmEnd": 0,
+      "km": 0,
+      "fuel": 0,
+      "toll": 0,
+      "food": 0,
+      "maintenance": 0,
+      "parking": 0,
+      "hotel": 0,
+      "fine": 0,
+      "others": 0,
+      "total": 0,
+      "month": "",
+      "billFrom": "",
+      "billTo": "",
+      "status": "Pending Review",
+      "remarks": "TEST - please check email for approve/reject buttons",
+      "fuelBillUrl": "",
+      "logSheetUrl": "",
+      "aiAnalyzed": false,
+      "fuelBillType": null,
+      "aiConfidence": null,
+      "undetectedFields": null,
+      "needsManualReview": false
     }
   ],
-  "updated": "2026-06-28T05:10:38.209Z",
-  "count": 1
+  "updated": "2026-06-28T07:35:15.199Z",
+  "count": 2
 }
