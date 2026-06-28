@@ -1,4 +1,39 @@
 {
-  "rows": [],
-  "updated": "2026-06-28T11:30:21.760Z"
+  "rows": [
+    {
+      "date": "28 Jun 2026",
+      "_dateStr": "2026-06-28",
+      "_dateNum": 1782604800000,
+      "submittedAt": "2026-06-28T11:38:16.488Z",
+      "driver": "Md Hanif",
+      "dept": "Logistic",
+      "vehicle": "Dhaka Metro GA-1234",
+      "kmStart": 12000,
+      "kmEnd": 12185,
+      "km": 185,
+      "fuel": 2200,
+      "toll": 150,
+      "food": 200,
+      "maintenance": 0,
+      "parking": 0,
+      "hotel": 0,
+      "fine": 0,
+      "others": 0,
+      "total": 2550,
+      "month": "",
+      "billFrom": "",
+      "billTo": "",
+      "status": "Pending Review",
+      "remarks": "Test submission - June fuel bill",
+      "fuelBillUrl": "",
+      "logSheetUrl": "",
+      "aiAnalyzed": false,
+      "fuelBillType": null,
+      "aiConfidence": null,
+      "undetectedFields": null,
+      "needsManualReview": false
+    }
+  ],
+  "updated": "2026-06-28T11:38:16.630Z",
+  "count": 1
 }
