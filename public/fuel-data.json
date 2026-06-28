@@ -65,7 +65,7 @@
       "month": "June 2026",
       "billFrom": "2026-06-01",
       "billTo": "2026-06-28",
-      "status": "Pending Review",
+      "status": "Approved",
       "remarks": "Test submission - approve link check",
       "fuelBillUrl": "https://raw.githubusercontent.com/realshawon/aksid-car-fuel-ai/main/attachments/Test_Driver_2026-06-28_FuelBill.png",
       "logSheetUrl": "https://raw.githubusercontent.com/realshawon/aksid-car-fuel-ai/main/attachments/Test_Driver_2026-06-28_DriverLogSheet.png",
@@ -76,9 +76,10 @@
         "Fuel Bill â could not analyze image (AI unavailable or read error)",
         "Log Sheet â could not analyze image (AI unavailable or read error)"
       ],
-      "needsManualReview": true
+      "needsManualReview": true,
+      "actionedAt": "2026-06-28T05:02:47.803Z"
     }
   ],
-  "updated": "2026-06-28T05:02:31.397Z",
+  "updated": "2026-06-28T05:02:47.803Z",
   "count": 2
 }
