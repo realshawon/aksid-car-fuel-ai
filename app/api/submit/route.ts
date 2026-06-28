@@ -54,11 +54,13 @@ function tk(n: number | null | undefined): string {
 
 // ── AI Image Analysis ─────────────────────────────────────────────────────
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function analyzeAttachment(
   base64: string,
   mimeType: string,
   docType: 'fuel_bill' | 'log_sheet'
-): Promise<Record<string, unknown> | null> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+): Promise<Record<string, any> | null> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return null;
 
@@ -163,8 +165,9 @@ async function uploadToGitHub(
   return `${RAW_BASE}/${filename}`;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function updateFuelData(
-  token: string, row: Record<string, unknown>
+  token: string, row: Record<string, any>
 ): Promise<{ ok: boolean; error?: string }> {
   const apiUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${DATA_PATH}`;
   const hdrs   = ghHeaders(token);
@@ -196,12 +199,15 @@ async function updateFuelData(
 
 // ── Email HTML Builder ────────────────────────────────────────────────────
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function buildEmailHtml(
-  row: Record<string, unknown>,
+  row: Record<string, any>,
   fuelBillUrl: string,
   logSheetUrl: string,
-  fuelAnalysis: Record<string, unknown> | null,
-  logAnalysis: Record<string, unknown> | null,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  fuelAnalysis: Record<string, any> | null,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  logAnalysis: Record<string, any> | null,
   undetectedFields: string[]
 ): string {
   const warningBlock = undetectedFields.length > 0
@@ -319,8 +325,10 @@ export async function POST(request: NextRequest) {
     const dateSlug    = dateStr; // YYYY-MM-DD
 
     // ── AI Analysis of image attachments ────────────────────────────────
-    let fuelAnalysis: Record<string, unknown> | null = null;
-    let logAnalysis:  Record<string, unknown> | null = null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let fuelAnalysis: Record<string, any> | null = null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let logAnalysis:  Record<string, any> | null = null;
     const undetectedFields: string[] = [];
 
     if (payload.fuelBillBase64 && isImage(payload.fuelBillType ?? '', payload.fuelBillFileName ?? '')) {
@@ -390,7 +398,8 @@ export async function POST(request: NextRequest) {
     const kmEnd   = +(payload.kmEnd   ?? aiKmEnd   ?? 0);
     const km      = +(payload.km ?? (kmEnd > kmStart ? kmEnd - kmStart : 0));
 
-    const row: Record<string, unknown> = {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const row: Record<string, any> = {
       date:        formatDate(dateStr),
       _dateStr:    dateStr,
       _dateNum:    new Date(dateStr + 'T00:00:00Z').getTime(),
