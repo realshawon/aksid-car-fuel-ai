@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 
-const MAKE_WEBHOOK  = 'https://hook.eu1.make.com/b741c459igh479egnqih55hb7vdcygxa';
+const MAKE_WEBHOOK  = 'https://hook.eu1.make.com/3p84j4bc467u06fgnwp8p8n95w4rvfwf';
 const GITHUB_OWNER  = 'realshawon';
 const GITHUB_REPO   = 'aksid-car-fuel-ai';
 const DATA_PATH     = 'public/fuel-data.json';
