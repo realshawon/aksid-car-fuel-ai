@@ -62,7 +62,7 @@
       "month": "",
       "billFrom": "",
       "billTo": "",
-      "status": "Pending Review",
+      "status": "Rejected",
       "remarks": "TEST - please check email for approve/reject buttons",
       "fuelBillUrl": "",
       "logSheetUrl": "",
@@ -70,9 +70,10 @@
       "fuelBillType": null,
       "aiConfidence": null,
       "undetectedFields": null,
-      "needsManualReview": false
+      "needsManualReview": false,
+      "actionedAt": "2026-06-28T11:06:22.150Z"
     }
   ],
-  "updated": "2026-06-28T11:06:08.941Z",
+  "updated": "2026-06-28T11:06:22.150Z",
   "count": 2
 }
