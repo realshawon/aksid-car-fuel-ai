@@ -23,7 +23,7 @@
       "month": "June 2026",
       "billFrom": "2026-06-01",
       "billTo": "2026-06-28",
-      "status": "Pending Review",
+      "status": "Rejected",
       "remarks": "Webhook URL fix test — checking email arrives",
       "fuelBillUrl": "",
       "logSheetUrl": "",
@@ -36,7 +36,8 @@
         "Fuel Bill attachment Ã¢ÂÂ upload to GitHub failed",
         "Driver Log Sheet attachment Ã¢ÂÂ upload to GitHub failed"
       ],
-      "needsManualReview": true
+      "needsManualReview": true,
+      "actionedAt": "2026-06-28T11:06:08.941Z"
     },
     {
       "date": "28 Jun 2026",
@@ -72,6 +73,6 @@
       "needsManualReview": false
     }
   ],
-  "updated": "2026-06-28T07:35:15.199Z",
+  "updated": "2026-06-28T11:06:08.941Z",
   "count": 2
 }
