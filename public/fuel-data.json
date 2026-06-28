@@ -1,1 +1,48 @@
-{"rows":[],"updated":"2026-06-25T09:19:44.864Z","count":0}
+{
+  "rows": [
+    {
+      "date": "28 Jun 2026",
+      "_dateStr": "2026-06-28",
+      "_dateNum": 1782604800000,
+      "submittedAt": "2026-06-28T04:38:57.199Z",
+      "driver": "Sumon Khan",
+      "dept": "Management Expense",
+      "vehicle": "DHA-12-3456",
+      "kmStart": 15000,
+      "kmEnd": 15085,
+      "km": 85,
+      "fuel": 1200,
+      "toll": 80,
+      "food": 150,
+      "maintenance": 0,
+      "parking": 0,
+      "hotel": 0,
+      "fine": 0,
+      "others": 0,
+      "total": 1430,
+      "month": "Jun 2026",
+      "billFrom": "2026-06-01",
+      "billTo": "2026-06-28",
+      "status": "Pending Review",
+      "remarks": "TEST SUBMISSION - AI auto-analysis test",
+      "fuelBillUrl": "https://raw.githubusercontent.com/realshawon/aksid-car-fuel-ai/main/attachments/Sumon_Khan_2026-06-28_FuelBill.png",
+      "logSheetUrl": "https://raw.githubusercontent.com/realshawon/aksid-car-fuel-ai/main/attachments/Sumon_Khan_2026-06-28_DriverLogSheet.png",
+      "aiAnalyzed": true,
+      "fuelBillType": null,
+      "aiConfidence": "LOW",
+      "undetectedFields": [
+        "Fuel Bill — could not analyze image (AI unavailable or read error)",
+        "Log Sheet — driver_name",
+        "Log Sheet — vehicle_no",
+        "Log Sheet — date",
+        "Log Sheet — km_start",
+        "Log Sheet — km_end",
+        "Log Sheet — total_km",
+        "Log Sheet — trips"
+      ],
+      "needsManualReview": true
+    }
+  ],
+  "updated": "2026-06-28T04:39:04.192Z",
+  "count": 1
+}
