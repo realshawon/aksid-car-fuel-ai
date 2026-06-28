@@ -1,5 +1,44 @@
 {
-  "rows": [],
-  "updated": "2026-06-28T05:03:21.828Z",
-  "count": 0
+  "rows": [
+    {
+      "date": "28 Jun 2026",
+      "_dateStr": "2026-06-28",
+      "_dateNum": 1782604800000,
+      "submittedAt": "2026-06-28T05:10:35.672Z",
+      "driver": "Test Driver",
+      "dept": "Admin",
+      "vehicle": "DH-TU-11-1234",
+      "kmStart": 5000,
+      "kmEnd": 5200,
+      "km": 200,
+      "fuel": 1500,
+      "toll": 100,
+      "food": 200,
+      "maintenance": 0,
+      "parking": 50,
+      "hotel": 0,
+      "fine": 0,
+      "others": 0,
+      "total": 1850,
+      "month": "June 2026",
+      "billFrom": "2026-06-01",
+      "billTo": "2026-06-28",
+      "status": "Pending Review",
+      "remarks": "Webhook URL fix test — checking email arrives",
+      "fuelBillUrl": "",
+      "logSheetUrl": "",
+      "aiAnalyzed": false,
+      "fuelBillType": null,
+      "aiConfidence": null,
+      "undetectedFields": [
+        "Fuel Bill Ã¢ÂÂ could not analyze image (AI unavailable or read error)",
+        "Log Sheet Ã¢ÂÂ could not analyze image (AI unavailable or read error)",
+        "Fuel Bill attachment Ã¢ÂÂ upload to GitHub failed",
+        "Driver Log Sheet attachment Ã¢ÂÂ upload to GitHub failed"
+      ],
+      "needsManualReview": true
+    }
+  ],
+  "updated": "2026-06-28T05:10:38.209Z",
+  "count": 1
 }
