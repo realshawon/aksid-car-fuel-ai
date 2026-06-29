@@ -10,7 +10,7 @@ const ATTACH_FOLDER = 'attachments';
 const RAW_BASE      = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/${ATTACH_FOLDER}`;
 const ADMIN_EMAIL   = 'shawon@aksidcorp.com';
 
-// ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ Helpers ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ
+// ── Helpers ───────────────────────────────────────────────────────────────
 
 function ghHeaders(token: string): Record<string, string> {
   return {
@@ -53,7 +53,7 @@ function tk(n: number | null | undefined): string {
   return 'Tk ' + n.toLocaleString('en-BD');
 }
 
-// ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ AI Image Analysis ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ
+// ── AI Image Analysis ─────────────────────────────────────────────────────
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function analyzeAttachment(
@@ -70,14 +70,14 @@ async function analyzeAttachment(
   const prompt = docType === 'fuel_bill'
     ? `You are analyzing a car expense document for AKSID Corporation Limited (Bangladesh).
 The document may be in English or Bengali. It could be:
-- A fuel/petrol receipt (amounts ÃÂ¢ÃÂÃÂ fuel_cost)
-- A toll receipt (amounts ÃÂ¢ÃÂÃÂ toll)
-- A food/meal bill (amounts ÃÂ¢ÃÂÃÂ food_bill)
-- A maintenance/repair receipt (amounts ÃÂ¢ÃÂÃÂ maintenance)
-- A parking receipt (amounts ÃÂ¢ÃÂÃÂ car_parking)
-- A hotel receipt (amounts ÃÂ¢ÃÂÃÂ hotel)
-- A police fine receipt (amounts ÃÂ¢ÃÂÃÂ police_fine)
-- Any other transport expense (amounts ÃÂ¢ÃÂÃÂ others)
+- A fuel/petrol receipt (amounts → fuel_cost)
+- A toll receipt (amounts → toll)
+- A food/meal bill (amounts → food_bill)
+- A maintenance/repair receipt (amounts → maintenance)
+- A parking receipt (amounts → car_parking)
+- A hotel receipt (amounts → hotel)
+- A police fine receipt (amounts → police_fine)
+- Any other transport expense (amounts → others)
 
 Extract all data you can see. Return ONLY valid JSON, no markdown:
 {
@@ -145,7 +145,7 @@ Extract ALL information visible. Return ONLY valid JSON, no markdown:
   }
 }
 
-// ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ GitHub Operations ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ
+// ── GitHub Operations ─────────────────────────────────────────────────────
 
 async function uploadToGitHub(
   token: string, filename: string, base64Content: string, label: string
@@ -198,7 +198,7 @@ async function updateFuelData(
   return { ok: true };
 }
 
-// ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ Email HTML Builder ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ
+// ── Email HTML Builder ────────────────────────────────────────────────────
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function buildEmailHtml(
@@ -215,13 +215,13 @@ function buildEmailHtml(
 ): string {
   const warningBlock = undetectedFields.length > 0
     ? `<div style="background:#fff3cd;border-left:4px solid #ffc107;padding:12px 16px;margin:16px 0;border-radius:4px;">
-        <strong>ÃÂ¢ÃÂÃÂ  Fields that could NOT be auto-read from attachments:</strong><br>
+        <strong>⚠ Fields that could NOT be auto-read from attachments:</strong><br>
         ${undetectedFields.map(f => `&bull; ${f}`).join('<br>')}
         <br><small>Please update the Excel file manually for these fields.</small>
       </div>` : '';
 
   const analysisBlock = fuelAnalysis
-    ? `<h3 style="color:#1f4e79;margin:20px 0 8px">AI Analysis ÃÂ¢ÃÂÃÂ Fuel Bill</h3>
+    ? `<h3 style="color:#1f4e79;margin:20px 0 8px">AI Analysis — Fuel Bill</h3>
        <table style="width:100%;border-collapse:collapse;font-size:13px">
          <tr><td style="padding:4px 8px;color:#555">Type Detected</td><td style="padding:4px 8px;font-weight:bold">${fuelAnalysis.bill_type ?? '-'}</td></tr>
          ${fuelAnalysis.station_name ? `<tr><td style="padding:4px 8px;color:#555">Station/Vendor</td><td style="padding:4px 8px">${fuelAnalysis.station_name}</td></tr>` : ''}
@@ -233,7 +233,7 @@ function buildEmailHtml(
        </table>` : '';
 
   const logAnalysisBlock = logAnalysis
-    ? `<h3 style="color:#1f4e79;margin:20px 0 8px">AI Analysis ÃÂ¢ÃÂÃÂ Driver Log Sheet</h3>
+    ? `<h3 style="color:#1f4e79;margin:20px 0 8px">AI Analysis — Driver Log Sheet</h3>
        <table style="width:100%;border-collapse:collapse;font-size:13px">
          <tr><td style="padding:4px 8px;color:#555">Driver (from log)</td><td style="padding:4px 8px;font-weight:bold">${logAnalysis.driver_name ?? '-'}</td></tr>
          <tr><td style="padding:4px 8px;color:#555">Vehicle No (from log)</td><td style="padding:4px 8px">${logAnalysis.vehicle_no ?? '-'}</td></tr>
@@ -250,7 +250,7 @@ function buildEmailHtml(
 <html><head><meta charset="UTF-8"></head>
 <body style="font-family:Arial,sans-serif;max-width:680px;margin:0 auto;color:#333">
   <div style="background:#1f4e79;padding:20px 24px;border-radius:8px 8px 0 0">
-    <h1 style="color:#fff;margin:0;font-size:20px">AKSID Corporation ÃÂ¢ÃÂÃÂ Transport Expense Submission</h1>
+    <h1 style="color:#fff;margin:0;font-size:20px">AKSID Corporation — Transport Expense Submission</h1>
     <p style="color:#cde;margin:4px 0 0;font-size:13px">Submitted on ${new Date().toLocaleString('en-BD', {timeZone:'Asia/Dhaka'})}</p>
   </div>
 
@@ -316,11 +316,11 @@ function buildEmailHtml(
       <p style="margin:0 0 16px;font-size:14px;color:#555;font-weight:600">Quick Approval Action</p>
       <a href="${approveUrl}"
          style="display:inline-block;padding:12px 32px;background:#38a169;color:white;text-decoration:none;border-radius:6px;font-weight:700;font-size:15px;margin-right:12px">
-        Ã¢ÂÂ Approve
+        ✅ Approve
       </a>
       <a href="${rejectUrl}"
          style="display:inline-block;padding:12px 32px;background:#e53e3e;color:white;text-decoration:none;border-radius:6px;font-weight:700;font-size:15px">
-        Ã¢ÂÂ Reject
+        ❌ Reject
       </a>
       <p style="margin:12px 0 0;font-size:11px;color:#999">Clicking will immediately update the dashboard status.</p>
     </div>
@@ -328,7 +328,7 @@ function buildEmailHtml(
 </body></html>`;
 }
 
-// ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ Main API Handler ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ
+// ── Main API Handler ──────────────────────────────────────────────────────
 
 export async function POST(request: NextRequest) {
   try {
@@ -340,38 +340,61 @@ export async function POST(request: NextRequest) {
     const driverSlug  = safeSlug(payload.driver ?? 'unknown');
     const dateSlug    = dateStr; // YYYY-MM-DD
 
-    // ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ AI Analysis of image attachments ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ
+    // ── AI Analysis of image attachments ────────────────────────────────
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let fuelAnalysis: Record<string, any> | null = null;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let logAnalysis:  Record<string, any> | null = null;
     const undetectedFields: string[] = [];
 
-    if (payload.fuelBillBase64 && isImage(payload.fuelBillType ?? '', payload.fuelBillFileName ?? '')) {
-      fuelAnalysis = await analyzeAttachment(payload.fuelBillBase64, payload.fuelBillType ?? 'image/jpeg', 'fuel_bill');
-      if (!fuelAnalysis) {
-        undetectedFields.push('Fuel Bill ÃÂ¢ÃÂÃÂ could not analyze image (AI unavailable or read error)');
-      } else if (fuelAnalysis.cannot_read && (fuelAnalysis.cannot_read as string[]).length > 0) {
-        (fuelAnalysis.cannot_read as string[]).forEach((f: string) =>
-          undetectedFields.push(`Fuel Bill ÃÂ¢ÃÂÃÂ ${f}`)
-        );
+    // Normalise fuel bill files: accept new array format or old single-file format
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const fuelBillFiles: Array<{ name: string; type: string; base64: string }> =
+      Array.isArray(payload.fuelBillFiles) && payload.fuelBillFiles.length > 0
+        ? payload.fuelBillFiles
+        : payload.fuelBillBase64
+          ? [{ name: payload.fuelBillFileName ?? 'fuel.jpg', type: payload.fuelBillType ?? 'image/jpeg', base64: payload.fuelBillBase64 }]
+          : [];
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const fuelAnalyses: Array<Record<string, any> | null> = [];
+    for (let i = 0; i < fuelBillFiles.length; i++) {
+      const fb = fuelBillFiles[i];
+      const label = fuelBillFiles.length > 1 ? `Receipt ${i + 1} (${fb.name})` : 'Fuel Bill';
+      if (isImage(fb.type, fb.name)) {
+        const analysis = await analyzeAttachment(fb.base64, fb.type, 'fuel_bill');
+        if (!analysis) {
+          undetectedFields.push(`${label} — could not analyze image (AI unavailable or read error)`);
+        } else if (analysis.cannot_read && (analysis.cannot_read as string[]).length > 0) {
+          (analysis.cannot_read as string[]).forEach((f: string) =>
+            undetectedFields.push(`${label} — ${f}`)
+          );
+        }
+        fuelAnalyses.push(analysis);
+      } else {
+        undetectedFields.push(`${label} is a PDF — auto-analysis not available, please review manually`);
+        fuelAnalyses.push(null);
       }
-    } else if (payload.fuelBillBase64) {
-      // PDF ÃÂ¢ÃÂÃÂ AI vision doesn't support PDF, note it
-      undetectedFields.push('Fuel Bill is a PDF ÃÂ¢ÃÂÃÂ auto-analysis not available, please review manually');
     }
+
+    // Use first successful analysis for bill_type / confidence metadata
+    fuelAnalysis = fuelAnalyses.find(a => a !== null) ?? null;
+
+    // Helper: sum a numeric field across all fuel analyses
+    const sumFuel = (field: string): number =>
+      fuelAnalyses.reduce((acc, a) => acc + (+(a?.amounts?.[field] ?? 0)), 0);
 
     if (payload.logSheetBase64 && isImage(payload.logSheetType ?? '', payload.logSheetFileName ?? '')) {
       logAnalysis = await analyzeAttachment(payload.logSheetBase64, payload.logSheetType ?? 'image/jpeg', 'log_sheet');
       if (!logAnalysis) {
-        undetectedFields.push('Log Sheet ÃÂ¢ÃÂÃÂ could not analyze image (AI unavailable or read error)');
+        undetectedFields.push('Log Sheet — could not analyze image (AI unavailable or read error)');
       } else if (logAnalysis.cannot_read && (logAnalysis.cannot_read as string[]).length > 0) {
         (logAnalysis.cannot_read as string[]).forEach((f: string) =>
-          undetectedFields.push(`Log Sheet ÃÂ¢ÃÂÃÂ ${f}`)
+          undetectedFields.push(`Log Sheet — ${f}`)
         );
       }
     } else if (payload.logSheetBase64) {
-      undetectedFields.push('Driver Log Sheet is a PDF ÃÂ¢ÃÂÃÂ auto-analysis not available, please review manually');
+      undetectedFields.push('Driver Log Sheet is a PDF — auto-analysis not available, please review manually');
     }
 
     // Auto-fill missing values from AI analysis
@@ -379,22 +402,27 @@ export async function POST(request: NextRequest) {
     const aiKmEnd   = logAnalysis?.km_end   ?? null;
     const aiVehicle = (logAnalysis?.vehicle_no ?? fuelAnalysis?.vehicle_no ?? null) as string | null;
 
-    // ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ Upload attachments to GitHub with descriptive names ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ
-    let fuelBillUrl = '';
+    // ── Upload attachments to GitHub with descriptive names ──────────────
+    const fuelBillUrls: string[] = [];
     let logSheetUrl = '';
 
-    if (token && payload.fuelBillBase64) {
-      try {
-        const ext  = fileExt(payload.fuelBillType ?? '', payload.fuelBillFileName ?? '');
-        // Name: DriverName_YYYY-MM-DD_FuelBill.ext
-        const name = `${driverSlug}_${dateSlug}_FuelBill.${ext}`;
-        fuelBillUrl = await uploadToGitHub(token, name, payload.fuelBillBase64,
-          `${payload.driver} ÃÂ¢ÃÂÃÂ Fuel Bill ÃÂ¢ÃÂÃÂ ${formatDate(dateStr)}`);
-      } catch (e) {
-        console.error('[submit] fuelBill upload failed:', e);
-        undetectedFields.push('Fuel Bill attachment ÃÂ¢ÃÂÃÂ upload to GitHub failed');
+    for (let i = 0; i < fuelBillFiles.length; i++) {
+      const fb = fuelBillFiles[i];
+      if (token) {
+        try {
+          const ext    = fileExt(fb.type, fb.name);
+          const suffix = fuelBillFiles.length > 1 ? `_${i + 1}` : '';
+          const name   = `${driverSlug}_${dateSlug}_FuelBill${suffix}.${ext}`;
+          const url    = await uploadToGitHub(token, name, fb.base64,
+            `${payload.driver} – Fuel Bill${suffix} – ${formatDate(dateStr)}`);
+          fuelBillUrls.push(url);
+        } catch (e) {
+          console.error('[submit] fuelBill upload failed:', e);
+          undetectedFields.push(`Fuel Bill ${fuelBillFiles.length > 1 ? i + 1 + ' ' : ''}attachment — upload to GitHub failed`);
+        }
       }
     }
+    const fuelBillUrl = fuelBillUrls[0] ?? '';
 
     if (token && payload.logSheetBase64) {
       try {
@@ -402,14 +430,14 @@ export async function POST(request: NextRequest) {
         // Name: DriverName_YYYY-MM-DD_DriverLogSheet.ext
         const name = `${driverSlug}_${dateSlug}_DriverLogSheet.${ext}`;
         logSheetUrl = await uploadToGitHub(token, name, payload.logSheetBase64,
-          `${payload.driver} ÃÂ¢ÃÂÃÂ Driver Log Sheet ÃÂ¢ÃÂÃÂ ${formatDate(dateStr)}`);
+          `${payload.driver} – Driver Log Sheet – ${formatDate(dateStr)}`);
       } catch (e) {
         console.error('[submit] logSheet upload failed:', e);
-        undetectedFields.push('Driver Log Sheet attachment ÃÂ¢ÃÂÃÂ upload to GitHub failed');
+        undetectedFields.push('Driver Log Sheet attachment — upload to GitHub failed');
       }
     }
 
-    // ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ Build fuel-data.json row ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ
+    // ── Build fuel-data.json row ─────────────────────────────────────────
     const kmStart = +(payload.kmStart ?? aiKmStart ?? 0);
     const kmEnd   = +(payload.kmEnd   ?? aiKmEnd   ?? 0);
     const km      = +(payload.km ?? (kmEnd > kmStart ? kmEnd - kmStart : 0));
@@ -426,14 +454,14 @@ export async function POST(request: NextRequest) {
       kmStart,
       kmEnd,
       km,
-      fuel:        +(payload.fuel      ?? fuelAnalysis?.amounts?.fuel_cost  ?? 0),
-      toll:        +(payload.toll      ?? fuelAnalysis?.amounts?.toll       ?? 0),
-      food:        +(payload.food      ?? fuelAnalysis?.amounts?.food_bill  ?? 0),
-      maintenance: +(payload.maintenance ?? fuelAnalysis?.amounts?.maintenance ?? 0),
-      parking:     +(payload.parking   ?? fuelAnalysis?.amounts?.car_parking  ?? 0),
-      hotel:       +(payload.hotel     ?? fuelAnalysis?.amounts?.hotel        ?? 0),
-      fine:        +(payload.fine      ?? fuelAnalysis?.amounts?.police_fine  ?? 0),
-      others:      +(payload.others    ?? fuelAnalysis?.amounts?.others       ?? 0),
+      fuel:        +(payload.fuel        ?? sumFuel('fuel_cost')    ?? 0),
+      toll:        +(payload.toll        ?? sumFuel('toll')          ?? 0),
+      food:        +(payload.food        ?? sumFuel('food_bill')     ?? 0),
+      maintenance: +(payload.maintenance ?? sumFuel('maintenance')   ?? 0),
+      parking:     +(payload.parking     ?? sumFuel('car_parking')   ?? 0),
+      hotel:       +(payload.hotel       ?? sumFuel('hotel')         ?? 0),
+      fine:        +(payload.fine        ?? sumFuel('police_fine')   ?? 0),
+      others:      +(payload.others      ?? sumFuel('others')        ?? 0),
       total:       +(payload.total     ?? 0),
       month:       payload.month       ?? '',
       billFrom:    payload.billPeriodFrom ?? '',
@@ -441,6 +469,7 @@ export async function POST(request: NextRequest) {
       status:      'Pending Review',
       remarks:     payload.notes       ?? '',
       fuelBillUrl,
+      fuelBillUrls,
       logSheetUrl,
       // AI analysis metadata
       aiAnalyzed:         !!(fuelAnalysis || logAnalysis),
@@ -459,7 +488,7 @@ export async function POST(request: NextRequest) {
         + (row.others as number);
     }
 
-    // ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ Update fuel-data.json on GitHub ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ
+    // ── Update fuel-data.json on GitHub ──────────────────────────────────
     let dashboardUpdated = false;
     if (token) {
       try {
@@ -471,12 +500,13 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ Build rich Make.com payload (Excel + OneDrive + Email) ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ
-    // Ã¢ÂÂÃ¢ÂÂ Build approval URLs Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+    // ── Build approval URLs ──────────────────────────────────────────────
     const BASE_URL   = 'https://aksid-car-fuel-ai.vercel.app';
     const approveUrl = `${BASE_URL}/api/approve?id=${encodeURIComponent(submittedAt)}&action=approve`;
     const rejectUrl  = `${BASE_URL}/api/approve?id=${encodeURIComponent(submittedAt)}&action=reject`;
-    const emailHtml  = buildEmailHtml(row, fuelBillUrl, logSheetUrl, fuelAnalysis, logAnalysis, undetectedFields, approveUrl, rejectUrl);
+
+    // ── Build rich Make.com payload (Excel + OneDrive + Email) ───────────
+    const emailHtml = buildEmailHtml(row, fuelBillUrl, logSheetUrl, fuelAnalysis, logAnalysis, undetectedFields, approveUrl, rejectUrl);
 
     const makePayload = {
       // Core submission data
@@ -500,8 +530,10 @@ export async function POST(request: NextRequest) {
       resolved_total:       row.total,
       // Attachment info
       fuel_bill_url:    fuelBillUrl,
+      fuel_bill_urls:   fuelBillUrls,
       log_sheet_url:    logSheetUrl,
       fuel_bill_name:   fuelBillUrl ? fuelBillUrl.split('/').pop() : null,
+      fuel_bill_names:  fuelBillUrls.map(u => u.split('/').pop()),
       log_sheet_name:   logSheetUrl ? logSheetUrl.split('/').pop() : null,
       // AI analysis
       ai_analyzed:      row.aiAnalyzed,
@@ -511,7 +543,7 @@ export async function POST(request: NextRequest) {
       needs_manual_review: row.needsManualReview,
       // Email
       email_to:         ADMIN_EMAIL,
-      email_subject:    `[AKSID Fuel] New Submission ÃÂ¢ÃÂÃÂ ${row.driver} ÃÂ¢ÃÂÃÂ ${row.date}${undetectedFields.length > 0 ? ' ÃÂ¢ÃÂÃÂ  NEEDS REVIEW' : ''}`,
+      email_subject:    `[AKSID Fuel] New Submission — ${row.driver} — ${row.date}${undetectedFields.length > 0 ? ' ⚠ NEEDS REVIEW' : ''}`,
       email_html:       emailHtml,
       // Excel row data (flat, for Make.com to write directly)
       excel_row: {
@@ -535,10 +567,10 @@ export async function POST(request: NextRequest) {
         grand_total:    row.total,
         month:          row.month,
         submitted_at:   row.submittedAt,
-        fuel_bill_url:  fuelBillUrl,
+        fuel_bill_url:  fuelBillUrls.join(' | '),
         log_sheet_url:  logSheetUrl,
         ai_analyzed:    row.aiAnalyzed ? 'Yes' : 'No',
-        needs_review:   row.needsManualReview ? 'Yes ÃÂ¢ÃÂÃÂ ' + undetectedFields.join(' | ') : 'No',
+        needs_review:   row.needsManualReview ? 'Yes — ' + undetectedFields.join(' | ') : 'No',
         status:         'Pending Review',
       },
       // OneDrive folder target
@@ -548,7 +580,7 @@ export async function POST(request: NextRequest) {
       reject_url:  rejectUrl,
     };
 
-    // Fire-and-forget to Make.com
+    // Fire-and-forget to Make.com (SharePoint + WhatsApp)
     fetch(MAKE_WEBHOOK, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -571,6 +603,7 @@ export async function POST(request: NextRequest) {
       success: true,
       dashboardUpdated,
       fuelBillUrl,
+      fuelBillUrls,
       logSheetUrl,
       aiAnalyzed:      !!(fuelAnalysis || logAnalysis),
       undetectedFields,
