@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AKSID Transport Expense Dashboard</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: #1a1a2e; }
@@ -28,6 +29,11 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
   text-decoration: none; display: inline-block;
 }
 .btn-submit:hover { background: #005fa3; }
+.btn-excel {
+  background: #1d6f42; color: white; border: none; padding: 7px 16px;
+  border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.btn-excel:hover { background: #155233; }
 .kpi-row {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 14px; padding: 18px 20px 0;
@@ -127,6 +133,7 @@ tr:last-child td { border-bottom: none; }
     <div class="header-right">
       <span class="last-updated" id="last-updated"></span>
       <a href="/submit.html" class="btn-submit">+ Submit Expense</a>
+      <button class="btn-excel" onclick="downloadExcel()">⬇ Export Excel</button>
       <button class="btn-refresh" onclick="loadData()">&#8635; Refresh</button>
     </div>
   </div>
@@ -233,19 +240,19 @@ tr:last-child td { border-bottom: none; }
 </div>
 
 <script>
-// ââââââââââââââââââââââââââââââââââââââââââââââââââ
-// âï¸  CONFIGURATION
+// ══════════════════════════════════════════════════
+// ⚙️  CONFIGURATION
 // Set your OneDrive share link below to load live data.
 // How to get it:
-//   Open OneDrive â right-click Excel file â Share
-//   Set to "Anyone with the link can view" â Copy link
+//   Open OneDrive → right-click Excel file → Share
+//   Set to "Anyone with the link can view" → Copy link
 // Leave blank to show embedded snapshot data.
-// ââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ══════════════════════════════════════════════════
 const CONFIG = {
   shareLink: "/api/fuel-data"
 };
 
-// ââ Embedded real data (snapshot from Excel) âââââ
+// ── Embedded real data (snapshot from Excel) ─────
 // Format: [date, driver, dept, kmStart, kmEnd, km, fuel, toll, food, maint, parking, hotel, fine, others, total, month, billFrom, billTo, vehicle, status]
 const EMBEDDED_DATA = [];
 
@@ -257,7 +264,7 @@ window.addEventListener("DOMContentLoaded", () => {
   loadData();
 });
 
-// âââ Main load âââââââââââââââââââââââââââââââââââ
+// ─── Main load ───────────────────────────────────
 async function loadData() {
   hideErr();
   hideBanner();
@@ -313,7 +320,7 @@ function shareToDownload(link) {
   return link;
 }
 
-// âââ Parse live Excel rows (SheetJS format) ââââââ
+// ─── Parse live Excel rows (SheetJS format) ──────
 function parseExcelRows(raw) {
   // Row 0 = title, 1 = blank, 2 = headers, 3+ = data
   allRows = [];
@@ -324,7 +331,7 @@ function parseExcelRows(raw) {
     // Fuel = sum of Gas-1...Octane (cols G-K = indices 6-10)
     const fuel = num(r[6]) + num(r[7]) + num(r[8]) + num(r[9]) + num(r[10]);
 
-    // KM = Total KM formula col (F=5) â always None in saved file;
+    // KM = Total KM formula col (F=5) — always None in saved file;
     // fallback: End KM (E=4) minus Start KM (D=3)
     const km = num(r[5]) || Math.max(0, num(r[4]) - num(r[3]));
 
@@ -336,7 +343,7 @@ function parseExcelRows(raw) {
     const fine = num(r[18]);
     const others = num(r[19]);
 
-    // Total = Grand Total formula (X=23) â None in saved file; calculate from parts
+    // Total = Grand Total formula (X=23) — None in saved file; calculate from parts
     const total = num(r[23]) || (fuel + toll + food + maintenance + parking + hotel + fine + others);
 
     // Status: empty for old manual data, "Pending Review" for new form submissions
@@ -361,7 +368,7 @@ function finishLoad(msg) {
   hideLoading();
 }
 
-// âââ Date helpers âââââââââââââââââââââââââââââââââ
+// ─── Date helpers ─────────────────────────────────
 function parseDate(row) {
   // Handles both Excel serial (live) and ISO string (embedded)
   if (row._dateNum && row._dateNum > 0) {
@@ -401,7 +408,7 @@ function getDateSort(row) {
   return d ? d.getTime() / 86400000 + 25569 : 0;
 }
 
-// âââ KPIs âââââââââââââââââââââââââââââââââââââââââ
+// ─── KPIs ─────────────────────────────────────────
 function updateKPIs() {
   const latestDate = getLatestMonthDate();
   const latestRows = latestDate
@@ -429,7 +436,7 @@ function updateKPIs() {
   document.getElementById("k-drivers-sub").textContent = latestLabel;
 }
 
-// âââ Charts âââââââââââââââââââââââââââââââââââââââ
+// ─── Charts ───────────────────────────────────────
 function buildCharts() {
   const monthly = {};
   allRows.forEach(r => {
@@ -457,7 +464,7 @@ function buildCharts() {
   });
 }
 
-// âââ Filters ââââââââââââââââââââââââââââââââââââââ
+// ─── Filters ──────────────────────────────────────
 function populateFilters() {
   const drivers = [...new Set(allRows.map(r=>r.driver).filter(Boolean))].sort();
   document.getElementById("f-driver").innerHTML =
@@ -483,7 +490,7 @@ function filter() {
   sortRows(); renderTable();
 }
 
-// âââ Sort âââââââââââââââââââââââââââââââââââââââââ
+// ─── Sort ─────────────────────────────────────────
 function sort(col) {
   if (sortCol === col) sortDir *= -1; else { sortCol = col; sortDir = -1; }
   sortRows(); renderTable();
@@ -498,7 +505,7 @@ function sortRows() {
   });
 }
 
-// âââ Table ââââââââââââââââââââââââââââââââââââââââ
+// ─── Table ────────────────────────────────────────
 function renderTable() {
   const tbody = document.getElementById("tbody");
   document.getElementById("rec-count").textContent =
@@ -533,7 +540,7 @@ function renderTable() {
   }).join("");
 }
 
-// âââ Utilities ââââââââââââââââââââââââââââââââââââ
+// ─── Utilities ────────────────────────────────────
 function str(v) { return v!==undefined&&v!==null ? String(v).trim() : ""; }
 function num(v) { return typeof v==="number" ? v : parseFloat(v)||0; }
 function fmtMoney(n) { return n ? "Tk"+Math.round(n).toLocaleString() : "-"; }
@@ -545,28 +552,58 @@ function hideErr() { document.getElementById("err").style.display="none"; }
 function showBanner(msg) { const el=document.getElementById("info-banner"); el.textContent=msg; el.style.display="block"; }
 function hideBanner() { document.getElementById("info-banner").style.display="none"; }
 
-
 // ─── Dashboard Approve / Reject ───────────────────
 async function dashApprove(id, action, btn) {
   if (!confirm((action === "approve" ? "✅ Approve" : "❌ Reject") + " this submission?")) return;
-  var row = btn.closest("tr");
-  var btns = row.querySelectorAll(".btn-approve, .btn-reject");
-  btns.forEach(function(b) { b.disabled = true; });
+  const row = btn.closest("tr");
+  const btns = row.querySelectorAll(".btn-approve, .btn-reject");
+  btns.forEach(b => { b.disabled = true; });
   try {
-    var url = "/api/approve?id=" + encodeURIComponent(id) + "&action=" + action;
-    var resp = await fetch(url);
+    const url = "/api/approve?id=" + encodeURIComponent(id) + "&action=" + action;
+    const resp = await fetch(url);
+    const text = await resp.text();
     if (resp.ok) {
       showBanner((action === "approve" ? "✅ Approved!" : "❌ Rejected!") + " Refreshing...");
-      setTimeout(function() { hideBanner(); loadData(); }, 1500);
+      setTimeout(() => { hideBanner(); loadData(); }, 1500);
     } else {
-      var text = await resp.text();
       alert("Error: " + text);
-      btns.forEach(function(b) { b.disabled = false; });
+      btns.forEach(b => { b.disabled = false; });
     }
   } catch(e) {
     alert("Network error: " + e.message);
-    btns.forEach(function(b) { b.disabled = false; });
+    btns.forEach(b => { b.disabled = false; });
   }
+}
+
+// ─── Export Excel ─────────────────────────────────
+function downloadExcel() {
+  if (!allRows.length) { alert("No data to export."); return; }
+  const headers = [
+    "Date", "Driver", "Department", "Vehicle", "KM Start", "KM End", "Total KM",
+    "Fuel/Transport (BDT)", "Toll (BDT)", "Food (BDT)", "Maintenance (BDT)",
+    "Parking (BDT)", "Hotel (BDT)", "Fine (BDT)", "Others (BDT)", "Total (BDT)",
+    "Bill Period From", "Bill Period To", "Status", "Notes", "Submitted At"
+  ];
+  const rows = allRows.map(r => [
+    r.date || "", r.driver || "", r.dept || "", r.vehicle || "",
+    r.kmStart || "", r.kmEnd || "", r.km || "",
+    r.fuel || 0, r.toll || 0, r.food || 0, r.maintenance || 0,
+    r.parking || 0, r.hotel || 0, r.fine || 0, r.others || 0,
+    r.total || 0,
+    r.billFrom || "", r.billTo || "", r.status || "", r.notes || "",
+    r.submittedAt ? new Date(r.submittedAt).toLocaleString() : ""
+  ]);
+  const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+  // Column widths
+  ws['!cols'] = [
+    {wch:12},{wch:20},{wch:16},{wch:14},{wch:10},{wch:10},{wch:10},
+    {wch:14},{wch:10},{wch:10},{wch:14},{wch:10},{wch:10},{wch:10},{wch:10},
+    {wch:12},{wch:14},{wch:14},{wch:14},{wch:28},{wch:20}
+  ];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Expense Log");
+  const today = new Date().toISOString().slice(0,10);
+  XLSX.writeFile(wb, `AKSID_Transport_Expense_${today}.xlsx`);
 }
 </script>
 </body>
