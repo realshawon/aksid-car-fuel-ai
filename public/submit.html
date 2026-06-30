@@ -290,6 +290,61 @@ const files = { fuelBill: [], logSheet: null };
 /* ── Auto-set today's date ── */
 document.getElementById('tripDate').value = new Date().toISOString().slice(0,10);
 
+/* ── Image compression (canvas) ── */
+// Images from phone cameras can be 3–8 MB. We compress to ≤800 KB before
+// base64-encoding so the full payload stays well under Vercel's 4.5 MB limit.
+// PDFs are passed through unchanged.
+function compressFile(file) {
+  return new Promise(resolve => {
+    const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+    if (isPdf) {
+      // PDF — read raw and return as-is
+      const reader = new FileReader();
+      reader.onload = ev => resolve({
+        name: file.name, type: file.type,
+        base64: ev.target.result.split(',')[1],
+        origKB: Math.round(file.size / 1024),
+        compKB: Math.round(file.size / 1024)
+      });
+      reader.readAsDataURL(file);
+      return;
+    }
+
+    // Image — draw on canvas and export as JPEG at reduced quality/size
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const img = new Image();
+      img.onload = () => {
+        const MAX_PX  = 1600;        // max width or height
+        const QUALITY = 0.78;        // JPEG quality (0–1)
+        let w = img.width, h = img.height;
+        if (w > MAX_PX || h > MAX_PX) {
+          if (w >= h) { h = Math.round(h * MAX_PX / w); w = MAX_PX; }
+          else        { w = Math.round(w * MAX_PX / h); h = MAX_PX; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        const dataUrl = canvas.toDataURL('image/jpeg', QUALITY);
+        const b64 = dataUrl.split(',')[1];
+        resolve({
+          name: file.name.replace(/\.[^.]+$/, '.jpg'),
+          type: 'image/jpeg',
+          base64: b64,
+          origKB: Math.round(file.size / 1024),
+          compKB: Math.round(b64.length * 3 / 4 / 1024)
+        });
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function fmtSize(kb) {
+  return kb >= 1024 ? (kb/1024).toFixed(1) + ' MB' : kb + ' KB';
+}
+
 /* ── File handling ── */
 function handleFile(key) {
   const inputId  = key === 'fuelBill' ? 'fileFuelBill' : 'fileLogSheet';
@@ -298,10 +353,9 @@ function handleFile(key) {
   const input    = document.getElementById(inputId);
   const drop     = document.getElementById(dropId);
   const nameEl   = document.getElementById(nameId);
-  const maxBytes = 5 * 1024 * 1024; // 5 MB
+  const maxBytes = 15 * 1024 * 1024; // 15 MB raw limit (compressed to <800 KB each)
 
   if (key === 'fuelBill') {
-    // Multiple files
     const selected = Array.from(input.files);
     if (!selected.length) return;
 
@@ -309,30 +363,27 @@ function handleFile(key) {
     if (oversized.length) {
       drop.classList.add('error-file');
       drop.classList.remove('has-file');
-      nameEl.textContent = '⚠️ ' + oversized[0].name + ' exceeds 5 MB limit';
+      nameEl.textContent = '⚠️ ' + oversized[0].name + ' is too large (max 15 MB)';
       nameEl.style.display = 'block';
       files.fuelBill = [];
       return;
     }
 
-    const promises = selected.map(file => new Promise(resolve => {
-      const reader = new FileReader();
-      reader.onload = (ev) => resolve({
-        name: file.name, size: file.size, type: file.type,
-        base64: ev.target.result.split(',')[1]
-      });
-      reader.readAsDataURL(file);
-    }));
+    // Show "compressing…" while processing
+    nameEl.textContent = '⏳ Compressing images…';
+    nameEl.style.display = 'block';
 
-    Promise.all(promises).then(results => {
+    Promise.all(selected.map(compressFile)).then(results => {
       files.fuelBill = results;
       drop.classList.add('has-file');
       drop.classList.remove('error-file');
       if (results.length === 1) {
-        nameEl.textContent = '✅ ' + results[0].name;
+        const r = results[0];
+        nameEl.textContent = '✅ ' + r.name +
+          (r.origKB !== r.compKB ? ` (${fmtSize(r.origKB)} → ${fmtSize(r.compKB)})` : ` (${fmtSize(r.compKB)})`);
       } else {
-        nameEl.innerHTML = '✅ ' + results.length + ' files:<br>' +
-          results.map(f => '&nbsp;&nbsp;• ' + f.name).join('<br>');
+        nameEl.innerHTML = '✅ ' + results.length + ' files compressed:<br>' +
+          results.map(r => `&nbsp;&nbsp;• ${r.name} (${fmtSize(r.origKB)} → ${fmtSize(r.compKB)})`).join('<br>');
       }
       nameEl.style.display = 'block';
     });
@@ -345,21 +396,23 @@ function handleFile(key) {
     if (file.size > maxBytes) {
       drop.classList.add('error-file');
       drop.classList.remove('has-file');
-      nameEl.textContent = '⚠️ File too large (max 5 MB)';
+      nameEl.textContent = '⚠️ File too large (max 15 MB)';
       nameEl.style.display = 'block';
       files[key] = null;
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      files[key] = { name: file.name, size: file.size, type: file.type, base64: ev.target.result.split(',')[1] };
+    nameEl.textContent = '⏳ Compressing…';
+    nameEl.style.display = 'block';
+
+    compressFile(file).then(result => {
+      files[key] = result;
       drop.classList.add('has-file');
       drop.classList.remove('error-file');
-      nameEl.textContent = '✅ ' + file.name;
+      nameEl.textContent = '✅ ' + result.name +
+        (result.origKB !== result.compKB ? ` (${fmtSize(result.origKB)} → ${fmtSize(result.compKB)})` : ` (${fmtSize(result.compKB)})`);
       nameEl.style.display = 'block';
-    };
-    reader.readAsDataURL(file);
+    });
   }
 }
 
