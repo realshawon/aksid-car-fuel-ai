@@ -131,6 +131,14 @@ input.error, select.error { border-color: #e53e3e; }
   word-break: break-all; display: none;
 }
 
+/* Preview thumbnails inside drop zone */
+.preview-thumb {
+  width: 100%; max-height: 130px; object-fit: cover;
+  border-radius: 5px; margin-top: 8px; display: block;
+  border: 1px solid #c6f6d5; pointer-events: none;
+}
+.pdf-thumb { font-size: 32px; display: block; margin-top: 8px; }
+
 /* ── Responsive ── */
 @media (max-width: 560px) {
   .form-grid { grid-template-columns: 1fr; }
@@ -223,7 +231,7 @@ input.error, select.error { border-color: #e53e3e; }
         🤖 <span><strong>AI Auto-Extract:</strong> Upload your receipts &amp; log sheet — Claude AI will automatically read KM readings, all expense amounts (fuel, food, toll, parking, etc.), and bill period from the documents.</span>
       </div>
       <p style="font-size:13px; color:#4a5568; margin:12px 0 14px;">
-        Accepted: <strong>PDF, JPG, PNG</strong> — max 5 MB each. You can select <strong>multiple receipts</strong> in the Expense Receipts slot.
+        Accepted: <strong>PDF, JPG, PNG</strong> — images are auto-compressed before upload. You can select <strong>multiple receipts</strong> in the Expense Receipts slot.
       </p>
       <div class="file-upload-grid">
 
@@ -345,6 +353,51 @@ function fmtSize(kb) {
   return kb >= 1024 ? (kb/1024).toFixed(1) + ' MB' : kb + ' KB';
 }
 
+/* ── OneDrive original upload (fire-and-forget) ── */
+async function uploadOriginalToOneDrive(file, key) {
+  try {
+    const folder = new Date().toISOString().slice(0,10) + '_' +
+      (document.getElementById('driver').value || 'unknown').replace(/\s+/g,'_');
+    const res = await fetch('/api/onedrive-upload', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ filename: file.name, folder, size: file.size })
+    });
+    if (!res.ok) return; // Not configured — skip silently
+    const { uploadUrl } = await res.json();
+    if (!uploadUrl) return;
+    await fetch(uploadUrl, {
+      method: 'PUT',
+      headers: {
+        'Content-Length': String(file.size),
+        'Content-Range': `bytes 0-${file.size - 1}/${file.size}`,
+      },
+      body: file
+    });
+    console.log('[OneDrive] Uploaded original:', file.name);
+  } catch (e) {
+    console.warn('[OneDrive] Upload skipped:', e.message);
+  }
+}
+
+/* ── Show thumbnail previews in a drop zone ── */
+function showPreviews(drop, results) {
+  drop.querySelectorAll('.preview-thumb,.pdf-thumb').forEach(el => el.remove());
+  results.forEach(r => {
+    if (r.type === 'image/jpeg' || r.type === 'image/png') {
+      const img = document.createElement('img');
+      img.className = 'preview-thumb';
+      img.src = 'data:image/jpeg;base64,' + r.base64;
+      drop.appendChild(img);
+    } else {
+      const icon = document.createElement('span');
+      icon.className = 'pdf-thumb';
+      icon.textContent = '📄';
+      drop.appendChild(icon);
+    }
+  });
+}
+
 /* ── File handling ── */
 function handleFile(key) {
   const inputId  = key === 'fuelBill' ? 'fileFuelBill' : 'fileLogSheet';
@@ -353,23 +406,14 @@ function handleFile(key) {
   const input    = document.getElementById(inputId);
   const drop     = document.getElementById(dropId);
   const nameEl   = document.getElementById(nameId);
-  const maxBytes = 15 * 1024 * 1024; // 15 MB raw limit (compressed to <800 KB each)
 
   if (key === 'fuelBill') {
     const selected = Array.from(input.files);
     if (!selected.length) return;
 
-    const oversized = selected.filter(f => f.size > maxBytes);
-    if (oversized.length) {
-      drop.classList.add('error-file');
-      drop.classList.remove('has-file');
-      nameEl.textContent = '⚠️ ' + oversized[0].name + ' is too large (max 15 MB)';
-      nameEl.style.display = 'block';
-      files.fuelBill = [];
-      return;
-    }
+    // Upload originals to OneDrive in background (no size limit)
+    selected.forEach(f => uploadOriginalToOneDrive(f, key));
 
-    // Show "compressing…" while processing
     nameEl.textContent = '⏳ Compressing images…';
     nameEl.style.display = 'block';
 
@@ -377,30 +421,24 @@ function handleFile(key) {
       files.fuelBill = results;
       drop.classList.add('has-file');
       drop.classList.remove('error-file');
+      showPreviews(drop, results);
       if (results.length === 1) {
         const r = results[0];
         nameEl.textContent = '✅ ' + r.name +
           (r.origKB !== r.compKB ? ` (${fmtSize(r.origKB)} → ${fmtSize(r.compKB)})` : ` (${fmtSize(r.compKB)})`);
       } else {
-        nameEl.innerHTML = '✅ ' + results.length + ' files compressed:<br>' +
+        nameEl.innerHTML = '✅ ' + results.length + ' files:<br>' +
           results.map(r => `&nbsp;&nbsp;• ${r.name} (${fmtSize(r.origKB)} → ${fmtSize(r.compKB)})`).join('<br>');
       }
       nameEl.style.display = 'block';
     });
 
   } else {
-    // Single file (logSheet)
     const file = input.files[0];
     if (!file) return;
 
-    if (file.size > maxBytes) {
-      drop.classList.add('error-file');
-      drop.classList.remove('has-file');
-      nameEl.textContent = '⚠️ File too large (max 15 MB)';
-      nameEl.style.display = 'block';
-      files[key] = null;
-      return;
-    }
+    // Upload original to OneDrive in background
+    uploadOriginalToOneDrive(file, key);
 
     nameEl.textContent = '⏳ Compressing…';
     nameEl.style.display = 'block';
@@ -409,6 +447,7 @@ function handleFile(key) {
       files[key] = result;
       drop.classList.add('has-file');
       drop.classList.remove('error-file');
+      showPreviews(drop, [result]);
       nameEl.textContent = '✅ ' + result.name +
         (result.origKB !== result.compKB ? ` (${fmtSize(result.origKB)} → ${fmtSize(result.compKB)})` : ` (${fmtSize(result.compKB)})`);
       nameEl.style.display = 'block';
@@ -510,40 +549,4 @@ async function submitForm() {
     }
   } catch (err) {
     showMsg('error', 'Network error. Check your connection and try again.');
-  } finally {
-    document.getElementById('submitBtn').disabled = false;
-  }
-}
-
-function showMsg(type, text) {
-  ['loading','success','error'].forEach(t =>
-    document.getElementById('msg'+t.charAt(0).toUpperCase()+t.slice(1)).style.display='none');
-  if (type === 'error' && text) document.getElementById('errText').textContent = text;
-  document.getElementById('msg'+type.charAt(0).toUpperCase()+type.slice(1)).style.display='flex';
-}
-
-function clearForm() {
-  ['driver','dept','vehicle','notes']
-    .forEach(id => document.getElementById(id).value = '');
-  document.getElementById('tripDate').value = new Date().toISOString().slice(0,10);
-  ['loading','success','error'].forEach(t =>
-    document.getElementById('msg'+t.charAt(0).toUpperCase()+t.slice(1)).style.display='none');
-  document.querySelectorAll('.error').forEach(el => el.classList.remove('error'));
-
-  /* Reset file uploads */
-  files.fuelBill = []; files.logSheet = null;
-  ['fileFuelBill','fileLogSheet'].forEach(id => document.getElementById(id).value = '');
-  ['dropFuelBill','dropLogSheet'].forEach(id => {
-    const d = document.getElementById(id);
-    d.classList.remove('has-file','error-file');
-  });
-  ['nameFuelBill','nameLogSheet'].forEach(id => {
-    const n = document.getElementById(id);
-    n.textContent = ''; n.style.display = 'none';
-  });
-
-  document.getElementById('submitBtn').disabled = false;
-}
-</script>
-</body>
-</html>
+ 
