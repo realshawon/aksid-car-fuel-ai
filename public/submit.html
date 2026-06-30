@@ -139,6 +139,29 @@ input.error, select.error { border-color: #e53e3e; }
 }
 .pdf-thumb { font-size: 32px; display: block; margin-top: 8px; }
 
+/* ── Department multi-select ── */
+.dept-checkbox-list {
+  border: 1px solid #e2e8f0; border-radius: 6px; background: white;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+  max-height: 168px; overflow-y: auto;
+}
+.dept-checkbox-list.error-field { border-color: #e53e3e; }
+.dept-cb-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 12px; font-size: 13px; font-weight: 400; color: #2d3748;
+  cursor: pointer; text-transform: none; letter-spacing: 0;
+  border-bottom: 1px solid #f0f0f0; transition: background .15s;
+}
+.dept-cb-item:hover { background: #ebf8ff; }
+.dept-cb-item input[type="checkbox"] {
+  width: 15px; height: 15px; border-radius: 3px; border: 1px solid #cbd5e0;
+  cursor: pointer; flex-shrink: 0; accent-color: #0078d4;
+  padding: 0; margin: 0; transition: none; box-shadow: none;
+}
+.dept-cb-item input[type="checkbox"]:focus { box-shadow: none; border-color: #0078d4; }
+.dept-hint { font-size: 11px; color: #a0aec0; margin-top: 3px; }
+.dept-hint.selected { color: #0078d4; font-weight: 600; }
+
 /* ── Responsive ── */
 @media (max-width: 560px) {
   .form-grid { grid-template-columns: 1fr; }
@@ -190,33 +213,38 @@ input.error, select.error { border-color: #e53e3e; }
         </div>
 
         <div class="form-group">
-          <label>Department <span class="req">*</span></label>
-          <select id="dept" required>
-            <option value="">Select Department</option>
-            <option>Admin</option>
-            <option>Accounts</option>
-            <option>MIS</option>
-            <option>FPD</option>
-            <option>HR</option>
-            <option>Corporate Sales</option>
-            <option>Project Sales</option>
-            <option>Retail Sales</option>
-            <option>Marketing</option>
-            <option>Management</option>
-            <option>Sales Management</option>
-            <option>Logistic</option>
-            <option>Purchase</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label>Trip Date <span class="req">*</span></label>
-          <input type="date" id="tripDate" required>
-        </div>
-
-        <div class="form-group">
           <label>Vehicle / Registration</label>
           <input type="text" id="vehicle" placeholder="e.g. Dhaka Metro GA-1234">
+        </div>
+
+        <div class="form-group full">
+          <label>Department <span class="req">*</span></label>
+          <div class="dept-checkbox-list" id="deptList">
+            <label class="dept-cb-item"><input type="checkbox" value="Admin"> Admin</label>
+            <label class="dept-cb-item"><input type="checkbox" value="Accounts"> Accounts</label>
+            <label class="dept-cb-item"><input type="checkbox" value="MIS"> MIS</label>
+            <label class="dept-cb-item"><input type="checkbox" value="FPD"> FPD</label>
+            <label class="dept-cb-item"><input type="checkbox" value="HR"> HR</label>
+            <label class="dept-cb-item"><input type="checkbox" value="Corporate Sales"> Corporate Sales</label>
+            <label class="dept-cb-item"><input type="checkbox" value="Project Sales"> Project Sales</label>
+            <label class="dept-cb-item"><input type="checkbox" value="Retail Sales"> Retail Sales</label>
+            <label class="dept-cb-item"><input type="checkbox" value="Marketing"> Marketing</label>
+            <label class="dept-cb-item"><input type="checkbox" value="Management"> Management</label>
+            <label class="dept-cb-item"><input type="checkbox" value="Sales Management"> Sales Management</label>
+            <label class="dept-cb-item"><input type="checkbox" value="Logistic"> Logistic</label>
+            <label class="dept-cb-item"><input type="checkbox" value="Purchase"> Purchase</label>
+          </div>
+          <div class="dept-hint" id="deptHint">Select one or more departments</div>
+        </div>
+
+        <div class="form-group">
+          <label>Start Date <span class="req">*</span></label>
+          <input type="date" id="dateStart" required>
+        </div>
+
+        <div class="form-group">
+          <label>End Date <span class="req">*</span></label>
+          <input type="date" id="dateEnd" required>
         </div>
 
       </div>
@@ -295,8 +323,64 @@ const WEBHOOK_URL = '/api/submit';
 /* ── File store ── */
 const files = { fuelBill: [], logSheet: null };
 
-/* ── Auto-set today's date ── */
-document.getElementById('tripDate').value = new Date().toISOString().slice(0,10);
+/* ── Driver → Vehicle mapping (update as needed) ── */
+const DRIVER_VEHICLES = {
+  'Akbar Hossain':  '',
+  'Md Hanif':       '',
+  'Md Masud Rana':  '',
+  'Md Sabuz Miah':  '',
+  'Md. Liton':      '',
+  'Mohammad Islam': '',
+  'Shaha Alom':     '',
+  'Shahidul Islam': '',
+  'Sumon Khan':     '',
+};
+
+/* ── Auto-detect driver from URL param (?driver=Name) ── */
+(function () {
+  const param = new URLSearchParams(location.search).get('driver');
+  if (param) {
+    const sel = document.getElementById('driver');
+    for (let i = 0; i < sel.options.length; i++) {
+      if (sel.options[i].text.trim() === param.trim()) {
+        sel.selectedIndex = i;
+        autoFillVehicle(param.trim());
+        break;
+      }
+    }
+  }
+})();
+
+function autoFillVehicle(driverName) {
+  const v = DRIVER_VEHICLES[driverName];
+  if (v) document.getElementById('vehicle').value = v;
+}
+
+document.getElementById('driver').addEventListener('change', function () {
+  autoFillVehicle(this.value);
+});
+
+/* ── Dept multi-select: track selections & update hint ── */
+function getSelectedDepts() {
+  return Array.from(document.querySelectorAll('#deptList input[type="checkbox"]:checked'))
+              .map(cb => cb.value);
+}
+
+document.querySelectorAll('#deptList input[type="checkbox"]').forEach(cb => {
+  cb.addEventListener('change', () => {
+    const sel = getSelectedDepts();
+    const hint = document.getElementById('deptHint');
+    const list = document.getElementById('deptList');
+    if (sel.length === 0) {
+      hint.textContent = 'Select one or more departments';
+      hint.className = 'dept-hint';
+    } else {
+      hint.textContent = '✔ ' + sel.join(', ');
+      hint.className = 'dept-hint selected';
+      list.classList.remove('error-field');
+    }
+  });
+});
 
 /* ── Image compression (canvas) ── */
 // Images from phone cameras can be 3–8 MB. We compress to ≤800 KB before
@@ -445,108 +529,4 @@ function handleFile(key) {
 
     compressFile(file).then(result => {
       files[key] = result;
-      drop.classList.add('has-file');
-      drop.classList.remove('error-file');
-      showPreviews(drop, [result]);
-      nameEl.textContent = '✅ ' + result.name +
-        (result.origKB !== result.compKB ? ` (${fmtSize(result.origKB)} → ${fmtSize(result.compKB)})` : ` (${fmtSize(result.compKB)})`);
-      nameEl.style.display = 'block';
-    });
-  }
-}
-
-/* ── Drag-and-drop wiring ── */
-['dropFuelBill','dropLogSheet'].forEach(id => {
-  const el = document.getElementById(id);
-  el.addEventListener('dragover',  e => { e.preventDefault(); el.classList.add('dragover'); });
-  el.addEventListener('dragleave', () => el.classList.remove('dragover'));
-  el.addEventListener('drop', e => {
-    e.preventDefault();
-    el.classList.remove('dragover');
-    const key = id === 'dropFuelBill' ? 'fuelBill' : 'logSheet';
-    const inputId = key === 'fuelBill' ? 'fileFuelBill' : 'fileLogSheet';
-    const input = document.getElementById(inputId);
-    const dt = new DataTransfer();
-    // fuelBill supports multiple dropped files; logSheet just takes first
-    const droppedFiles = Array.from(e.dataTransfer.files);
-    const toAdd = (key === 'fuelBill') ? droppedFiles : [droppedFiles[0]];
-    toAdd.forEach(f => dt.items.add(f));
-    input.files = dt.files;
-    handleFile(key);
-  });
-});
-
-/* ── Validation ── */
-function validate() {
-  const required = ['driver','dept','tripDate'];
-  let ok = true;
-  required.forEach(id => {
-    const el = document.getElementById(id);
-    if (!el.value.trim()) { el.classList.add('error'); ok = false; }
-    else el.classList.remove('error');
-  });
-
-  if (!files.fuelBill || files.fuelBill.length === 0) {
-    document.getElementById('dropFuelBill').classList.add('error-file'); ok = false;
-  } else {
-    document.getElementById('dropFuelBill').classList.remove('error-file');
-  }
-  if (!files.logSheet) {
-    document.getElementById('dropLogSheet').classList.add('error-file'); ok = false;
-  } else {
-    document.getElementById('dropLogSheet').classList.remove('error-file');
-  }
-
-  return ok;
-}
-
-/* ── Submit ── */
-async function submitForm() {
-  if (!validate()) {
-    showMsg('error', 'Please fill in all required fields and upload both documents.');
-    return;
-  }
-
-  const now = new Date();
-
-  const payload = {
-    submittedAt:      now.toISOString(),
-    date:             document.getElementById('tripDate').value,
-    driver:           document.getElementById('driver').value,
-    dept:             document.getElementById('dept').value,
-    vehicle:          document.getElementById('vehicle').value,
-    notes:            document.getElementById('notes').value.trim(),
-    status:           'Pending Review',
-    month:            now.toLocaleString('en-US', { month: 'short', year: 'numeric' }),
-    fuelBillFiles:    files.fuelBill,
-    logSheetFileName: files.logSheet.name,
-    logSheetType:     files.logSheet.type,
-    logSheetBase64:   files.logSheet.base64,
-  };
-
-  showMsg('loading');
-  document.getElementById('submitBtn').disabled = true;
-
-  if (!WEBHOOK_URL || WEBHOOK_URL === 'YOUR_WEBHOOK_URL_HERE') {
-    await new Promise(r => setTimeout(r, 1200));
-    showMsg('success');
-    document.getElementById('submitBtn').disabled = false;
-    setTimeout(clearForm, 2500);
-    return;
-  }
-
-  try {
-    const res = await fetch(WEBHOOK_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    if (res.ok) {
-      showMsg('success');
-      setTimeout(clearForm, 3000);
-    } else {
-      showMsg('error', `Server returned ${res.status}. Please contact IT.`);
-    }
-  } catch (err) {
-    showMsg('error', 'Network error. Check your connection and try again.');
- 
+      drop
