@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AKSID Transport Expense — Submission Form</title>
+<title>AKSID Transport Expense â Submission Form</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: #1a1a2e; min-height: 100vh; }
 
-/* ── Header (identical to dashboard) ── */
+/* ââ Header (identical to dashboard) ââ */
 .header {
   background: linear-gradient(135deg, #1a1a2e, #16213e); color: white;
   padding: 0 24px; height: 58px; display: flex; align-items: center;
@@ -26,7 +26,7 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
 .nav-btn:hover { background: rgba(255,255,255,0.2); }
 .nav-btn.active { background: #0078d4; border-color: #0078d4; }
 
-/* ── Page body ── */
+/* ââ Page body ââ */
 .page-body { max-width: 720px; margin: 0 auto; padding: 24px 20px 48px; }
 
 .page-heading {
@@ -37,7 +37,7 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
 .page-heading h2 { font-size: 18px; font-weight: 800; color: #1a1a2e; }
 .page-heading p { font-size: 13px; color: #718096; margin-top: 4px; }
 
-/* ── Form card ── */
+/* ââ Form card ââ */
 .form-card {
   background: white; border-radius: 10px;
   box-shadow: 0 1px 4px rgba(0,0,0,.08); overflow: hidden;
@@ -109,7 +109,7 @@ input.error, select.error { border-color: #e53e3e; }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ── File Upload Area ── */
+/* ââ File Upload Area ââ */
 .file-upload-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .file-drop {
   border: 2px dashed #cbd5e0; border-radius: 8px; padding: 20px 16px;
@@ -139,7 +139,7 @@ input.error, select.error { border-color: #e53e3e; }
 }
 .pdf-thumb { font-size: 32px; display: block; margin-top: 8px; }
 
-/* ── Department multi-select ── */
+/* ââ Department multi-select ââ */
 .dept-checkbox-list {
   border: 1px solid #e2e8f0; border-radius: 6px; background: white;
   display: grid; grid-template-columns: 1fr 1fr; gap: 0;
@@ -162,7 +162,7 @@ input.error, select.error { border-color: #e53e3e; }
 .dept-hint { font-size: 11px; color: #a0aec0; margin-top: 3px; }
 .dept-hint.selected { color: #0078d4; font-weight: 600; }
 
-/* ── Responsive ── */
+/* ââ Responsive ââ */
 @media (max-width: 560px) {
   .form-grid { grid-template-columns: 1fr; }
   .file-upload-grid { grid-template-columns: 1fr; }
@@ -173,33 +173,33 @@ input.error, select.error { border-color: #e53e3e; }
 </head>
 <body>
 
-<!-- ═══════════════ HEADER (same as dashboard) ═══════════════ -->
+<!-- âââââââââââââââ HEADER (same as dashboard) âââââââââââââââ -->
 <header class="header">
-  <div class="header-title">🚗 AKSID Transport Expense</div>
+  <div class="header-title">ð AKSID Transport Expense</div>
   <nav class="header-nav">
-    <a class="nav-btn active" href="/submit.html">📝 Submit</a>
+    <a class="nav-btn active" href="/submit.html">ð Submit</a>
   </nav>
 </header>
 
-<!-- ═══════════════ PAGE BODY ═══════════════ -->
+<!-- âââââââââââââââ PAGE BODY âââââââââââââââ -->
 <div class="page-body">
 
   <div class="page-heading">
-    <h2>📋 Transport Expense Submission Form</h2>
+    <h2>ð Transport Expense Submission Form</h2>
     <p>Fill in the details below for your trip. All fields marked <span style="color:#e53e3e">*</span> are required.</p>
   </div>
 
   <div class="form-card">
 
-    <!-- ── Section 1: Driver Info ── -->
-    <div class="section-header">👤 Driver Information</div>
+    <!-- ââ Section 1: Driver Info ââ -->
+    <div class="section-header">ð¤ Driver Information</div>
     <div class="form-body">
       <div class="form-grid">
 
         <div class="form-group">
           <label>Driver Name <span class="req">*</span></label>
           <select id="driver" required>
-            <option value="">— Select Driver —</option>
+            <option value="">â Select Driver â</option>
             <option>Akbar Hossain</option>
             <option>Md Hanif</option>
             <option>Md Masud Rana</option>
@@ -252,14 +252,14 @@ input.error, select.error { border-color: #e53e3e; }
 
     <hr class="section-divider">
 
-    <!-- ── Section 2: Attachments ── -->
-    <div class="section-header">📎 Attachments</div>
+    <!-- ââ Section 2: Attachments ââ -->
+    <div class="section-header">ð Attachments</div>
     <div class="form-body">
       <div class="ai-notice">
-        🤖 <span><strong>AI Auto-Extract:</strong> Upload your receipts &amp; log sheet — Claude AI will automatically read KM readings, all expense amounts (fuel, food, toll, parking, etc.), and bill period from the documents.</span>
+        ð¤ <span><strong>AI Auto-Extract:</strong> Upload your receipts &amp; log sheet â Claude AI will automatically read KM readings, all expense amounts (fuel, food, toll, parking, etc.), and bill period from the documents.</span>
       </div>
       <p style="font-size:13px; color:#4a5568; margin:12px 0 14px;">
-        Accepted: <strong>PDF, JPG, PNG</strong> — images are auto-compressed before upload. You can select <strong>multiple receipts</strong> in the Expense Receipts slot.
+        Accepted: <strong>PDF, JPG, PNG</strong> â images are auto-compressed before upload. You can select <strong>multiple receipts</strong> in the Expense Receipts slot.
       </p>
       <div class="file-upload-grid">
 
@@ -267,9 +267,9 @@ input.error, select.error { border-color: #e53e3e; }
           <label>Expense Receipts <span class="req">*</span></label>
           <div class="file-drop" id="dropFuelBill">
             <input type="file" id="fileFuelBill" accept=".pdf,.jpg,.jpeg,.png" multiple onchange="handleFile('fuelBill')">
-            <div class="file-drop-icon">📄</div>
+            <div class="file-drop-icon">ð</div>
             <span class="file-drop-label">Click or drag &amp; drop</span>
-            <span class="file-drop-hint">Fuel, food, toll, parking, etc. — multiple OK</span>
+            <span class="file-drop-hint">Fuel, food, toll, parking, etc. â multiple OK</span>
             <div class="file-name-display" id="nameFuelBill"></div>
           </div>
         </div>
@@ -278,7 +278,7 @@ input.error, select.error { border-color: #e53e3e; }
           <label>Driver Log Sheet <span class="req">*</span></label>
           <div class="file-drop" id="dropLogSheet">
             <input type="file" id="fileLogSheet" accept=".pdf,.jpg,.jpeg,.png" onchange="handleFile('logSheet')">
-            <div class="file-drop-icon">📋</div>
+            <div class="file-drop-icon">ð</div>
             <span class="file-drop-label">Click or drag &amp; drop</span>
             <span class="file-drop-hint">Driver log sheet PDF / image</span>
             <div class="file-name-display" id="nameLogSheet"></div>
@@ -290,21 +290,21 @@ input.error, select.error { border-color: #e53e3e; }
 
     <hr class="section-divider">
 
-    <!-- ── Section 6: Notes ── -->
-    <div class="section-header">📝 Additional Notes</div>
+    <!-- ââ Section 6: Notes ââ -->
+    <div class="section-header">ð Additional Notes</div>
     <div class="form-body">
       <div class="form-group">
         <label>Notes / Purpose of Trip</label>
-        <textarea id="notes" rows="3" placeholder="Describe the trip purpose, any special circumstances…" style="resize:vertical; min-height:80px;"></textarea>
+        <textarea id="notes" rows="3" placeholder="Describe the trip purpose, any special circumstancesâ¦" style="resize:vertical; min-height:80px;"></textarea>
       </div>
     </div>
 
-    <!-- ── Status messages ── -->
-    <div class="msg loading" id="msgLoading"><div class="spinner"></div> <span id="loadingText">Uploading documents &amp; running AI analysis… this may take 15–30 seconds.</span></div>
-    <div class="msg success" id="msgSuccess">✅ Submitted! AI has extracted your expense data and it has been recorded in the dashboard.</div>
-    <div class="msg error"   id="msgError">❌ <span id="errText">Submission failed. Please try again.</span></div>
+    <!-- ââ Status messages ââ -->
+    <div class="msg loading" id="msgLoading"><div class="spinner"></div> <span id="loadingText">Uploading documents &amp; running AI analysisâ¦ this may take 15â30 seconds.</span></div>
+    <div class="msg success" id="msgSuccess">â Submitted! AI has extracted your expense data and it has been recorded in the dashboard.</div>
+    <div class="msg error"   id="msgError">â <span id="errText">Submission failed. Please try again.</span></div>
 
-    <!-- ── Submit ── -->
+    <!-- ââ Submit ââ -->
     <div class="submit-section">
       <button class="btn-submit" id="submitBtn" onclick="submitForm()">Submit Expense</button>
       <button class="btn-clear" onclick="clearForm()">Clear Form</button>
@@ -317,13 +317,13 @@ input.error, select.error { border-color: #e53e3e; }
 </div><!-- /page-body -->
 
 <script>
-/* ── CONFIG ── */
+/* ââ CONFIG ââ */
 const WEBHOOK_URL = '/api/submit';
 
-/* ── File store ── */
+/* ââ File store ââ */
 const files = { fuelBill: [], logSheet: null };
 
-/* ── Driver → Vehicle mapping (update as needed) ── */
+/* ââ Driver â Vehicle mapping (update as needed) ââ */
 const DRIVER_VEHICLES = {
   'Akbar Hossain':  '',
   'Md Hanif':       '',
@@ -336,7 +336,7 @@ const DRIVER_VEHICLES = {
   'Sumon Khan':     '',
 };
 
-/* ── Auto-detect driver from URL param (?driver=Name) ── */
+/* ââ Auto-detect driver from URL param (?driver=Name) ââ */
 (function () {
   const param = new URLSearchParams(location.search).get('driver');
   if (param) {
@@ -360,7 +360,7 @@ document.getElementById('driver').addEventListener('change', function () {
   autoFillVehicle(this.value);
 });
 
-/* ── Dept multi-select: track selections & update hint ── */
+/* ââ Dept multi-select: track selections & update hint ââ */
 function getSelectedDepts() {
   return Array.from(document.querySelectorAll('#deptList input[type="checkbox"]:checked'))
               .map(cb => cb.value);
@@ -375,22 +375,22 @@ document.querySelectorAll('#deptList input[type="checkbox"]').forEach(cb => {
       hint.textContent = 'Select one or more departments';
       hint.className = 'dept-hint';
     } else {
-      hint.textContent = '✔ ' + sel.join(', ');
+      hint.textContent = 'â ' + sel.join(', ');
       hint.className = 'dept-hint selected';
       list.classList.remove('error-field');
     }
   });
 });
 
-/* ── Image compression (canvas) ── */
-// Images from phone cameras can be 3–8 MB. We compress to ≤800 KB before
+/* ââ Image compression (canvas) ââ */
+// Images from phone cameras can be 3â8 MB. We compress to â¤800 KB before
 // base64-encoding so the full payload stays well under Vercel's 4.5 MB limit.
 // PDFs are passed through unchanged.
 function compressFile(file) {
   return new Promise(resolve => {
     const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
     if (isPdf) {
-      // PDF — read raw and return as-is
+      // PDF â read raw and return as-is
       const reader = new FileReader();
       reader.onload = ev => resolve({
         name: file.name, type: file.type,
@@ -402,13 +402,13 @@ function compressFile(file) {
       return;
     }
 
-    // Image — draw on canvas and export as JPEG at reduced quality/size
+    // Image â draw on canvas and export as JPEG at reduced quality/size
     const reader = new FileReader();
     reader.onload = ev => {
       const img = new Image();
       img.onload = () => {
         const MAX_PX  = 1600;        // max width or height
-        const QUALITY = 0.78;        // JPEG quality (0–1)
+        const QUALITY = 0.78;        // JPEG quality (0â1)
         let w = img.width, h = img.height;
         if (w > MAX_PX || h > MAX_PX) {
           if (w >= h) { h = Math.round(h * MAX_PX / w); w = MAX_PX; }
@@ -437,7 +437,7 @@ function fmtSize(kb) {
   return kb >= 1024 ? (kb/1024).toFixed(1) + ' MB' : kb + ' KB';
 }
 
-/* ── OneDrive original upload (fire-and-forget) ── */
+/* ââ OneDrive original upload (fire-and-forget) ââ */
 async function uploadOriginalToOneDrive(file, key) {
   try {
     const folder = new Date().toISOString().slice(0,10) + '_' +
@@ -447,7 +447,7 @@ async function uploadOriginalToOneDrive(file, key) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ filename: file.name, folder, size: file.size })
     });
-    if (!res.ok) return; // Not configured — skip silently
+    if (!res.ok) return; // Not configured â skip silently
     const { uploadUrl } = await res.json();
     if (!uploadUrl) return;
     await fetch(uploadUrl, {
@@ -464,7 +464,7 @@ async function uploadOriginalToOneDrive(file, key) {
   }
 }
 
-/* ── Show thumbnail previews in a drop zone ── */
+/* ââ Show thumbnail previews in a drop zone ââ */
 function showPreviews(drop, results) {
   drop.querySelectorAll('.preview-thumb,.pdf-thumb').forEach(el => el.remove());
   results.forEach(r => {
@@ -476,13 +476,13 @@ function showPreviews(drop, results) {
     } else {
       const icon = document.createElement('span');
       icon.className = 'pdf-thumb';
-      icon.textContent = '📄';
+      icon.textContent = 'ð';
       drop.appendChild(icon);
     }
   });
 }
 
-/* ── File handling ── */
+/* ââ File handling ââ */
 function handleFile(key) {
   const inputId  = key === 'fuelBill' ? 'fileFuelBill' : 'fileLogSheet';
   const dropId   = key === 'fuelBill' ? 'dropFuelBill' : 'dropLogSheet';
@@ -498,7 +498,7 @@ function handleFile(key) {
     // Upload originals to OneDrive in background (no size limit)
     selected.forEach(f => uploadOriginalToOneDrive(f, key));
 
-    nameEl.textContent = '⏳ Compressing images…';
+    nameEl.textContent = 'â³ Compressing imagesâ¦';
     nameEl.style.display = 'block';
 
     Promise.all(selected.map(compressFile)).then(results => {
@@ -508,11 +508,11 @@ function handleFile(key) {
       showPreviews(drop, results);
       if (results.length === 1) {
         const r = results[0];
-        nameEl.textContent = '✅ ' + r.name +
-          (r.origKB !== r.compKB ? ` (${fmtSize(r.origKB)} → ${fmtSize(r.compKB)})` : ` (${fmtSize(r.compKB)})`);
+        nameEl.textContent = 'â ' + r.name +
+          (r.origKB !== r.compKB ? ` (${fmtSize(r.origKB)} â ${fmtSize(r.compKB)})` : ` (${fmtSize(r.compKB)})`);
       } else {
-        nameEl.innerHTML = '✅ ' + results.length + ' files:<br>' +
-          results.map(r => `&nbsp;&nbsp;• ${r.name} (${fmtSize(r.origKB)} → ${fmtSize(r.compKB)})`).join('<br>');
+        nameEl.innerHTML = 'â ' + results.length + ' files:<br>' +
+          results.map(r => `&nbsp;&nbsp;â¢ ${r.name} (${fmtSize(r.origKB)} â ${fmtSize(r.compKB)})`).join('<br>');
       }
       nameEl.style.display = 'block';
     });
@@ -524,9 +524,166 @@ function handleFile(key) {
     // Upload original to OneDrive in background
     uploadOriginalToOneDrive(file, key);
 
-    nameEl.textContent = '⏳ Compressing…';
+    nameEl.textContent = 'â³ Compressingâ¦';
     nameEl.style.display = 'block';
 
     compressFile(file).then(result => {
       files[key] = result;
-      drop
+      drop.classList.add('has-file');
+      drop.classList.remove('error-file');
+      showPreviews(drop, [result]);
+      const r = result;
+      nameEl.textContent = '\u2705 ' + r.name +
+        (r.origKB !== r.compKB ? ` (${fmtSize(r.origKB)} \u2192 ${fmtSize(r.compKB)})` : ` (${fmtSize(r.compKB)})`);
+      nameEl.style.display = 'block';
+    });
+  }
+}
+
+/* ââ drag-and-drop wiring âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
+['fuelBill', 'logSheet'].forEach(key => {
+  const dropId  = key === 'fuelBill' ? 'dropFuelBill' : 'dropLogSheet';
+  const inputId = key === 'fuelBill' ? 'fileFuelBill' : 'fileLogSheet';
+  const drop    = document.getElementById(dropId);
+  const input   = document.getElementById(inputId);
+
+  ['dragenter', 'dragover'].forEach(ev =>
+    drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('drag-over'); })
+  );
+  ['dragleave', 'drop'].forEach(ev =>
+    drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('drag-over'); })
+  );
+  drop.addEventListener('drop', e => {
+    const dt = e.dataTransfer;
+    if (!dt.files.length) return;
+    try {
+      const container = new DataTransfer();
+      for (const f of dt.files) container.items.add(f);
+      input.files = container.files;
+    } catch (_) {}
+    handleFile(key);
+  });
+  drop.addEventListener('click', () => input.click());
+});
+
+/* ââ validate ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
+function validate() {
+  const driver = document.getElementById('driver').value.trim();
+  if (!driver) { showError('Please select a driver.'); return false; }
+
+  const dateStart = document.getElementById('dateStart').value;
+  const dateEnd   = document.getElementById('dateEnd').value;
+  if (!dateStart || !dateEnd) { showError('Please fill in both Start Date and End Date.'); return false; }
+  if (dateEnd < dateStart)    { showError('End Date must be on or after Start Date.'); return false; }
+
+  if (getSelectedDepts().length === 0) {
+    document.getElementById('deptList').classList.add('error-field');
+    showError('Please select at least one department.');
+    return false;
+  }
+  document.getElementById('deptList').classList.remove('error-field');
+
+  if (!files.fuelBill) { showError('Please attach the Fuel Bill.'); return false; }
+  if (!files.logSheet) { showError('Please attach the Driver Log Sheet.'); return false; }
+
+  return true;
+}
+
+/* ââ submit âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
+async function submitForm() {
+  if (!validate()) return;
+
+  const driver    = document.getElementById('driver').value.trim();
+  const dateStart = document.getElementById('dateStart').value;
+  const dateEnd   = document.getElementById('dateEnd').value;
+  const notes     = document.getElementById('notes').value.trim();
+  const depts     = getSelectedDepts();
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+
+  hideMessages();
+  document.getElementById('msgLoading').style.display = 'flex';
+
+  try {
+    const fuelFiles = Array.isArray(files.fuelBill) ? files.fuelBill : [files.fuelBill];
+    const logFile   = files.logSheet;
+
+    const payload = {
+      driver,
+      dateStart,
+      dateEnd,
+      date : dateStart,
+      dept : depts.join(', '),
+      notes,
+      fuelBill : fuelFiles.map(f => ({ name: f.name, data: f.b64, type: f.type })),
+      logSheet : { name: logFile.name, data: logFile.b64, type: logFile.type }
+    };
+
+    const res = await fetch('/api/submit', {
+      method : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body   : JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const msg = await res.text().catch(() => res.statusText);
+      throw new Error(msg);
+    }
+
+    hideMessages();
+    document.getElementById('msgSuccess').style.display = 'block';
+    clearForm();
+  } catch (err) {
+    hideMessages();
+    document.getElementById('errText').textContent = err.message || 'Submission failed. Please try again.';
+    document.getElementById('msgError').style.display = 'block';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+/* ââ message helpers âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
+function hideMessages() {
+  ['msgLoading', 'msgSuccess', 'msgError'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
+}
+function showError(text) {
+  document.getElementById('errText').textContent = text;
+  document.getElementById('msgError').style.display = 'block';
+  document.getElementById('msgError').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+/* ââ clear ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
+function clearForm() {
+  document.getElementById('driver').value    = '';
+  document.getElementById('vehicle').value   = '';
+  document.getElementById('dateStart').value = '';
+  document.getElementById('dateEnd').value   = '';
+  document.getElementById('notes').value     = '';
+
+  // Uncheck all dept checkboxes
+  document.querySelectorAll('#deptList input[type="checkbox"]').forEach(cb => cb.checked = false);
+  document.getElementById('deptHint').textContent = 'Select one or more departments';
+  document.getElementById('deptHint').className   = 'dept-hint';
+
+  // Clear file inputs and previews
+  ['fuelBill', 'logSheet'].forEach(key => {
+    files[key] = null;
+    const inputId = key === 'fuelBill' ? 'fileFuelBill' : 'fileLogSheet';
+    const dropId = key === 'fuelBill' ? 'dropFuelBill' : 'dropLogSheet';
+    const nameId  = key === 'fuelBill' ? 'nameFuelBill' : 'nameLogSheet';
+    try { document.getElementById(inputId).value = ''; } catch (_) {}
+    const drop = document.getElementById(dropId);
+    drop.classList.remove('has-file', 'error-file');
+    drop.querySelectorAll('img, .pdf-thumb').forEach(el => el.remove());
+    const nameEl = document.getElementById(nameId);
+    if (nameEl) { nameEl.textContent = ''; nameEl.style.display = 'none'; }
+  });
+
+  hideMessages();
+}
+</script>
+</body>
+ </html>
