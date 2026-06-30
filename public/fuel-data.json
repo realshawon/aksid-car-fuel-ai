@@ -79,8 +79,42 @@
         "Log Sheet ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ trips"
       ],
       "needsManualReview": true
+    },
+    {
+      "date": "30 Jun 2026",
+      "_dateStr": "2026-06-30",
+      "_dateNum": 1782777600000,
+      "submittedAt": "2026-06-30T05:12:50.132Z",
+      "driver": "",
+      "dept": "",
+      "vehicle": "",
+      "kmStart": 0,
+      "kmEnd": 0,
+      "km": 0,
+      "fuel": 0,
+      "toll": 0,
+      "food": 0,
+      "maintenance": 0,
+      "parking": 0,
+      "hotel": 0,
+      "fine": 0,
+      "others": 0,
+      "total": 0,
+      "month": "",
+      "billFrom": "",
+      "billTo": "",
+      "status": "Pending Review",
+      "remarks": "",
+      "fuelBillUrl": "",
+      "fuelBillUrls": [],
+      "logSheetUrl": "",
+      "aiAnalyzed": false,
+      "fuelBillType": null,
+      "aiConfidence": null,
+      "undetectedFields": null,
+      "needsManualReview": false
     }
   ],
-  "updated": "2026-06-30T05:11:21.081Z",
+  "updated": "2026-06-30T05:12:50.246Z",
   "count": 3
 }
