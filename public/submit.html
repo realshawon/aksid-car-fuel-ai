@@ -594,6 +594,7 @@ async function submitForm() {
   if (!validate()) return;
 
   const driver    = document.getElementById('driver').value.trim();
+  const vehicle   = (document.getElementById('vehicle')?.value || '').trim();
   const dateStart = document.getElementById('dateStart').value;
   const dateEnd   = document.getElementById('dateEnd').value;
   const notes     = document.getElementById('notes').value.trim();
@@ -611,13 +612,17 @@ async function submitForm() {
 
     const payload = {
       driver,
+      vehicle,
       dateStart,
       dateEnd,
-      date : dateStart,
-      dept : depts.join(', '),
+      date        : dateStart,
+      dept        : depts.join(', '),
       notes,
-      fuelBill : fuelFiles.map(f => ({ name: f.name, data: f.b64, type: f.type })),
-      logSheet : { name: logFile.name, data: logFile.b64, type: logFile.type }
+      submittedAt : new Date().toISOString(),
+      fuelBillFiles    : fuelFiles.map(f => ({ name: f.name, type: f.type, base64: f.base64 })),
+      logSheetBase64   : logFile.base64,
+      logSheetType     : logFile.type,
+      logSheetFileName : logFile.name,
     };
 
     const res = await fetch('/api/submit', {
