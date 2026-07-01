@@ -619,10 +619,12 @@ async function submitForm() {
       dept        : depts.join(', '),
       notes,
       submittedAt : new Date().toISOString(),
-      fuelBillFiles    : fuelFiles.map(f => ({ name: f.name, type: f.type, base64: f.base64 })),
+      fuelBillFiles    : fuelFiles.map(f => ({ name: f.name, type: f.type, base64: f.base64, origKB: f.origKB, compKB: f.compKB })),
       logSheetBase64   : logFile.base64,
       logSheetType     : logFile.type,
       logSheetFileName : logFile.name,
+      logSheetOrigKB   : logFile.origKB,
+      logSheetCompKB   : logFile.compKB,
     };
 
     const res = await fetch('/api/submit', {
