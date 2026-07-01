@@ -471,6 +471,10 @@ export async function POST(request: NextRequest) {
       fuelBillUrl,
       fuelBillUrls,
       logSheetUrl,
+      // Attachment file size metadata
+      fuelBillCount:      fuelBillFiles.length,
+      fuelBillTotalKB:    fuelBillFiles.reduce((s, f) => s + (+(f as Record<string,number>).compKB || 0), 0) || null,
+      logSheetKB:         (payload.logSheetCompKB as number) || null,
       // AI analysis metadata
       aiAnalyzed:         !!(fuelAnalysis || logAnalysis),
       fuelBillType:       fuelAnalysis?.bill_type ?? null,
