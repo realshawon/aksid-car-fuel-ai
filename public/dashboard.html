@@ -535,11 +535,38 @@ function renderTable() {
         ${r.status === "Pending Review" && r.submittedAt ? `<div class="action-btns"><button class="btn-approve" onclick="dashApprove('${r.submittedAt}','approve',this)">✅ Approve</button><button class="btn-reject" onclick="dashApprove('${r.submittedAt}','reject',this)">❌ Reject</button></div>` : ""}
       </td>
       <td class="muted">${period}</td>
-      <td>${[r.fuelBillUrl ? `<a href="${r.fuelBillUrl}" target="_blank" style="font-size:11px;color:#0078d4;text-decoration:none;" title="Fuel Bill">Bill</a>` : "", r.logSheetUrl ? `<a href="${r.logSheetUrl}" target="_blank" style="font-size:11px;color:#0078d4;text-decoration:none;margin-left:6px;" title="Log Sheet">Log</a>` : ""].filter(Boolean).join("") || "<span class='muted'>-</span>"}</td>
+      <td>${buildAttachCell(r)}</td>
     </tr>`;
   }).join("");
 }
 
+// ─── Attachment cell builder ─────────────────
+function fmtKB(kb) {
+  if (!kb) return "";
+  return kb >= 1024 ? (kb/1024).toFixed(1)+"MB" : kb+"KB";
+}
+function buildAttachCell(r) {
+  const parts = [];
+  const urls = Array.isArray(r.fuelBillUrls) && r.fuelBillUrls.length ? r.fuelBillUrls : (r.fuelBillUrl ? [r.fuelBillUrl] : []);
+  if (urls.length) {
+    const sizeStr = r.fuelBillTotalKB ? " <span style='color:#a0aec0'>("+fmtKB(r.fuelBillTotalKB)+")</span>" : "";
+    if (urls.length === 1) {
+      parts.push("<a href=\""+urls[0]+"\" target=\"_blank\" style=\"font-size:11px;color:#0078d4;text-decoration:none;\">Bill"+sizeStr+"</a>");
+    } else {
+      const links = urls.map(function(u,i){ return "<a href=\""+u+"\" target=\"_blank\" style=\"font-size:11px;color:#0078d4;text-decoration:none;\">Bill"+(i+1)+"</a>"; }).join(" ");
+      parts.push(links + (r.fuelBillTotalKB ? sizeStr : ""));
+    }
+  }
+  if (r.logSheetUrl) {
+    const sizeStr = r.logSheetKB ? " <span style='color:#a0aec0'>("+fmtKB(r.logSheetKB)+")</span>" : "";
+    parts.push("<a href=\""+r.logSheetUrl+"\" target=\"_blank\" style=\"font-size:11px;color:#38a169;text-decoration:none;\">Log"+sizeStr+"</a>");
+  }
+  if (!parts.length) return "<span class='muted'>-</span>";
+  const aiBadge = r.aiAnalyzed
+    ? "<br><span style='font-size:10px;color:"+(r.needsManualReview?"#c05621":"#2b6cb0")+"'>[AI:"+(r.aiConfidence||"?")+""+(r.needsManualReview?" !":"")+"]</span>"
+    : "";
+  return parts.join(" &nbsp;") + aiBadge;
+}
 // ─── Utilities ────────────────────────────────────
 function str(v) { return v!==undefined&&v!==null ? String(v).trim() : ""; }
 function num(v) { return typeof v==="number" ? v : parseFloat(v)||0; }
