@@ -387,7 +387,7 @@ export async function POST(request: NextRequest) {
         }
         fuelAnalyses.push(analysis);
       } else {
-        undetectedFields.push(`${label} is a PDF â auto-analysis not available, please review manually`);
+        undetectedFields.push(`${label} is a document file (PDF/DOC) â auto-analysis not available, please review manually`);
         fuelAnalyses.push(null);
       }
     }
@@ -409,7 +409,7 @@ export async function POST(request: NextRequest) {
         );
       }
     } else if (payload.logSheetBase64) {
-      undetectedFields.push('Driver Log Sheet is a PDF â auto-analysis not available, please review manually');
+      undetectedFields.push('Driver Log Sheet is a document file (PDF/DOC) is a document file (PDF/DOC) â auto-analysis not available, please review manually');
     }
 
     // Auto-fill missing values from AI analysis
