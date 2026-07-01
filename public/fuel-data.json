@@ -1,1 +1,48 @@
-{"rows":[],"updated":"2026-07-01T00:00:00.000Z","count":0}
+{
+  "rows": [
+    {
+      "date": "01 Jul 2026",
+      "_dateStr": "2026-07-01",
+      "_dateNum": 1782864000000,
+      "submittedAt": "2026-07-01T11:19:44.458Z",
+      "driver": "Test Driver",
+      "dept": "Admin",
+      "vehicle": "TEST-001",
+      "kmStart": 0,
+      "kmEnd": 0,
+      "km": 0,
+      "fuel": 0,
+      "toll": 0,
+      "food": 0,
+      "maintenance": 0,
+      "parking": 0,
+      "hotel": 0,
+      "fine": 0,
+      "others": 0,
+      "total": 0,
+      "month": "",
+      "billFrom": "",
+      "billTo": "",
+      "status": "Pending Review",
+      "remarks": "API test",
+      "fuelBillUrl": "",
+      "fuelBillUrls": [],
+      "logSheetUrl": "",
+      "fuelBillCount": 1,
+      "fuelBillTotalKB": 50,
+      "logSheetKB": 40,
+      "aiAnalyzed": false,
+      "fuelBillType": null,
+      "aiConfidence": null,
+      "undetectedFields": [
+        "Fuel Bill â could not analyze image (AI unavailable or read error)",
+        "Log Sheet â could not analyze image (AI unavailable or read error)",
+        "Fuel Bill attachment â upload to GitHub failed",
+        "Driver Log Sheet attachment â upload to GitHub failed"
+      ],
+      "needsManualReview": true
+    }
+  ],
+  "updated": "2026-07-01T11:19:51.204Z",
+  "count": 1
+}
