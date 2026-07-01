@@ -259,14 +259,14 @@ input.error, select.error { border-color: #e53e3e; }
          <span><strong>AI Auto-Extract:</strong> Upload your receipts &amp; log sheet  Claude AI will automatically read KM readings, all expense amounts (fuel, food, toll, parking, etc.), and bill period from the documents.</span>
       </div>
       <p style="font-size:13px; color:#4a5568; margin:12px 0 14px;">
-        Accepted: <strong>PDF, JPG, PNG</strong>  images are auto-compressed before upload. You can select <strong>multiple receipts</strong> in the Expense Receipts slot.
+        Accepted: <strong>PDF, JPG, PNG, DOC, DOCX</strong>  images are auto-compressed before upload. You can select <strong>multiple receipts</strong> in the Expense Receipts slot.
       </p>
       <div class="file-upload-grid">
 
         <div class="form-group">
           <label>Expense Receipts <span class="req">*</span></label>
           <div class="file-drop" id="dropFuelBill">
-            <input type="file" id="fileFuelBill" accept=".pdf,.jpg,.jpeg,.png" multiple onchange="handleFile('fuelBill')">
+            <input type="file" id="fileFuelBill" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" multiple onchange="handleFile('fuelBill')">
             <div class="file-drop-icon">PDF</div>
             <span class="file-drop-label">Click or drag &amp; drop</span>
             <span class="file-drop-hint">Fuel, food, toll, parking, etc.  multiple OK</span>
@@ -277,10 +277,10 @@ input.error, select.error { border-color: #e53e3e; }
         <div class="form-group">
           <label>Driver Log Sheet <span class="req">*</span></label>
           <div class="file-drop" id="dropLogSheet">
-            <input type="file" id="fileLogSheet" accept=".pdf,.jpg,.jpeg,.png" onchange="handleFile('logSheet')">
+            <input type="file" id="fileLogSheet" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="handleFile('logSheet')">
             <div class="file-drop-icon">LOG</div>
             <span class="file-drop-label">Click or drag &amp; drop</span>
-            <span class="file-drop-hint">Driver log sheet PDF / image</span>
+            <span class="file-drop-hint">Driver log sheet - PDF, image, or Word doc</span>
             <div class="file-name-display" id="nameLogSheet"></div>
           </div>
         </div>
@@ -388,12 +388,16 @@ document.querySelectorAll('#deptList input[type="checkbox"]').forEach(cb => {
 // PDFs are passed through unchanged.
 function compressFile(file) {
   return new Promise(resolve => {
-    const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
-    if (isPdf) {
-      // PDF  read raw and return as-is
+    const _n = file.name.toLowerCase();
+    const isDoc = _n.endsWith('.doc') || _n.endsWith('.docx') ||
+                  file.type === 'application/msword' ||
+                  file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+    const isPdf = file.type === 'application/pdf' || _n.endsWith('.pdf');
+    if (isPdf || isDoc) {
+      // PDF / Word doc - read raw, no canvas compression
       const reader = new FileReader();
       reader.onload = ev => resolve({
-        name: file.name, type: file.type,
+        name: file.name, type: file.type || (isDoc ? 'application/octet-stream' : 'application/pdf'),
         base64: ev.target.result.split(',')[1],
         origKB: Math.round(file.size / 1024),
         compKB: Math.round(file.size / 1024)
@@ -476,7 +480,8 @@ function showPreviews(drop, results) {
     } else {
       const icon = document.createElement('span');
       icon.className = 'pdf-thumb';
-      icon.textContent = '';
+      const _nn = (r.name||'').toLowerCase();
+      const _nn=(r.name||'').toLowerCase(); icon.textContent=(_nn.endsWith('.doc')||_nn.endsWith('.docx'))?'[DOC]':'[PDF]';
       drop.appendChild(icon);
     }
   });
