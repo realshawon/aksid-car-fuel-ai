@@ -665,6 +665,12 @@ function showError(text) {
   document.getElementById('errText').textContent = text;
   document.getElementById('msgError').style.display = 'block';
   document.getElementById('msgError').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  // Mobile toast — always visible regardless of scroll position
+  const toast = document.getElementById('mobileToast');
+  toast.textContent = text;
+  toast.style.display = 'block';
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => { toast.style.display = 'none'; }, 4000);
 }
 
 /*  clear  */
@@ -697,5 +703,6 @@ function clearForm() {
   hideMessages();
 }
 </script>
+<div id="mobileToast"></div>
 </body>
   </html>
