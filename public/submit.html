@@ -393,7 +393,7 @@ document.querySelectorAll('#deptList input[type="checkbox"]').forEach(cb => {
 });
 
 /* -- Image compression (canvas) -- */
-// Images from phone cameras can be 3-8 MB. We compress to <=800 KB before
+// Images from phone cameras can be 3-8 ML. We compress to <=800 KB before
 // base64-encoding so the full payload stays well under Vercel's 4.5 MB limit.
 // PDFs are passed through unchanged.
 function compressFile(file) {
@@ -655,9 +655,9 @@ async function submitForm() {
       throw new Error(msg);
     }
 
-    hideMessages();
-    document.getElementById('msgSuccess').style.display = 'block';
     clearForm();
+    document.getElementById('msgSuccess').style.display = 'block';
+    document.getElementById('msgSuccess').scrollIntoView({ behavior: 'smooth', block: 'center' });
   } catch (err) {
     hideMessages();
     document.getElementById('errText').textContent = err.message || 'Submission failed. Please try again.';
@@ -692,8 +692,8 @@ function clearForm() {
   document.getElementById('dateStart').value = '';
   document.getElementById('dateEnd').value = '';
   document.getElementById('notes').value = '';
-  document.querySelectorAll('.dept-check').forEach(cb => { cb.checked = false; });
-  document.querySelectorAll('.dept-item').forEach(el => el.classList.remove('selected'));
+  document.querySelectorAll('#deptList input[type="checkbox"]').forEach(cb => { cb.checked = false; });
+  document.querySelectorAll('.dept-cb-item').forEach(el => el.classList.remove('selected'));
   files = { fuelBill: null, logSheet: null };
   ['dropFuelBill','dropLogSheet'].forEach(id => {
     const drop = document.getElementById(id);
@@ -706,11 +706,4 @@ function clearForm() {
   });
   ['fileFuelBill','fileLogSheet'].forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.value = '';
-  });
-  hideMessages();
-}
-</script>
-<div id="mobileToast"></div>
-</body>
-</html>
+    
