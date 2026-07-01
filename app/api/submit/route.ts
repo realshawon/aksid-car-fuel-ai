@@ -177,9 +177,24 @@ async function updateFuelData(
   if (!getRes.ok) return { ok: false, error: `GitHub GET failed: ${getRes.status}` };
 
   const fileData = await getRes.json();
-  const fuelData = JSON.parse(Buffer.from(fileData.content, 'base64').toString('utf8')) as {
-    rows: unknown[]; updated: string; count: number;
-  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let fuelData: { rows: unknown[]; updated: string; count: number } = { rows: [], updated: '', count: 0 };
+  try {
+    const parsed = JSON.parse(Buffer.from(fileData.content, 'base64').toString('utf8'));
+    // Handle both {rows:[]} format and bare [] or {} (e.g. after "clear data" commits)
+    if (Array.isArray(parsed)) {
+      fuelData = { rows: parsed, updated: '', count: parsed.length };
+    } else if (parsed && typeof parsed === 'object') {
+      fuelData = {
+        rows:    Array.isArray(parsed.rows) ? parsed.rows : [],
+        updated: parsed.updated ?? '',
+        count:   typeof parsed.count === 'number' ? parsed.count : 0,
+      };
+    }
+  } catch {
+    // file was empty or malformed — start fresh
+    fuelData = { rows: [], updated: '', count: 0 };
+  }
 
   fuelData.rows.push(row);
   fuelData.count   = fuelData.rows.length;
