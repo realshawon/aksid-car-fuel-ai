@@ -89,8 +89,21 @@ export default function SubmitPage() {
         clearTimeout(timer);
       }
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Submission failed');
+      // Read as text first so a non-JSON error page (e.g. a 500 or timeout)
+      // shows a clear message instead of iOS Safari's cryptic
+      // "The string did not match the expected pattern."
+      const rawText = await res.text();
+      let data: any = {};
+      try {
+        data = rawText ? JSON.parse(rawText) : {};
+      } catch {
+        throw new Error(
+          `Server error (${res.status}). The submission service returned an unexpected response — ` +
+          `this usually means the server keys (GitHub / AI) are not configured yet. ` +
+          `Details: ${rawText.slice(0, 120)}`
+        );
+      }
+      if (!res.ok) throw new Error(data.error || `Submission failed (${res.status})`);
 
       setResult(data);
       setStatus('done');
