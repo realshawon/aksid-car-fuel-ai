@@ -23,7 +23,7 @@
       "month": "",
       "billFrom": "",
       "billTo": "",
-      "status": "Pending Review",
+      "status": "Rejected",
       "remarks": "API test",
       "fuelBillUrl": "",
       "fuelBillUrls": [],
@@ -40,9 +40,10 @@
         "Fuel Bill attachment â upload to GitHub failed",
         "Driver Log Sheet attachment â upload to GitHub failed"
       ],
-      "needsManualReview": true
+      "needsManualReview": true,
+      "actionedAt": "2026-07-02T04:44:19.220Z"
     }
   ],
-  "updated": "2026-07-01T11:19:51.204Z",
+  "updated": "2026-07-02T04:44:19.220Z",
   "count": 1
 }
