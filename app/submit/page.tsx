@@ -19,45 +19,43 @@ const VEHICLES = [
   'Other',
 ];
 
-function today(): string {
+function today() {
   return new Date().toISOString().split('T')[0];
 }
 
 export default function SubmitPage() {
-  const [driverName, setDriverName] = useState<string>('');
-  const [vehicleNo, setVehicleNo] = useState<string>('');
-  const [date, setDate] = useState<string>(today());
-  const [periodFrom, setPeriodFrom] = useState<string>('');
-  const [periodTo, setPeriodTo] = useState<string>('');
+  const [driverName, setDriverName] = useState('');
+  const [vehicleNo, setVehicleNo] = useState('');
+  const [date, setDate] = useState(today());
+  const [periodFrom, setPeriodFrom] = useState('');
+  const [periodTo, setPeriodTo] = useState('');
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const [status, setStatus] = useState<'idle'|'uploading'|'processing'|'done'|'error'>('idle');
   const [result, setResult] = useState<any>(null);
-  const [errorMsg, setErrorMsg] = useState<string>('');
+  const [errorMsg, setErrorMsg] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const handleFiles = (newFiles: FileList | null): void => {
+  const handleFiles = (newFiles: FileList | null) => {
     if (!newFiles) return;
-    const arr: File[] = Array.from(newFiles).slice(0, 50) as File[];
-    setFiles((prev: File[]) => [...prev, ...arr].slice(0, 50));
-    arr.forEach((f: File) => {
+    const arr = Array.from(newFiles).slice(0, 50);
+    setFiles(prev => [...prev, ...arr].slice(0, 50));
+    arr.forEach(f => {
       const reader = new FileReader();
-      reader.onload = (e: ProgressEvent<FileReader>) => {
-        setPreviews((p: string[]) => [...p, e.target?.result as string]);
-      };
+      reader.onload = e => setPreviews(p => [...p, e.target?.result as string]);
       reader.readAsDataURL(f);
     });
   };
 
-  const removeFile = (i: number): void => {
-    setFiles((f: File[]) => f.filter((_: File, idx: number) => idx !== i));
-    setPreviews((p: string[]) => p.filter((_: string, idx: number) => idx !== i));
+  const removeFile = (i: number) => {
+    setFiles(f => f.filter((_, idx) => idx !== i));
+    setPreviews(p => p.filter((_, idx) => idx !== i));
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!driverName) { alert('Please select your name'); return; }
-    if (files.length === 0) { alert('Please add at least one photo'); return; }
+    if (!driverName) return alert('Please select your name');
+    if (files.length === 0) return alert('Please add at least one photo');
 
     setStatus('uploading');
     setErrorMsg('');
@@ -69,17 +67,35 @@ export default function SubmitPage() {
       formData.append('date', date);
       formData.append('bill_period_from', periodFrom || date);
       formData.append('bill_period_to', periodTo || date);
-      files.forEach((f: File, i: number) => formData.append('image_' + i, f));
+      files.forEach((f, i) => formData.append(`image_${i}`, f));
 
       setStatus('processing');
-      const res = await fetch('/api/submit', { method: 'POST', body: formData });
+      // Abort after 60s so the app never hangs silently on a stuck request.
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 60000);
+      let res: Response;
+      try {
+        res = await fetch('/api/submit', {
+          method: 'POST',
+          body: formData,
+          signal: controller.signal,
+        });
+      } catch (e: any) {
+        if (e.name === 'AbortError') {
+          throw new Error('Server took too long. Check your connection and try again with fewer/smaller photos.');
+        }
+        throw e;
+      } finally {
+        clearTimeout(timer);
+      }
+
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Submission failed');
 
       setResult(data);
       setStatus('done');
-    } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : String(err));
+    } catch (err: any) {
+      setErrorMsg(err.message);
       setStatus('error');
     }
   };
@@ -91,20 +107,22 @@ export default function SubmitPage() {
           <div style={{ textAlign: 'center', marginBottom: 24 }}>
             <div style={{ fontSize: 56 }}>✅</div>
             <h2 style={{ color: '#16a34a', margin: '8px 0' }}>Submitted!</h2>
-            <p style={{ color: '#6b7280' }}>Your fuel bill has been recorded</p>
+            <p style={{ color: '#6b7280' }}>Your transport expense has been recorded</p>
           </div>
+
           <div style={styles.summaryBox}>
             <Row label="Driver" value={result.entry?.driver_name} />
             <Row label="Department" value={result.entry?.department} />
             <Row label="Date" value={result.entry?.date} />
             <Row label="Vehicle" value={result.entry?.vehicle_no} />
-            <Row label="Total KM" value={result.entry?.total_km ? result.entry.total_km + ' km' : '—'} />
-            <Row label="Fuel" value={result.entry?.fuel_cost ? '৳' + result.entry.fuel_cost : '—'} />
-            <Row label="Toll" value={result.entry?.toll ? '৳' + result.entry.toll : '—'} />
-            <Row label="Food" value={result.entry?.food_bill ? '৳' + result.entry.food_bill : '—'} />
-            <Row label="Others" value={result.entry?.others ? '৳' + result.entry.others : '—'} />
-            <Row label="Photos" value={result.total_images + ' submitted'} />
+            <Row label="Total KM" value={result.entry?.total_km ? `${result.entry.total_km} km` : '—'} />
+            <Row label="Fuel" value={result.entry?.fuel_cost ? `৳${result.entry.fuel_cost}` : '—'} />
+            <Row label="Toll" value={result.entry?.toll ? `৳${result.entry.toll}` : '—'} />
+            <Row label="Food" value={result.entry?.food_bill ? `৳${result.entry.food_bill}` : '—'} />
+            <Row label="Others" value={result.entry?.others ? `৳${result.entry.others}` : '—'} />
+            <Row label="Photos" value={`${result.total_images} submitted`} />
           </div>
+
           {result.undetected_fields?.length > 0 && (
             <div style={styles.warnBox}>
               <strong>⚠️ Could not read:</strong>
@@ -113,9 +131,11 @@ export default function SubmitPage() {
               </ul>
             </div>
           )}
+
           <p style={{ textAlign: 'center', color: '#6b7280', fontSize: 13 }}>
             Admin has been notified by email ✉️
           </p>
+
           <button style={styles.btn} onClick={() => {
             setStatus('idle'); setFiles([]); setPreviews([]); setResult(null);
             setDriverName(''); setVehicleNo(''); setDate(today());
@@ -130,40 +150,55 @@ export default function SubmitPage() {
   return (
     <div style={styles.page}>
       <div style={styles.card}>
+        {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
           <div style={{ fontSize: 40 }}>⛽</div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, margin: '8px 0 4px' }}>AKSID Fuel Bill</h1>
-          <p style={{ color: '#6b7280', fontSize: 13, margin: 0 }}>Submit your bills &amp; receipts</p>
+          <h1 style={{ fontSize: 20, fontWeight: 700, margin: '8px 0 4px' }}>
+            AKSID Transport Expense
+          </h1>
+          <p style={{ color: '#6b7280', fontSize: 13, margin: 0 }}>
+            Submit your bills & receipts
+          </p>
         </div>
+
         <form onSubmit={handleSubmit}>
+          {/* Driver Name */}
           <Label>Your Name *</Label>
-          <select value={driverName} onChange={(e) => setDriverName(e.target.value)} style={styles.input} required>
+          <select value={driverName} onChange={e => setDriverName(e.target.value)} style={styles.input} required>
             <option value="">Select your name</option>
-            {DRIVERS.map((d) => <option key={d} value={d}>{d}</option>)}
+            {DRIVERS.map(d => <option key={d} value={d}>{d}</option>)}
           </select>
+
+          {/* Vehicle */}
           <Label>Vehicle Number</Label>
-          <select value={vehicleNo} onChange={(e) => setVehicleNo(e.target.value)} style={styles.input}>
+          <select value={vehicleNo} onChange={e => setVehicleNo(e.target.value)} style={styles.input}>
             <option value="">Select vehicle</option>
-            {VEHICLES.map((v) => <option key={v} value={v}>{v}</option>)}
+            {VEHICLES.map(v => <option key={v} value={v}>{v}</option>)}
           </select>
+
+          {/* Date */}
           <Label>Date *</Label>
-          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} style={styles.input} required />
+          <input type="date" value={date} onChange={e => setDate(e.target.value)} style={styles.input} required />
+
+          {/* Bill Period */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             <div>
               <Label>Period From</Label>
-              <input type="date" value={periodFrom} onChange={(e) => setPeriodFrom(e.target.value)} style={styles.input} />
+              <input type="date" value={periodFrom} onChange={e => setPeriodFrom(e.target.value)} style={styles.input} />
             </div>
             <div>
               <Label>Period To</Label>
-              <input type="date" value={periodTo} onChange={(e) => setPeriodTo(e.target.value)} style={styles.input} />
+              <input type="date" value={periodTo} onChange={e => setPeriodTo(e.target.value)} style={styles.input} />
             </div>
           </div>
+
+          {/* Photo Upload */}
           <Label>Photos ({files.length}/50) *</Label>
           <div
             style={styles.uploadZone}
             onClick={() => fileRef.current?.click()}
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={(e) => { e.preventDefault(); handleFiles(e.dataTransfer.files); }}
+            onDragOver={e => { e.preventDefault(); }}
+            onDrop={e => { e.preventDefault(); handleFiles(e.dataTransfer.files); }}
           >
             <div style={{ fontSize: 36 }}>📷</div>
             <p style={{ margin: '8px 0 4px', fontWeight: 600 }}>Tap to add photos</p>
@@ -174,29 +209,41 @@ export default function SubmitPage() {
           <input
             ref={fileRef}
             type="file"
-            accept="image/*"
+            accept="image/*,application/pdf"
             multiple
-            capture="environment"
             style={{ display: 'none' }}
-            onChange={(e) => handleFiles(e.target.files)}
+            onChange={e => handleFiles(e.target.files)}
           />
+
+          {/* Previews */}
           {previews.length > 0 && (
             <div style={styles.previewGrid}>
-              {previews.map((src: string, i: number) => (
+              {previews.map((src, i) => (
                 <div key={i} style={{ position: 'relative' }}>
-                  <img src={src} alt={'photo ' + (i + 1)} style={styles.previewImg} />
-                  <button type="button" onClick={() => removeFile(i)} style={styles.removeBtn}>×</button>
+                  <img src={src} alt={`photo ${i+1}`} style={styles.previewImg} />
+                  <button
+                    type="button"
+                    onClick={() => removeFile(i)}
+                    style={styles.removeBtn}
+                  >×</button>
                 </div>
               ))}
             </div>
           )}
-          {status === 'error' && <div style={styles.errorBox}>{errorMsg}</div>}
+
+          {/* Submit */}
+          {status === 'error' && (
+            <div style={styles.errorBox}>{errorMsg}</div>
+          )}
+
           <button
             type="submit"
             style={{ ...styles.btn, opacity: (status === 'processing' || status === 'uploading') ? 0.7 : 1 }}
             disabled={status === 'processing' || status === 'uploading'}
           >
-            {status === 'uploading' ? '📤 Uploading...' : status === 'processing' ? '🤖 AI Processing...' : '✅ Submit Bill'}
+            {status === 'uploading' ? '📤 Uploading...' :
+             status === 'processing' ? '🤖 AI Processing...' :
+             '✅ Submit Bill'}
           </button>
         </form>
       </div>
@@ -208,7 +255,7 @@ function Label({ children }: { children: React.ReactNode }) {
   return <p style={{ margin: '14px 0 5px', fontSize: 13, fontWeight: 600, color: '#374151' }}>{children}</p>;
 }
 
-function Row({ label, value }: { label: string; value: string | number | null | undefined }) {
+function Row({ label, value }: { label: string; value: any }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #f3f4f6' }}>
       <span style={{ color: '#6b7280', fontSize: 13 }}>{label}</span>
@@ -243,7 +290,9 @@ const styles: Record<string, React.CSSProperties> = {
     background: '#fafafa',
     boxSizing: 'border-box',
     outline: 'none',
-  },
+    appearance: 'none',
+    WebkitAppearance: 'none',
+  } as React.CSSProperties,
   uploadZone: {
     border: '2px dashed #60a5fa',
     borderRadius: 12,
